@@ -1,0 +1,38 @@
+{
+  "name": "qualremedio-webservice",
+  "version": "1.0.0",
+  "description": "Projeto Integrador do Ultimo periodo do curso de Tecnologia em Sistemas para Internet no Centro Universitario Senac",
+  "main": "config/server.ts",
+  "scripts": {
+    "serve": "nodemon config/server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.8.7",
+    "prisma": "^5.4.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.4.2",
+    "@types/bcrypt": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.4",
+    "@types/nodemon": "^1.19.4",
+    "@types/passport-jwt": "^3.0.11",
+    "bcrypt": "^5.1.1",
+    "cron": "^3.1.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "i18next": "^23.6.0",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.6",
+    "nodemon": "^3.0.1",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.1",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "zod": "^3.22.4"
+  }
+}
