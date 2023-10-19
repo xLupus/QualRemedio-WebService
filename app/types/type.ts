@@ -1,5 +1,6 @@
 import { Response } from "express";
 
+//Function types
 export type Data = string | number | null | object;
 
 export interface JsonMessages {
