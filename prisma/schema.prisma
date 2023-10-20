@@ -9,3 +9,310 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+//TODO - Rever os Varchar()
+model Consultation_Status {
+  id           Int            @id @default(autoincrement())
+  status       String         @db.VarChar(30)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  consultation Consultation[]
+}
+
+model Bond_Status {
+  id        Int      @id @default(autoincrement())
+  status    String   @db.VarChar(30)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  bond      Bond[]
+}
+
+model Medical_Department {
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(50)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctor       Doctor[]
+  consultation Consultation[]
+}
+
+model Token_Blacklist {
+  id        String   @id @default(uuid()) //! 
+  token     String   @db.VarChar(500)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Permission {
+  id              Int               @id @default(autoincrement())
+  name            String            @db.VarChar(100)
+  description     String            @db.VarChar(255)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  role_permission Role_Permission[]
+  bond_permission Bond_Permission[]
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.VarChar(100)
+  description String   @db.VarChar(255)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  patient             Patient[]
+  doctor              Doctor[]
+  carer               Carer[]
+  role_permission     Role_Permission[]
+  no_register_patient No_Register_Patient[]
+  no_register_doctor  No_Register_Doctor[]
+  no_register_carer   No_Register_Carer[]
+  employeer           Employeer[]
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  cpf       String   @db.Char(11)
+  telephone String   @db.Char(11)
+  birth_day DateTime @db.Date
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  password Password?
+  picture  Picture?
+
+  patient   Patient[]
+  doctor    Doctor[]
+  carer     Carer[]
+  employeer Employeer[]
+
+  notification Notification[]
+  remider      Remider[]
+  consultation Consultation[]
+
+  no_register_patient No_Register_Patient[] @relation("unregistered_patient")
+  no_register_doctor  No_Register_Doctor[]  @relation("unregistered_doctor")
+  no_register_carer   No_Register_Carer[]   @relation("unregistered_carer")
+
+  no_register_patient_created_by No_Register_Patient[] @relation("unregister_patient_created_by")
+  no_register_doctor_created_by  No_Register_Doctor[]  @relation("unregister_doctor_created_by")
+  no_register_carer_created_by   No_Register_Carer[]   @relation("Unregister_carer_created_by")
+
+  bond_started_by Bond[] @relation("bond_started_by")
+  bond_invited_to Bond[] @relation("bond_invited_to")
+}
+
+model Password {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Picture {
+  id     Int    @id @default(autoincrement())
+  userId Int    @unique
+  url    String @default("https://yourteachingmentor.com/wp-content/uploads/2020/12/istockphoto-1223671392-612x612-1-300x300.jpg") @db.VarChar(255)
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Patient {
+  id     Int @id @default(autoincrement())
+  userId Int @unique
+  roleId Int @unique
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Doctor {
+  id           Int     @id @default(autoincrement())
+  userId       Int     @unique
+  roleId       Int     @unique
+  departmentId Int     @unique
+  crm_state    String  @db.Char(2)
+  crm          String  @db.Char(6)
+  verified     Boolean @default(false)
+
+  user       User               @relation(fields: [userId], references: [id])
+  role       Role               @relation(fields: [roleId], references: [id])
+  department Medical_Department @relation(fields: [departmentId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Carer {
+  id     Int @id @default(autoincrement())
+  userId Int @unique
+  roleId Int @unique
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Employeer {
+  id     Int @id @default(autoincrement())
+  userId Int @unique
+  roleId Int @unique
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Role_Permission {
+  id           Int @id @default(autoincrement())
+  roleId       Int //TODO - REVER
+  permissionId Int
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id      Int     @id @default(autoincrement())
+  userId  Int
+  title   String
+  message String  @db.VarChar(255)
+  read    Boolean @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Remider {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  label     String
+  date_time DateTime @db.DateTime()
+
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Bond {
+  id        Int @id @default(autoincrement())
+  from_user Int
+  to_user   Int
+  statusId  Int
+
+  from   User        @relation("bond_started_by", fields: [from_user], references: [id])
+  to     User        @relation("bond_invited_to", fields: [to_user], references: [id])
+  status Bond_Status @relation(fields: [statusId], references: [id])
+
+  bond_permission Bond_Permission[]
+  consultation    Consultation[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Bond_Permission {
+  id           Int @id @default(autoincrement())
+  permissionId Int
+  bondId       Int
+
+  permission Permission @relation(fields: [permissionId], references: [id])
+  bond       Bond       @relation(fields: [bondId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Consultation {
+  id                   Int      @id @default(autoincrement())
+  bondId               Int
+  deparmentId          Int
+  consultation_status  Int
+  created_by_user      Int
+  date_of_consultation DateTime @db.Date
+  reason               String   @db.VarChar(255)
+  observation          String   @db.VarChar(2000)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  bond       Bond                @relation(fields: [bondId], references: [id])
+  department Medical_Department  @relation(fields: [deparmentId], references: [id])
+  status     Consultation_Status @relation(fields: [consultation_status], references: [id])
+  created_by User                @relation(fields: [created_by_user], references: [id])
+
+  prescription Prescription[]
+}
+
+model Prescription {
+  id             Int      @id @default(autoincrement())
+  consultationId Int
+  label          String
+  observation    String   @db.VarChar(2000)
+  digital        String?
+  physical       String?  @db.VarChar(2000)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  consultation Consultation @relation(fields: [consultationId], references: [id])
+}
+
+model No_Register_Patient {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @unique
+  roleId          Int
+  created_by_user Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user       User @relation("unregistered_patient", fields: [userId], references: [id])
+  created_by User @relation("unregister_patient_created_by", fields: [created_by_user], references: [id])
+  role       Role @relation(fields: [roleId], references: [id])
+}
+
+model No_Register_Doctor {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @unique
+  roleId          Int
+  created_by_user Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user       User @relation("unregistered_doctor", fields: [userId], references: [id])
+  created_by User @relation("unregister_doctor_created_by", fields: [created_by_user], references: [id])
+  role       Role @relation(fields: [roleId], references: [id])
+}
+
+model No_Register_Carer {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @unique
+  roleId          Int
+  created_by_user Int
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user       User @relation("unregistered_carer", fields: [userId], references: [id])
+  created_by User @relation("Unregister_carer_created_by", fields: [created_by_user], references: [id])
+  role       Role @relation(fields: [roleId], references: [id])
+}
