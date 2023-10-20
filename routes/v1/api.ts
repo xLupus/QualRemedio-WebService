@@ -1,11 +1,11 @@
-import { Router } from "express"
-import { passportJWT } from "../../app/http/middlewares/passport";
+import { Router } from "express";
+//import { passportJWT } from "../../app/http/middleware/passport";
+import ExampleController from "../../app/http/controllers/v1/ExampleController";
 
-const router = Router();
-const api_context = "api/v1";
+const router: Router = Router();
+const apiContext: string = "api/v1";
 
-router.all("*", passportJWT);
+//router.all("*", passportJWT);
+router.get(`/${apiContext}/test`, ExampleController.index);
 
-
-export { router as router_api_v1 }
-export { api_context };
+export { router as routerApi_V1, apiContext }
