@@ -6,8 +6,10 @@ class ExampleRequest {
     }
 
     messages() {
-        const errorMessages = {}
-        
+        const errorMessages = {
+
+        }
+
         return errorMessages;
     }
 }
