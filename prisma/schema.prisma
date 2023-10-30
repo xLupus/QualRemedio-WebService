@@ -75,11 +75,11 @@ model User {
   telephone String   @db.Char(11)
   birth_day DateTime @db.Date
   password  String
-  picture   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  role Role @relation(fields: [role_id], references: [id])
+  role    Role     @relation(fields: [role_id], references: [id])
+  profile Profile?
 
   doctor    Doctor[]
   carer     Carer[]
@@ -91,6 +91,14 @@ model User {
 
   bond_started_by Bond[] @relation("bond_started_by")
   bond_invited_to Bond[] @relation("bond_invited_to")
+}
+
+model Profile {
+  id          Int     @id @default(autoincrement())
+  bio         String? @db.VarChar(300)
+  picture_url String? @db.VarChar(300)
+  user        User?   @relation(fields: [user_id], references: [id])
+  user_id     Int?    @unique
 }
 
 model Doctor {
