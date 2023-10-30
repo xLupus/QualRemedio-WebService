@@ -1,11 +1,13 @@
 import { Router } from "express";
 //import { passportJWT } from "../../app/http/middleware/passport";
-import ExampleController from "../../app/http/controllers/v1/ExampleController";
+import AuthController from "../../app/http/controllers/v1/AuthController";
 
 const router: Router = Router();
 const apiContext: string = "api/v1";
 
+//Auth
+router.post(`/${apiContext}/auth/register`, AuthController.register);
+
 //router.all("*", passportJWT);
-router.get(`/${apiContext}/test`, ExampleController.index);
 
 export { router as routerApi_V1, apiContext }

@@ -10,3 +10,13 @@ export interface JsonMessages {
   _links?     : object[],
   res         : Response
 }
+
+export interface RegisterType {
+  name: string,
+  email: string,
+  password: string,
+  cpf: string,
+  telephone: string,
+  birth_day: Date,
+  account_type: string
+}
