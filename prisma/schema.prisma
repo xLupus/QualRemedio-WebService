@@ -63,7 +63,7 @@ model Role {
   updatedAt   DateTime @updatedAt
 
   role_permission Role_Permission[]
-  User            User[]
+  user            User[]
 }
 
 model User {
@@ -140,12 +140,12 @@ model Employeer {
 }
 
 model Role_Permission {
-  id           Int @id @default(autoincrement())
-  role_id      Int //TODO - REVER
-  permissionId Int
+  id            Int @id @default(autoincrement())
+  role_id       Int //TODO - REVER
+  permission_id Int
 
   role       Role       @relation(fields: [role_id], references: [id])
-  permission Permission @relation(fields: [permissionId], references: [id])
+  permission Permission @relation(fields: [permission_id], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -180,11 +180,11 @@ model Bond {
   id        Int @id @default(autoincrement())
   from_user Int
   to_user   Int
-  statusId  Int
+  status_id Int
 
   from   User        @relation("bond_started_by", fields: [from_user], references: [id])
   to     User        @relation("bond_invited_to", fields: [to_user], references: [id])
-  status Bond_Status @relation(fields: [statusId], references: [id])
+  status Bond_Status @relation(fields: [status_id], references: [id])
 
   bond_permission Bond_Permission[]
   consultation    Consultation[]
@@ -194,11 +194,11 @@ model Bond {
 }
 
 model Bond_Permission {
-  id           Int @id @default(autoincrement())
-  permissionId Int
-  bondId       Int
+  id            Int @id @default(autoincrement())
+  permission_id Int
+  bondId        Int
 
-  permission Permission @relation(fields: [permissionId], references: [id])
+  permission Permission @relation(fields: [permission_id], references: [id])
   bond       Bond       @relation(fields: [bondId], references: [id])
 
   createdAt DateTime @default(now())
@@ -208,7 +208,7 @@ model Bond_Permission {
 model Consultation {
   id                   Int      @id @default(autoincrement())
   bondId               Int
-  deparmentId          Int
+  deparment_id         Int
   consultation_status  Int
   created_by_user      Int
   date_of_consultation DateTime @db.Date
@@ -218,7 +218,7 @@ model Consultation {
   updatedAt            DateTime @updatedAt
 
   bond       Bond                @relation(fields: [bondId], references: [id])
-  specialty  Medical_Specialty   @relation(fields: [deparmentId], references: [id])
+  specialty  Medical_Specialty   @relation(fields: [deparment_id], references: [id])
   status     Consultation_Status @relation(fields: [consultation_status], references: [id])
   created_by User                @relation(fields: [created_by_user], references: [id])
 
@@ -226,14 +226,14 @@ model Consultation {
 }
 
 model Prescription {
-  id             Int      @id @default(autoincrement())
-  consultationId Int
-  label          String
-  observation    String   @db.VarChar(2000)
-  digital        String?
-  physical       String?  @db.VarChar(2000)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              Int      @id @default(autoincrement())
+  consultation_id Int
+  label           String
+  observation     String   @db.VarChar(2000)
+  digital         String?
+  physical        String?  @db.VarChar(2000)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  consultation Consultation @relation(fields: [consultationId], references: [id])
+  consultation Consultation @relation(fields: [consultation_id], references: [id])
 }

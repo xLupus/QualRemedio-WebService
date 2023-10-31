@@ -1,0 +1,233 @@
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export async function role_permission(): Promise<void> {
+    //paciente
+    for (let i: number = 13; i <= 16; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 1,
+                permission_id: i
+            }
+        });
+    }
+
+    for (let i: number = 21; i <= 24; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 1,
+                permission_id: i
+            }
+        });
+    }
+
+    for (let i: number = 26; i <= 30; i += 4) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 1,
+                permission_id: i
+            }
+        });
+    }
+    
+    for (let i: number = 33; i <= 56; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 1,
+                permission_id: i
+            }
+        });
+    }
+    
+    for (let i: number = 61; i <= 76; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 1,
+                permission_id: i
+            }
+        });
+    }
+
+    for (let i: number = 81; i <= 88; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 1,
+                permission_id: i
+            }
+        });
+    }
+
+    await prisma.role_Permission.create({
+        data: {
+            role_id: 1,
+            permission_id: 90
+        }
+    });
+
+    //Doutor
+    for (let i: number = 13; i <= 16; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 2,
+                permission_id: i
+            }
+        });
+    }
+
+    await prisma.role_Permission.create({
+        data: {
+            role_id: 2,
+            permission_id: 22
+        }
+    });
+
+    for (let i: number = 33; i <= 88; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 2,
+                permission_id: i
+            }
+        });
+    }
+
+    await prisma.role_Permission.create({
+        data: {
+            role_id: 2,
+            permission_id: 90
+        }
+    });
+
+    //Cuidador
+    for (let i: number = 13; i <= 16; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 3,
+                permission_id: i
+            }
+        });
+    }
+
+    for (let i: number = 22; i <= 38; i += 4) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 3,
+                permission_id: i
+            }
+        });
+    }
+
+    for (let i: number = 41; i <= 44; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 3,
+                permission_id: i
+            }
+        });
+    }
+
+    await prisma.role_Permission.create({
+        data: {
+            role_id: 3,
+            permission_id: 46
+        }
+    });
+    
+    for (let i: number = 61; i <= 76; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 3,
+                permission_id: i
+            }
+        });
+    }
+    
+    for (let i: number = 81; i <= 88; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 3,
+                permission_id: i
+            }
+        });
+    }
+
+    await prisma.role_Permission.create({
+        data: {
+            role_id: 3,
+            permission_id: 90
+        }
+    });
+
+    //Funcionário
+    for (let i: number = 19; i <= 20; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 4,
+                permission_id: i
+            }
+        });
+    }
+
+    for (let i: number = 22; i <= 30; i += 4) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 4,
+                permission_id: i
+            }
+        });
+    }
+    
+    for (let i: number = 81; i <= 88; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 4,
+                permission_id: i
+            }
+        });
+    }
+
+    await prisma.role_Permission.create({
+        data: {
+            role_id: 4,
+            permission_id: 90
+        }
+    });
+
+    //Admin
+    for (let i: number = 1; i <= 20; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 5,
+                permission_id: i
+            }
+        });
+    }
+
+    for (let i: number = 22; i <= 30; i += 4) {
+
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 5,
+                permission_id: i
+            }
+        });
+    }
+
+    for (let i: number = 57; i <= 76; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 5,
+                permission_id: i
+            }
+        });
+    }
+
+    for (let i: number = 81; i <= 92; i++) {
+        await prisma.role_Permission.create({
+            data: {
+                role_id: 5,
+                permission_id: i
+            }
+        });
+    }
+}
