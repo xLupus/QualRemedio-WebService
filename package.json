@@ -8,6 +8,9 @@
   },
   "author": "",
   "license": "ISC",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "devDependencies": {
     "@prisma/client": "^5.5.2",
     "@types/bcrypt": "^5.0.1",
