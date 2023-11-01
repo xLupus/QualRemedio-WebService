@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import "dotenv/config";
+
 const prisma = new PrismaClient();
 
 export async function users(): Promise<void> {
@@ -11,7 +12,7 @@ export async function users(): Promise<void> {
         data: [
             {
                 name: "Mr.Raf",
-                email: "mrraf@gmail.com",
+                email: "mrraf@admin.com",
                 password: passwordHash,
                 cpf: "12345678901",
                 birth_day: date,
@@ -20,12 +21,21 @@ export async function users(): Promise<void> {
             },
             {
                 name: "Lupus",
-                email: "lupus@gmail.com",
+                email: "lupus@admin.com",
                 password: passwordHash,
                 cpf: "12345678903",
                 birth_day: date,
                 telephone: "12345678902",
                 role_id: 5
+            },
+            {
+                name: "Test",
+                email: "test@test.com",
+                password: passwordHash,
+                cpf: "12345678904",
+                birth_day: date,
+                telephone: "12345678905",
+                role_id: 1
             }
         ]
     });
