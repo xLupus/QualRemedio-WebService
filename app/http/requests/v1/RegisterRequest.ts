@@ -18,7 +18,7 @@ class RegisterRequest {
                 z.string({ invalid_type_error: invalidTypeErrorMessage })
                 .min(1, { message: emptyErrorMessage })
                 .max(40, { message: maxErrorMessage.name })
-                .regex(/[a-zA-Z]/, { message: regexpErrorMessage.name }),
+                .regex(/[a-zA-Z0-9]/, { message: regexpErrorMessage.name }),
 
             email:
                 z.string({ invalid_type_error: invalidTypeErrorMessage })
@@ -52,17 +52,18 @@ class RegisterRequest {
 
             crm_state:
                 z.string({ invalid_type_error: invalidTypeErrorMessage })
-                .min(1, { message: emptyErrorMessage })
-                .length(2, { message: lengthErrorMessage }),
+                .optional()
+                .default(''),
 
             crm:
                 z.string({ invalid_type_error: invalidTypeErrorMessage })
-                .min(1, { message: emptyErrorMessage })
-                .length(6, { message: lengthErrorMessage }),
+                .optional()
+                .default(''),
 
             specialty_name:
                 z.string({ invalid_type_error: invalidTypeErrorMessage })
-                .min(1, { message: emptyErrorMessage }),
+                .optional()
+                .default(''),
 
             account_type:
                 z.string({ invalid_type_error: invalidTypeErrorMessage })

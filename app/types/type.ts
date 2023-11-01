@@ -18,9 +18,9 @@ export interface RegisterType {
   cpf: string;
   telephone: string;
   birth_day: string | Date;
-  crm_state: string;
-  crm: string;
-  specialty_name: string;
+  crm_state?: string | undefined;
+  crm?: string | undefined;
+  specialty_name?: string | undefined;
   account_type: string;
 }
 
