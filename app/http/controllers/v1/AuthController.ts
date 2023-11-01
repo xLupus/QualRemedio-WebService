@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
 import { RegisterType } from '../../../types/type';
 
@@ -12,26 +12,72 @@ const prisma = new PrismaClient();
 class AuthController {
     async register(req: Request, res: Response) {
         try {
-            const { name, email, password, cpf, telephone, birth_day, account_type }: RegisterType = RegisterRequest.rules(req.body);
+            const { name, email, password, cpf, telephone, birth_day, crm_state, crm, specialty_name, account_type }: RegisterType = RegisterRequest.rules(req.body);
             const passwordHash = await bcrypt.hash(password, 15);
 
-            const user = await prisma.user.create({
-                data: {
+            let user: any;
+
+            if(account_type === 'patient' || account_type === 'carer') {
+                user = {
                     name,
                     email,
-                    password,
+                    password: passwordHash,
                     cpf,
                     telephone,
                     birth_day,
-                    
+                    role_id: 1
                 }
+            } else {
+                user = {
+                    name,
+                    email,
+                    password: passwordHash,
+                    cpf,
+                    telephone,
+                    birth_day,
+                    role_id: 2,
+                    doctor: {
+                        create: {
+                            crm_state,
+                            crm,
+                            specialty_name
+                        }
+                    }
+                }
+            }
+
+            const createUser = await prisma.user.create({ 
+                data: {
+                    name,
+                    email,
+                    password: passwordHash,
+                    cpf,
+                    telephone,
+                    birth_day,
+                    role_id: 1,
+                    carer: {
+                        connectOrCreate: {
+                            create: {
+                                specialty: {
+                                    create: {
+                                        name: 'sfsdf'
+                                    }
+                                }
+                            },
+                            where: {
+                                specialty: {
+                                    name: 'wqrasrfa'
+                                }
+                            }
+                        }
+                    }
+                } 
             });
 
             return JsonMessages({
                 statusCode: 201,
                 message: 'User has been created',
-                data: user,
-                _links: [],
+                data: createUser,
                 res
             });
         } catch (error: unknown) {
