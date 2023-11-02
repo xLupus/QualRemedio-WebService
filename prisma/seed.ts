@@ -4,6 +4,7 @@ import { permissions } from './seeders/seed_permissions';
 import { role_permission } from './seeders/seed_role_permission';
 import { users } from './seeders/seed_users';
 import { specialty } from './seeders/seed_specialty';
+import { status } from './seeders/seed_status';
 
 const prisma = new PrismaClient();
 
@@ -13,6 +14,7 @@ async function main(): Promise<void> {
     await role_permission();
     await users();
     await specialty();
+    await status();
 }
 
 main()
