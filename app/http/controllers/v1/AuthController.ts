@@ -15,7 +15,7 @@ class AuthController {
             const { name, email, password, cpf, telephone, birth_day, doctorParams, carerParams, patientParams, account_type }: RegisterType = RegisterRequest.rules(req.body);
             const passwordHash: string = await bcrypt.hash(password, 15);
 
-            let crm: any, crm_state: any, specialty_name: any, getMedicalSpecialtyId: any, entity: any;
+            let crm: any, crm_state: any, specialty_name: any, getMedicalSpecialtyId: any;
 
             if(account_type === 'doctor') {
                 crm = doctorParams.crm;
@@ -75,8 +75,7 @@ class AuthController {
             };
  
             if(account_type === 'doctor') {
-                entity = {
-                    ...user,
+                user.doctor = {
                     create: {
                         crm_state: doctorParams,
                         crm,
@@ -84,21 +83,18 @@ class AuthController {
                             connect: { id: getMedicalSpecialtyId!.id }
                         }
                     }
-                }  
+                }
             } else if(account_type === 'carer') {
-                entity = {
-                    ...user,
-                    carer: {
-                        create: {
-                            specialty: {
-                                connect: { id: getMedicalSpecialtyId!.id }
-                            }
+                user.carer = {
+                    create: {
+                        specialty: {
+                            connect: { id: getMedicalSpecialtyId!.id }
                         }
-                    }  
+                    }
                 }
             }
 
-            const createUser = await prisma.user.create({ data: entity });
+            const createUser = await prisma.user.create({ data: user });
 
             return JsonMessages({
                 statusCode: 201,
