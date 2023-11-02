@@ -18,10 +18,15 @@ export interface RegisterType {
   cpf: string;
   telephone: string;
   birth_day: string | Date;
+  account_type: string;
+
   crm_state?: string | undefined;
   crm?: string | undefined;
   specialty_name?: string | undefined;
-  account_type: string;
+
+  doctorParams?: any;
+  carerParams?: any;
+  patientParams?: any;
 }
 
 //Error messages

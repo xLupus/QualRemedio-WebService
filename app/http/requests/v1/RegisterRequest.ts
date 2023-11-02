@@ -13,12 +13,40 @@ class RegisterRequest {
             emptyErrorMessage,
         } = this.messages();
 
+        if(account_type === 'carer' || account_type === 'patient') {
+            if((crm !== '' || crm_state !== '') || (crm !== '' && crm_state !== '')) throw new Error('O campo informado não pode ser especificado para esse cargo')
+        }
+
+        let doctorParamsValidator = z.object({
+            crm_state:
+                z.string({ invalid_type_error: invalidTypeErrorMessage })
+                .min(1, { message: emptyErrorMessage })
+                .length(2, { message: lengthErrorMessage }),
+        
+            crm:
+                z.string({ invalid_type_error: invalidTypeErrorMessage })
+                .min(1, { message: emptyErrorMessage })
+                .length(6, { message: lengthErrorMessage }),
+        
+            specialty_name:
+                z.string({ invalid_type_error: invalidTypeErrorMessage })
+                .max(25, { message: maxErrorMessage.name })
+                .regex(/[a-zA-Z]/, { message: regexpErrorMessage.name }),
+        });
+
+        let carerParamsValidator = z.object({
+            specialty_name:
+                z.string({ invalid_type_error: invalidTypeErrorMessage })
+                .max(25, { message: maxErrorMessage.name })
+                .regex(/[a-zA-Z]/, { message: regexpErrorMessage.name }),
+        });
+        
         const validator = z.object({
             name:
                 z.string({ invalid_type_error: invalidTypeErrorMessage })
                 .min(1, { message: emptyErrorMessage })
                 .max(40, { message: maxErrorMessage.name })
-                .regex(/[a-zA-Z0-9]/, { message: regexpErrorMessage.name }),
+                .regex(/[a-zA-Z]/, { message: regexpErrorMessage.name }),
 
             email:
                 z.string({ invalid_type_error: invalidTypeErrorMessage })
@@ -52,25 +80,37 @@ class RegisterRequest {
 
             crm_state:
                 z.string({ invalid_type_error: invalidTypeErrorMessage })
-                .optional()
-                .default(''),
-
+                .refine((val) => val !== '', {message:  'O campo não deve ser informado'}),
+        
             crm:
                 z.string({ invalid_type_error: invalidTypeErrorMessage })
-                .optional()
-                .default(''),
-
-            specialty_name:
-                z.string({ invalid_type_error: invalidTypeErrorMessage })
-                .optional()
-                .default(''),
+                .refine((val) => val !== '', {message:  'O campo não deve ser informado'}),
 
             account_type:
                 z.string({ invalid_type_error: invalidTypeErrorMessage })
-                .min(1, { message: emptyErrorMessage })
-        })
-        
-        return validator.parse({ name, email, password, cpf, telephone, birth_day, crm_state, crm, specialty_name, account_type });
+                .min(1, { message: emptyErrorMessage }),
+
+                ...(account_type === 'doctor' ? { doctorParams: doctorParamsValidator } : {}),
+                ...(account_type === 'carer' ? { carerParams: carerParamsValidator } : {})
+        });
+
+        return validator.parse({ 
+            name, 
+            email,
+            password, 
+            cpf, 
+            telephone, 
+            birth_day, 
+            doctorParams: {
+                crm,
+                crm_state,
+                specialty_name
+            },
+            carerParams: {
+                specialty_name
+            },
+            account_type 
+        });
     }
 
     messages(): RegisterErrorMessages {

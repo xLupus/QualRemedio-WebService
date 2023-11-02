@@ -12,65 +12,82 @@ const prisma = new PrismaClient();
 class AuthController {
     async register(req: Request, res: Response) {
         try {
-            const { name, email, password, cpf, telephone, birth_day, crm_state, crm, specialty_name, account_type }: RegisterType = RegisterRequest.rules(req.body);
+            const { name, email, password, cpf, telephone, birth_day, doctorParams, carerParams, patientParams, account_type }: RegisterType = RegisterRequest.rules(req.body);
             const passwordHash: string = await bcrypt.hash(password, 15);
 
-            let user: Prisma.UserCreateInput;
+            let crm: any, crm_state: any, specialty_name: any, getMedicalSpecialtyId: any, entity: any;
+
+            if(account_type === 'doctor') {
+                crm = doctorParams.crm;
+                crm_state = doctorParams.crm_state;
+                specialty_name = doctorParams.specialty_name;
+            } else if(account_type === 'carer') {
+                specialty_name = carerParams.specialty_name;
+            }
+
+            if(account_type === 'doctor' || account_type === 'carer') {
+                getMedicalSpecialtyId = await prisma.medical_Specialty.findFirst({
+                    where: { name: specialty_name },
+                    select: { id: true }
+                });
+            }
 
             const getUserRoleId = await prisma.role.findFirstOrThrow({
                 where: { name: account_type },
                 select: { id: true }
             });
 
-            const getMedicalSpecialtyId = await prisma.medical_Specialty.findFirst({
-                where: { name: specialty_name },
-                select: { id: true }
-            });
-          
-            if(account_type === 'patient') {
-                user = {
-                    name,
+            const checkUserRole = await prisma.user.findFirst({
+                where: { 
+                    name, 
                     email,
-                    password: passwordHash,
-                    cpf,
-                    telephone,
-                    birth_day,
-                    role: {
-                        connect: { id: getUserRoleId!.id }
+                    cpf, 
+                    telephone, 
+                    birth_day: birth_day.substring(0, 8), 
+                    role_id: getUserRoleId!.id,
+                    doctor: {
+                        some: {
+                            crm,
+                            crm_state,
+                            specialty_id: getMedicalSpecialtyId!.id
+                        }
                     }
                 }
-            } else if(account_type === 'doctor') {
-                user = {
-                    name,
-                    email,
-                    password: passwordHash,
-                    cpf,
-                    telephone,
-                    birth_day,
-                    role: {
-                        connect: { id: getUserRoleId!.id }
-                    },
-                    doctor: {
-                        create: {
-                            crm_state,
-                            crm,
-                            specialty: {
-                                connect: { id: getMedicalSpecialtyId!.id }
-                            }
-                        }
-                    }       
+            });
+
+            if(checkUserRole) {
+                return JsonMessages({
+                    message: `User already exists`,
+                    res
+                });
+            }
+
+            let user: Prisma.UserCreateInput = {
+                name,
+                email,
+                password: passwordHash,
+                cpf,
+                telephone,
+                birth_day,
+                role: {
+                    connect: { id: getUserRoleId!.id }
                 }
-            } else {
-                user = {
-                    name,
-                    email,
-                    password: passwordHash,
-                    cpf,
-                    telephone,
-                    birth_day,
-                    role: {
-                        connect: { id: getUserRoleId!.id }
-                    },
+            };
+ 
+            if(account_type === 'doctor') {
+                entity = {
+                    ...user,
+                    create: {
+                        crm_state: doctorParams,
+                        crm,
+                        specialty: {
+                            connect: { id: getMedicalSpecialtyId!.id }
+                        }
+                    }
+                }  
+            } else if(account_type === 'carer') {
+                entity = {
+                    ...user,
                     carer: {
                         create: {
                             specialty: {
@@ -81,7 +98,7 @@ class AuthController {
                 }
             }
 
-            const createUser = await prisma.user.create({ data: user });
+            const createUser = await prisma.user.create({ data: entity });
 
             return JsonMessages({
                 statusCode: 201,
