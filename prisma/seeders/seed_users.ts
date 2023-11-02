@@ -5,8 +5,8 @@ import "dotenv/config";
 const prisma = new PrismaClient();
 
 export async function users(): Promise<void> {
-    const passwordHash = await bcrypt.hash('12345678', 15);
-    const date = new Date().toISOString();
+    const passwordHash: string = await bcrypt.hash('12345678', 15);
+    const date: string = new Date().toISOString();
 
     await prisma.user.createMany({
         data: [
