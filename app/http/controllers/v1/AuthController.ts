@@ -1,11 +1,14 @@
+
 import { Prisma, PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
 import { RegisterType } from '../../../types/type';
 import { JsonMessages } from '../../../functions/function';
-
 import exceptions from '../../../errors/handler';
 import RegisterRequest from '../../requests/v1/RegisterRequest';
 import bcrypt from 'bcrypt';
+import LoginRequest from "../../requests/v1/LoginRequest";
+import { JsonMessages as IRequestResponse } from "../../../types/type";
+import { object } from "zod";
 
 const prisma = new PrismaClient();
 
@@ -105,6 +108,32 @@ class AuthController {
         } catch (error: unknown) {
             return exceptions(error, res);
         }
+    }
+
+    async login(req: Request, res: Response) {
+      const json_message: IRequestResponse = { message: "", res }
+      const validation = LoginRequest.rules(req.body)
+
+      if (!validation.success) {
+        return res.json({
+          message: 'mudar msg'
+        })
+      }
+
+      const { email, password } = validation.data
+
+      try {
+        const user = await prisma.user.findUnique({ where: { email } })
+
+        if(user){
+          json_message.data = user
+        }
+
+      } catch (err: any) {
+        console.log(err) // TODO - Mudar
+      }
+
+      return JsonMessages(json_message)
     }
 }
 

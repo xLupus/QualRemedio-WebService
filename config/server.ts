@@ -8,6 +8,7 @@ export const port: string | number = process.env.SERVER_PORT || 8000;
 
 app.use(passport.initialize());
 app.use(express.json());
-app.use(routerApi_V1);
+
+app.use('/api/v1', routerApi_V1);
 
 app.listen(port, () => console.log(`Server running on port: ${port}`));
