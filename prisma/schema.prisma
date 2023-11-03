@@ -80,7 +80,6 @@ model User {
   telephone String   @db.Char(11)
   birth_day DateTime @db.Date
   password  String
-  role_id   Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
