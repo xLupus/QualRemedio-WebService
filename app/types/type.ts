@@ -47,3 +47,4 @@ export interface RegisterErrorMessages {
   lengthErrorMessage: string;
   emptyErrorMessage: string;
 
+}
