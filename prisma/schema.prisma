@@ -12,28 +12,29 @@ datasource db {
 
 //TODO - Rever os Varchar()
 model Consultation_Status {
-  id           Int            @id @default(autoincrement())
-  status       String         @db.VarChar(30)
+  id     Int    @id @default(autoincrement())
+  status String @db.VarChar(30)
 
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   consultation Consultation[]
 }
 
 model Bond_Status {
-  id        Int      @id @default(autoincrement())
-  status    String   @db.VarChar(30)
+  id     Int    @id @default(autoincrement())
+  status String @db.VarChar(30)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  bond      Bond[]
+  bond Bond[]
 }
 
 model Medical_Specialty {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(50)
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(50)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -43,30 +44,32 @@ model Medical_Specialty {
 }
 
 model Token_Blacklist {
-  id        String   @id @default(uuid())
-  token     String   @db.VarChar(600)
-  
+  id    String @id @default(uuid())
+  token String @db.VarChar(600)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model Permission {
-  id              Int               @id @default(autoincrement())
-  name            String            @db.VarChar(100)
-  description     String            @db.VarChar(255)
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id          Int    @id @default(autoincrement())
+  name        String @db.VarChar(100)
+  description String @db.VarChar(255)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   role_permission Role_Permission[]
   bond_permission Bond_Permission[]
 }
 
 model Role {
-  id          Int      @id @default(autoincrement())
-  name        String   @db.VarChar(100)
-  description String   @db.VarChar(255)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id          Int    @id @default(autoincrement())
+  name        String @db.VarChar(100)
+  description String @db.VarChar(255)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   role_permission Role_Permission[]
   user            User[]
@@ -80,6 +83,7 @@ model User {
   telephone String   @db.Char(11)
   birth_day DateTime @db.Date
   password  String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -99,20 +103,25 @@ model User {
 }
 
 model Profile {
-  id          Int     @id @default(autoincrement())
-  bio         String? @db.VarChar(300)
-  picture_url String? @db.VarChar(300)
-  user        User?   @relation(fields: [user_id], references: [id])
-  user_id     Int?    @unique
+  id          Int      @id @default(autoincrement())
+  bio         String?  @db.VarChar(300)
+  picture_url String?  @db.VarChar(300)
+
+  user        User?    @relation(fields: [user_id], references: [id])
+  user_id     Int?     @unique
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Doctor {
   id           Int     @id @default(autoincrement())
-  user_id      Int     @unique
-  specialty_id Int     @unique
   crm_state    String  @db.Char(2)
   crm          String  @db.Char(6)
   crm_verified Boolean @default(true)
+
+  user_id      Int     @unique
+  specialty_id Int
 
   user      User              @relation(fields: [user_id], references: [id])
   specialty Medical_Specialty @relation(fields: [specialty_id], references: [id])
@@ -124,7 +133,7 @@ model Doctor {
 model Carer {
   id           Int @id @default(autoincrement())
   user_id      Int @unique
-  specialty_id Int @unique
+  specialty_id Int
 
   user      User              @relation(fields: [user_id], references: [id])
   specialty Medical_Specialty @relation(fields: [specialty_id], references: [id])
@@ -160,8 +169,8 @@ model Notification {
   title   String
   message String  @db.VarChar(255)
   read    Boolean @default(false)
-  user_id Int
 
+  user_id Int
   user User @relation(fields: [user_id], references: [id])
 
   createdAt DateTime @default(now())
@@ -172,8 +181,8 @@ model Remider {
   id        Int      @id @default(autoincrement())
   label     String
   date_time DateTime @db.DateTime()
-  user_id   Int
 
+  user_id   Int
   user User @relation(fields: [user_id], references: [id])
 
   createdAt DateTime @default(now())
@@ -190,11 +199,11 @@ model Bond {
   to     User        @relation("bond_invited_to", fields: [to_user], references: [id])
   status Bond_Status @relation(fields: [status_id], references: [id])
 
-  bond_permission Bond_Permission[]
-  consultation    Consultation[]
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  
+  bond_permission Bond_Permission[]
+  consultation    Consultation[]
 }
 
 model Bond_Permission {
@@ -202,11 +211,11 @@ model Bond_Permission {
   permission_id Int
   bond_id       Int
 
-  permission Permission @relation(fields: [permission_id], references: [id])
-  bond       Bond       @relation(fields: [bond_id], references: [id])
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  permission Permission @relation(fields: [permission_id], references: [id])
+  bond       Bond       @relation(fields: [bond_id], references: [id])
 }
 
 model Consultation {
@@ -219,8 +228,8 @@ model Consultation {
   consultation_status  Int
   created_by_user      Int
 
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   bond       Bond                @relation(fields: [bond_id], references: [id])
   specialty  Medical_Specialty   @relation(fields: [deparment_id], references: [id])
@@ -231,15 +240,15 @@ model Consultation {
 }
 
 model Prescription {
-  id              Int      @id @default(autoincrement())
+  id              Int     @id @default(autoincrement())
   label           String
-  observation     String   @db.VarChar(2000)
+  observation     String  @db.VarChar(2000)
   digital         String?
-  physical        String?  @db.VarChar(2000)
+  physical        String? @db.VarChar(2000)
   consultation_id Int
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   consultation Consultation @relation(fields: [consultation_id], references: [id])
 }
