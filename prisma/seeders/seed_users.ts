@@ -24,6 +24,12 @@ export async function users(): Promise<void> {
                     connect: {
                         id: roleAdmin
                     }
+                },
+                profile: {
+                    create: {
+                        bio: 'Tell us a little bit about yourself',
+                        picture_url: 'https://placehold.co/120x120/png'
+                    }
                 }
             }
         }),
@@ -39,6 +45,12 @@ export async function users(): Promise<void> {
                     connect: {
                         id: roleAdmin
                     }
+                },
+                profile: {
+                    create: {
+                        bio: 'Tell us a little bit about yourself',
+                        picture_url: 'https://placehold.co/120x120/png'
+                    }
                 }
             }
         }),
@@ -53,6 +65,12 @@ export async function users(): Promise<void> {
                 role: {
                     connect: {
                         id: rolePatitent
+                    }
+                },
+                profile: {
+                    create: {
+                        bio: 'Tell us a little bit about yourself',
+                        picture_url: 'https://placehold.co/120x120/png'
                     }
                 }
             }
