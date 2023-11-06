@@ -22,28 +22,32 @@ export interface RegisterType {
 
   crm_state?: string | undefined;
   crm?: string | undefined;
-  specialty_name?: string | undefined;
-
-  doctorParams?: any;
-  carerParams?: any;
-  patientParams?: any;
+  specialty_name?: string;
 }
 
 //Error messages
 
 export interface RegisterErrorMessages {
-  invalidTypeErrorMessage: string;
-  maxErrorMessage: {
+  invalidTypeError: string;
+  maxLengthError: {
     name: string;
     email: string;
     password: string;
+    speacialty_name: string;
   };
-  emailErrorMessage: string;
-  minErrorMessage: string;
-  regexpErrorMessage: {
+  invalidEmailFormatError: string;
+  minLengthError: string;
+  regexpError: {
     name: string;
     email: string;
+    crm: string;
   };
-  lengthErrorMessage: string;
-  emptyErrorMessage: string;
+  lengthError: {
+    telephone: string;
+    cpf: string;
+    crm_state: string;
+    crm: string;
+  };
+  emptyFieldError: string;
+  requiredFieldError: string;
 }

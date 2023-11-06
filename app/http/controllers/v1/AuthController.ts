@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient, User } from '@prisma/client';
 import { Request, Response } from 'express';
 import { RegisterType } from '../../../types/type';
 import { JsonMessages } from '../../../functions/function';
@@ -12,49 +12,37 @@ const prisma = new PrismaClient();
 class AuthController {
     async register(req: Request, res: Response) {
         try {
-            const { name, email, password, cpf, telephone, birth_day, doctorParams, carerParams, patientParams, account_type }: RegisterType = RegisterRequest.rules(req.body);
+            const { name, email, password, cpf, telephone, birth_day, crm, crm_state, specialty_name, account_type }: RegisterType = RegisterRequest.rules(req.body);
             const passwordHash: string = await bcrypt.hash(password, 15);
-
-            let crm: any, crm_state: any, specialty_name: any, getMedicalSpecialtyId: any;
-
-            if(account_type === 'doctor') {
-                crm = doctorParams.crm;
-                crm_state = doctorParams.crm_state;
-                specialty_name = doctorParams.specialty_name;
-            } else if(account_type === 'carer') {
-                specialty_name = carerParams.specialty_name;
-            }
+            let getMedicalSpecialtyId: { id: number } = { id: 0 };
 
             if(account_type === 'doctor' || account_type === 'carer') {
-                getMedicalSpecialtyId = await prisma.medical_Specialty.findFirst({
+                getMedicalSpecialtyId = await prisma.medical_Specialty.findFirstOrThrow({
                     where: { name: specialty_name },
                     select: { id: true }
                 });
             }
-
+     
             const getUserRoleId = await prisma.role.findFirstOrThrow({
                 where: { name: account_type },
                 select: { id: true }
             });
-
-            const checkUserRole = await prisma.user.findFirst({
+            
+            const checkUserRole: User | null = await prisma.user.findUnique({
                 where: { 
                     name, 
                     email,
                     cpf, 
                     telephone, 
-                    birth_day: birth_day.substring(0, 8), 
-                    role_id: getUserRoleId!.id,
-                    doctor: {
+                    birth_day,
+                    role: {
                         some: {
-                            crm,
-                            crm_state,
-                            specialty_id: getMedicalSpecialtyId!.id
+                            id: getUserRoleId!.id
                         }
                     }
                 }
             });
-
+            
             if(checkUserRole) {
                 return JsonMessages({
                     message: `User already exists`,
@@ -71,13 +59,19 @@ class AuthController {
                 birth_day,
                 role: {
                     connect: { id: getUserRoleId!.id }
+                },
+                profile: {
+                    create: {
+                        bio: 'Tell us a little bit about yourself',
+                        picture_url: 'https://placehold.co/120x120/png'
+                    }
                 }
             };
- 
-            if(account_type === 'doctor') {
+
+            if(account_type === 'doctor' && (crm && crm_state)) {
                 user.doctor = {
                     create: {
-                        crm_state: doctorParams,
+                        crm_state,
                         crm,
                         specialty: {
                             connect: { id: getMedicalSpecialtyId!.id }
