@@ -22,7 +22,7 @@ export interface RegisterType {
 
   crm_state?: string | undefined;
   crm?: string | undefined;
-  specialty_name?: string;
+  specialty_name?: string | undefined;
 }
 
 //Error messages

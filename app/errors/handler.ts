@@ -31,6 +31,10 @@ export default function exceptions(error: any, res: Response): Response<any, Rec
             });
 
         case error instanceof PrismaClientKnownRequestError:
+            if(error.code === 'P2002' && error.meta.target === 'User_email_key') {
+                error.meta.target = 'User e-mail already exists';
+            }
+
             return JsonMessages({
                 statusCode: 422,
                 message: 'Prisma request error',
