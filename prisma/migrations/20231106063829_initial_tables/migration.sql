@@ -82,6 +82,8 @@ CREATE TABLE `Profile` (
     `bio` VARCHAR(300) NULL,
     `picture_url` VARCHAR(300) NULL,
     `user_id` INTEGER NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `Profile_user_id_key`(`user_id`),
     PRIMARY KEY (`id`)
@@ -90,16 +92,15 @@ CREATE TABLE `Profile` (
 -- CreateTable
 CREATE TABLE `Doctor` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `user_id` INTEGER NOT NULL,
-    `specialty_id` INTEGER NOT NULL,
     `crm_state` CHAR(2) NOT NULL,
     `crm` CHAR(6) NOT NULL,
     `crm_verified` BOOLEAN NOT NULL DEFAULT true,
+    `user_id` INTEGER NOT NULL,
+    `specialty_id` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `Doctor_user_id_key`(`user_id`),
-    UNIQUE INDEX `Doctor_specialty_id_key`(`specialty_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -112,7 +113,6 @@ CREATE TABLE `Carer` (
     `updatedAt` DATETIME(3) NOT NULL,
 
     UNIQUE INDEX `Carer_user_id_key`(`user_id`),
-    UNIQUE INDEX `Carer_specialty_id_key`(`specialty_id`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
