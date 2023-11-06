@@ -74,12 +74,7 @@ class RegisterRequest {
                 .datetime(),
 
             crm_state: z
-                .string({ 
-                    required_error: requiredFieldError,
-                    invalid_type_error: invalidTypeError, 
-                })
-                .length(2, { message: lengthError.crm_state })
-                .regex(/[a-zA-Z]/, { message: regexpError.crm })
+                .string({ invalid_type_error: invalidTypeError })
                 .optional()
                 .superRefine((val, ctx) => {
                     if(val === undefined) {
@@ -96,6 +91,8 @@ class RegisterRequest {
                     }
 
                     if(account_type === 'patient' || account_type === 'carer') {
+                        if(val === '') return z.NEVER;
+
                         ctx.addIssue({
                             code: z.ZodIssueCode.custom,
                             message: `O campo informado não deve ser especificado para o cargo de '${account_type}'`,
@@ -111,22 +108,29 @@ class RegisterRequest {
                             });
                         }
 
-                        if(val.length > 25) {
+                        if(val.length > 2) {
                             ctx.addIssue({
                                 code: z.ZodIssueCode.too_big,
-                                maximum: 25,
+                                maximum: 2,
                                 inclusive: true,
+                                exact: true,
                                 type: 'string',
-                                message: maxLengthError.speacialty_name,
+                                message: lengthError.crm_state,
                             });
                         };
+                        
+                        if(/[a-zA-Z]/.test(val)) {
+                            ctx.addIssue({
+                                code: z.ZodIssueCode.invalid_string,
+                                validation: 'regex',
+                                message: regexpError.crm_state,
+                            });  
+                        }
                     }
                 }),
 
             crm: z
                 .string({ invalid_type_error: invalidTypeError })
-                .length(6, { message: lengthError.crm })
-                .regex(/[0-9]/, { message: regexpError.crm })
                 .optional()
                 .superRefine((val, ctx) => {
                     if(val === undefined) {
@@ -143,6 +147,8 @@ class RegisterRequest {
                     }
 
                     if(account_type === 'patient' || account_type === 'carer') {
+                        if(val === '') return z.NEVER;
+
                         ctx.addIssue({
                             code: z.ZodIssueCode.custom,
                             message: `O campo informado não deve ser especificado para o cargo de '${account_type}'`,
@@ -158,15 +164,24 @@ class RegisterRequest {
                             });
                         }
 
-                        if(val.length > 25) {
+                        if(val.length > 6) {
                             ctx.addIssue({
                                 code: z.ZodIssueCode.too_big,
-                                maximum: 25,
+                                maximum: 6,
                                 inclusive: true,
+                                exact: true,
                                 type: 'string',
-                                message: maxLengthError.speacialty_name,
+                                message: lengthError.crm,
                             });
                         };
+                        
+                        if(/[0-9]/.test(val)) {
+                            ctx.addIssue({
+                                code: z.ZodIssueCode.invalid_string,
+                                validation: 'regex',
+                                message: regexpError.crm,
+                            });  
+                        }
                     }    
                 }),
                 
@@ -174,7 +189,7 @@ class RegisterRequest {
             specialty_name: z
                 .string({ invalid_type_error: invalidTypeError })
                 .optional()
-                .superRefine((val, ctx) => {
+                .superRefine((val, ctx) => {                  
                     if(val === undefined) {
                         if(account_type === 'patient') return z.NEVER;
                 
@@ -182,16 +197,18 @@ class RegisterRequest {
                             code: z.ZodIssueCode.invalid_type,
                             received: 'undefined',
                             expected: 'string',
-                            message: requiredFieldError,
+                            message: 'requiredFieldError',
                         });
                 
                         return z.NEVER;
                     }
 
                     if(account_type === 'patient') {
+                        if(val === '') return z.NEVER;
+
                         ctx.addIssue({
                             code: z.ZodIssueCode.custom,
-                            message: `O campo informado não deve ser especificado para o cargo de '${account_type}'`,
+                            message: `O campo informado não deve ser especificado para o cargo de '${account_type} teste'`,
                         });
                     } else {
                         if(val.length < 1) {
@@ -248,20 +265,21 @@ class RegisterRequest {
     }
 
     messages(): RegisterErrorMessages {
-        const errorMessages: RegisterErrorMessages = {
+        return {
             invalidTypeError: 'O formato informado deve ser string',
             maxLengthError: {
                 name: 'O nome deve ter no máximo 40 caracteres',
                 email: 'O e-mail deve ter no máximo 30 caracteres',
                 password: 'A senha deve ter no máximo 24 caracteres',
-                speacialty_name: 'A nome da especialidade deve ter no máximo 25 caracteres'
+                speacialty_name: 'A nome da especialidade deve ter no máximo 25 caracteres',
             },
             invalidEmailFormatError: 'O formato de e-mail é inválido',
             minLengthError: 'A senha deve ter no minímo 8 caracteres',
             regexpError: {
                 name: 'O nome não pode conter números, símbolos ou caracteres especiais',
                 email: 'O e-mail não corresponde ao padrão específicado',
-                crm: 'O campo aceita apenas números'
+                crm: 'O campo aceita apenas números',
+                crm_state: 'O campo aceita apenas letras'
             },
             lengthError: {
                 telephone: 'O campo informado deve ter 11 caracteres',
@@ -272,8 +290,6 @@ class RegisterRequest {
             emptyFieldError: 'Preencha este campo',
             requiredFieldError: 'Este campo deve ser especificado'
         }
-
-        return errorMessages;
     }
 }
 

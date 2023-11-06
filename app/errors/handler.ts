@@ -11,7 +11,7 @@ import { z } from 'zod';
  * @returns JSON response
 */
 export default function exceptions(error: any, res: Response): Response<any, Record<string, any>> {
-    console.log(error.issues, 'aqui');
+    console.log(error.issues);
 
     switch (true) {
         case error instanceof PrismaClientInitializationError:

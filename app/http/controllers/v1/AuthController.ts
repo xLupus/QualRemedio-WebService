@@ -4,8 +4,10 @@ import { RegisterType } from '../../../types/type';
 import { JsonMessages } from '../../../functions/function';
 
 import exceptions from '../../../errors/handler';
-import RegisterRequest from '../../requests/v1/RegisterRequest';
 import bcrypt from 'bcrypt';
+import RegisterRequest from '../../requests/v1/RegisterRequest';
+import RegisterLinks from '../../resources/v1/hateoas/Auth/RegisterLinks';
+import {RegisterResource} from '../../resources/v1/Auth/RegisterResource';
 
 const prisma = new PrismaClient();
 
@@ -20,30 +22,27 @@ class AuthController {
                 getMedicalSpecialtyId = await prisma.medical_Specialty.findFirstOrThrow({
                     where: { name: specialty_name },
                     select: { id: true }
-                });
+                });              
             }
      
             const getUserRoleId = await prisma.role.findFirstOrThrow({
                 where: { name: account_type },
                 select: { id: true }
             });
-            
-            const checkUserRole: User | null = await prisma.user.findUnique({
-                where: { 
-                    name, 
-                    email,
-                    cpf, 
-                    telephone, 
+
+            const checkUser: User | null = await prisma.user.findFirst({
+                where: {
+                    name,
+                    cpf,
+                    telephone,
                     birth_day,
                     role: {
-                        some: {
-                            id: getUserRoleId!.id
-                        }
+                        every: { id: getUserRoleId!.id }
                     }
                 }
             });
             
-            if(checkUserRole) {
+            if(checkUser) {
                 return JsonMessages({
                     message: `User already exists`,
                     res
@@ -88,12 +87,19 @@ class AuthController {
                 }
             }
 
-            const createUser = await prisma.user.create({ data: user });
-
+            const createUser = await prisma.user.create({ 
+                data: user,
+                include: {
+                    doctor: true,
+                    carer: true
+                }
+            });
+            
             return JsonMessages({
                 statusCode: 201,
                 message: `User has been created`,
-                data: createUser,
+                data: new RegisterResource(createUser),
+                _links: RegisterLinks._links(),
                 res
             });
         } catch (error: unknown) {

@@ -41,6 +41,7 @@ export interface RegisterErrorMessages {
     name: string;
     email: string;
     crm: string;
+    crm_state: string;
   };
   lengthError: {
     telephone: string;
