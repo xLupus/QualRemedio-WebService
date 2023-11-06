@@ -37,11 +37,11 @@ class AuthController {
                     telephone,
                     birth_day,
                     role: {
-                        every: { id: getUserRoleId!.id }
+                        some: { id: getUserRoleId!.id }
                     }
                 }
             });
-            
+
             if(checkUser) {
                 return JsonMessages({
                     message: `User already exists`,

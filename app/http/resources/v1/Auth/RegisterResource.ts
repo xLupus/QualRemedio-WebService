@@ -9,7 +9,7 @@ export class RegisterResource {
             email: data.email,
             cpf: data.cpf,
             telephone: data.telephone,
-            birth_day: data.birth_day,
+            birth_day: data.birth_day.toISOString().substring(0, 10).split('-').reverse().join('-'),
             account_type: {
                 patient: (data.doctor.length === 0 && data.carer.length === 0) && true,
                 doctor: data.doctor.length !== 0 && true,

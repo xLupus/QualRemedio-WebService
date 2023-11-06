@@ -1,9 +1,5 @@
 import { z } from "zod";
 import { RegisterErrorMessages, RegisterType } from "../../../types/type";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
 class RegisterRequest {
     rules({ name, email, password, cpf, telephone, birth_day, crm_state, crm, specialty_name, account_type }: RegisterType) {
         const {
@@ -17,11 +13,13 @@ class RegisterRequest {
             requiredFieldError
         } = this.messages();
 
+        birth_day = birth_day.toString().split('-').reverse().join('-'); //inverte a data
+        
         let validator = z.object({
             name: z
                 .string({ 
                     required_error: requiredFieldError,
-                    invalid_type_error: invalidTypeError
+                    invalid_type_error: invalidTypeError.string
                 })
                 .min(1, { message: emptyFieldError })
                 .max(40, { message: maxLengthError.name })
@@ -30,7 +28,7 @@ class RegisterRequest {
             email: z
                 .string({ 
                     required_error: requiredFieldError,
-                    invalid_type_error: invalidTypeError
+                    invalid_type_error: invalidTypeError.string
                 })
                 .max(30, { message: maxLengthError.email })
                 .min(1, { message: emptyFieldError })
@@ -41,7 +39,7 @@ class RegisterRequest {
             password: z
                 .string({ 
                     required_error: requiredFieldError,
-                    invalid_type_error: invalidTypeError
+                    invalid_type_error: invalidTypeError.string
                 })
                 .min(1, { message: emptyFieldError })
                 .min(8, { message: minLengthError })
@@ -50,7 +48,7 @@ class RegisterRequest {
             cpf: z
                 .string({ 
                     required_error: requiredFieldError,
-                    invalid_type_error: invalidTypeError
+                    invalid_type_error: invalidTypeError.string
                 })
                 .length(11, { message: lengthError.cpf })
                 .min(1, { message: emptyFieldError })
@@ -59,22 +57,22 @@ class RegisterRequest {
             telephone: z
                 .string({ 
                     required_error: requiredFieldError,
-                    invalid_type_error: invalidTypeError
+                    invalid_type_error: invalidTypeError.string
                 })
                 .length(11, { message: lengthError.telephone })
                 .min(1, { message: emptyFieldError })
                 .trim(),
 
             birth_day: z
-                .string({ 
-                    invalid_type_error: invalidTypeError, 
+                .coerce
+                .date({
+                    invalid_type_error: invalidTypeError.date, 
                     required_error: requiredFieldError
                 })
-                .min(1, { message: emptyFieldError })
-                .datetime(),
+                .min(new Date('1900-01-01'), { message: emptyFieldError }),
 
             crm_state: z
-                .string({ invalid_type_error: invalidTypeError })
+                .string({ invalid_type_error: invalidTypeError.string })
                 .optional()
                 .superRefine((val, ctx) => {
                     if(val === undefined) {
@@ -119,7 +117,7 @@ class RegisterRequest {
                             });
                         };
                         
-                        if(/[a-zA-Z]/.test(val)) {
+                        if(/[0-9]/.test(val)) {
                             ctx.addIssue({
                                 code: z.ZodIssueCode.invalid_string,
                                 validation: 'regex',
@@ -130,7 +128,7 @@ class RegisterRequest {
                 }),
 
             crm: z
-                .string({ invalid_type_error: invalidTypeError })
+                .string({ invalid_type_error: invalidTypeError.string })
                 .optional()
                 .superRefine((val, ctx) => {
                     if(val === undefined) {
@@ -175,7 +173,7 @@ class RegisterRequest {
                             });
                         };
                         
-                        if(/[0-9]/.test(val)) {
+                        if(/[a-zA-Z]/.test(val)) {
                             ctx.addIssue({
                                 code: z.ZodIssueCode.invalid_string,
                                 validation: 'regex',
@@ -187,7 +185,7 @@ class RegisterRequest {
                 
                           
             specialty_name: z
-                .string({ invalid_type_error: invalidTypeError })
+                .string({ invalid_type_error: invalidTypeError.string })
                 .optional()
                 .superRefine((val, ctx) => {                  
                     if(val === undefined) {
@@ -243,7 +241,7 @@ class RegisterRequest {
             
             account_type:
                 z.string({ 
-                    invalid_type_error: invalidTypeError,
+                    invalid_type_error: invalidTypeError.string,
                     required_error: requiredFieldError
                 })
                 .min(1, { message: emptyFieldError })
@@ -266,7 +264,10 @@ class RegisterRequest {
 
     messages(): RegisterErrorMessages {
         return {
-            invalidTypeError: 'O formato informado deve ser string',
+            invalidTypeError: {
+                string: 'O formato informado deve ser string',
+                date: 'O formato de data está inválida. ex.: (1900-01-01)'
+            },
             maxLengthError: {
                 name: 'O nome deve ter no máximo 40 caracteres',
                 email: 'O e-mail deve ter no máximo 30 caracteres',

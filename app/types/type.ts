@@ -28,7 +28,10 @@ export interface RegisterType {
 //Error messages
 
 export interface RegisterErrorMessages {
-  invalidTypeError: string;
+  invalidTypeError: {
+    string: string;
+    date: string;
+  };
   maxLengthError: {
     name: string;
     email: string;
