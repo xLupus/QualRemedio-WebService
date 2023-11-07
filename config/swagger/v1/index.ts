@@ -1,27 +1,34 @@
 import swaggerJSDoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
-import { Router } from "express";
 
 const options: swaggerJSDoc.Options = {
-    definition: {
+    swaggerDefinition: {
         openapi: "3.0.0",
         info: {
-        title: "Qual Remedio?",
-        version: "1.0.0",
-        }
+            title: "Qual Remedio?",
+            version: "1.0.0",
+            description: "Sistema Gerenciador de Receitas e Consultas Medicas."
+
+        },
+        components: [
+            {
+                securitySchemes: {
+                    bearerAuth: {
+                        type: 'http',
+                        schema: 'bearer',
+                        bearerFormat: 'JWT'
+                    }
+                }
+            }
+        ],
+        servers: [
+            { 
+                url: 'http://localhost:8080/api/v1' ,
+                description: 'Caminho referente a primeira versão da API'
+            }
+        ],
     },
-    apis: ['../routes/v1/*.ts'] //TODO - Arrumar path
+    apis: ['./app/http/controllers/v1/*.ts'],
+
 }
 
-const swaggerSpec: object = swaggerJSDoc(options)
-
-export const swaggerDocs = (router: Router) => {
-    //Swagger Page
-    router.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
-
-    //Swagger json
-    router.get('/docs.json', (req, res) => {
-        res.setHeader('Content-Type', 'application/json')
-        res.send(swaggerSpec)
-    })
-}
+export const swaggerSpec: object = swaggerJSDoc(options)

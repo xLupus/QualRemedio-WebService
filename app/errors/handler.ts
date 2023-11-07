@@ -11,7 +11,7 @@ import { z } from 'zod';
  * @returns JSON response
 */
 export default function exceptions(error: any, res: Response): Response<any, Record<string, any>> {
-    console.log(error);
+    console.log(error.issues, 'aqui');
 
     switch (true) {
         case error instanceof PrismaClientInitializationError:
@@ -42,7 +42,7 @@ export default function exceptions(error: any, res: Response): Response<any, Rec
             return JsonMessages({
                 statusCode: 422,
                 message: 'Zod validation error',
-                data: error.message,
+                data: error,
                 res
             });
 
