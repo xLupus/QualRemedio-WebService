@@ -10,4 +10,4 @@ router.post(`/${apiContext}/auth/register`, AuthController.register);
 
 //router.all("*", passportJWT);
 
-export { router as routerApi_V1, apiContext }
+export { router as routerApiV1, apiContext }

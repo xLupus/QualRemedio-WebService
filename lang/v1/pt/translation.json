@@ -1,0 +1,52 @@
+{
+    "success": {
+        "user": {
+            "created": "Usuário criado com sucesso"
+        }
+    },
+    "error": {
+        "user": {
+            "exists": "Usuário já existe",
+            "notFound": "Usuário não encontrado"
+        },
+        "validation": {
+            "input": {
+                "invalidString": "O formato especificado deve ser string",
+                "invalidDate": "O formato da data não é valido",
+                "invalidEmailFormat": "O formato de e-mail é inválido",
+                "maxLength": {
+                    "name": "O nome deve ter no máximo 40 caracteres",
+                    "email": "O e-mail deve ter no máximo 30 caracteres",
+                    "password": "A senha deve ter no máximo 24 caracteres",
+                    "speacialty_name": "A nome da especialidade deve ter no máximo 25 caracteres"
+                },
+                "minLength": {
+                    "password": "A senha deve ter no mínimo 8 caracteres"
+                },
+                "regExp": {
+                    "name": "O campo não aceita números, símbolos ou caracteres especiais",
+                    "crm": "O campo aceita apeans números",
+                    "crm_state": "O campo aceita apenas letras"
+                },
+                "length": {
+                    "telephone": "O campo informado deve ter 11 caracteres",
+                    "cpf": "O campo informado deve ter 11 caracteres",
+                    "crm_state": "O campo informado deve ter 2 caracteres",
+                    "crm": "O campo informado deve ter 6 caracteres"
+                },
+                "empty": "Preencha este campo",
+                "required": "Este campo deve ser especificado"
+            }
+        },
+        "data": {
+            "unique": "{{field}} já existe",
+            "invalidToken": "O token informado é inválido ou não existe"
+        },
+        "server": {
+            "internal": "Erro interno"
+        }
+    },
+    "glossary": {
+        "email": "O e-mail informado"
+    }
+}

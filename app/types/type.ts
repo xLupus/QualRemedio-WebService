@@ -1,9 +1,9 @@
-import { Response } from "express";
+import { Response, Request } from "express";
 
 //Function types
-export type Data = string | number | null | object;
+type Data = string | number | null | object;
 
-export interface JsonMessages {
+interface JsonMessages {
   statusCode?: number;
   message: string;
   data?: Data;
@@ -11,7 +11,7 @@ export interface JsonMessages {
   res: Response;
 }
 
-export interface RegisterType {
+interface RegisterType {
   name: string;
   email: string;
   password: string;
@@ -27,7 +27,7 @@ export interface RegisterType {
 
 //Error messages
 
-export interface RegisterErrorMessages {
+interface RegisterErrorMessages {
   invalidTypeError: {
     string: string;
     date: string;
@@ -42,7 +42,6 @@ export interface RegisterErrorMessages {
   minLengthError: string;
   regexpError: {
     name: string;
-    email: string;
     crm: string;
     crm_state: string;
   };
@@ -54,4 +53,21 @@ export interface RegisterErrorMessages {
   };
   emptyFieldError: string;
   requiredFieldError: string;
+}
+
+//Exceptions
+interface ExceptionsType {
+  error: any;
+  req?: Request;
+  res: Response;
+}
+
+export {
+  Data, 
+
+  JsonMessages,
+  RegisterErrorMessages, 
+
+  RegisterType,
+  ExceptionsType
 }

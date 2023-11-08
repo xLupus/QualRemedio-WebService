@@ -1,7 +1,10 @@
 import { z } from "zod";
 import { RegisterErrorMessages, RegisterType } from "../../../types/type";
+import { i18n } from "i18next";
+import moment from 'moment';
+
 class RegisterRequest {
-    rules({ name, email, password, cpf, telephone, birth_day, crm_state, crm, specialty_name, account_type }: RegisterType) {
+    rules({ name, email, password, cpf, telephone, birth_day, crm_state, crm, specialty_name, account_type }: RegisterType, translate: i18n) {
         const {
             invalidTypeError,
             maxLengthError,
@@ -11,10 +14,10 @@ class RegisterRequest {
             lengthError,
             emptyFieldError,
             requiredFieldError
-        } = this.messages();
+        } = this.messages(translate);
 
-        birth_day = birth_day.toString().split('-').reverse().join('-'); //inverte a data
-        
+        birth_day = moment(birth_day, 'DD-MM-YYYY').format('YYYY-MM-DD');
+
         let validator = z.object({
             name: z
                 .string({ 
@@ -33,7 +36,6 @@ class RegisterRequest {
                 .max(30, { message: maxLengthError.email })
                 .min(1, { message: emptyFieldError })
                 .email({ message: invalidEmailFormatError })
-                .regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, { message: regexpError.email })
                 .toLowerCase(),
 
             password: z
@@ -195,7 +197,7 @@ class RegisterRequest {
                             code: z.ZodIssueCode.invalid_type,
                             received: 'undefined',
                             expected: 'string',
-                            message: 'requiredFieldError',
+                            message: requiredFieldError,
                         });
                 
                         return z.NEVER;
@@ -246,7 +248,6 @@ class RegisterRequest {
                 })
                 .min(1, { message: emptyFieldError })
         });
-
         
         return validator.parse({
             name, 
@@ -262,34 +263,33 @@ class RegisterRequest {
         });
     }
 
-    messages(): RegisterErrorMessages {
+    messages(translate: i18n): RegisterErrorMessages {
         return {
             invalidTypeError: {
-                string: 'O formato informado deve ser string',
-                date: 'O formato de data está inválida. ex.: (1900-01-01)'
+                string: translate.t('error.validation.input.invalidString'),
+                date: translate.t('error.validation.input.invalidDate')
             },
             maxLengthError: {
-                name: 'O nome deve ter no máximo 40 caracteres',
-                email: 'O e-mail deve ter no máximo 30 caracteres',
-                password: 'A senha deve ter no máximo 24 caracteres',
-                speacialty_name: 'A nome da especialidade deve ter no máximo 25 caracteres',
+                name: translate.t('error.validation.input.maxLength.name'),
+                email: translate.t('error.validation.input.maxLength.email'),
+                password: translate.t('error.validation.input.maxLength.password'),
+                speacialty_name: translate.t('error.validation.input.maxLength.speacialty_name'),
             },
-            invalidEmailFormatError: 'O formato de e-mail é inválido',
-            minLengthError: 'A senha deve ter no minímo 8 caracteres',
+            invalidEmailFormatError: translate.t('error.validation.input.invalidEmailFormat'),
+            minLengthError: translate.t('error.validation.input.minLength.password'),
             regexpError: {
-                name: 'O nome não pode conter números, símbolos ou caracteres especiais',
-                email: 'O e-mail não corresponde ao padrão específicado',
-                crm: 'O campo aceita apenas números',
-                crm_state: 'O campo aceita apenas letras'
+                name: translate.t('error.validation.input.regExp.name'),
+                crm: translate.t('error.validation.input.regExp.crm'),
+                crm_state: translate.t('error.validation.input.regExp.crm_state')
             },
             lengthError: {
-                telephone: 'O campo informado deve ter 11 caracteres',
-                cpf: 'O campo informado deve ter 11 caracteres',
-                crm_state: 'O estado do crm deve ter apenas 2 caracteres',
-                crm: 'O crm deve ter 6 caracteres'
+                telephone: translate.t('error.validation.input.length.telephone'),
+                cpf: translate.t('error.validation.input.length.cpf'),
+                crm_state: translate.t('error.validation.input.length.crm_state'),
+                crm: translate.t('error.validation.input.length.crm')
             },
-            emptyFieldError: 'Preencha este campo',
-            requiredFieldError: 'Este campo deve ser especificado'
+            emptyFieldError: translate.t('error.validation.input.empty'),
+            requiredFieldError: translate.t('error.validation.input.required')
         }
     }
 }

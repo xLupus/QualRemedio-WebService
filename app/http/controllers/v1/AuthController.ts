@@ -2,19 +2,19 @@ import { Prisma, PrismaClient, User } from '@prisma/client';
 import { Request, Response } from 'express';
 import { RegisterType } from '../../../types/type';
 import { JsonMessages } from '../../../functions/function';
+import { RegisterResource } from '../../resources/v1/Auth/RegisterResource';
 
 import exceptions from '../../../errors/handler';
 import bcrypt from 'bcrypt';
 import RegisterRequest from '../../requests/v1/RegisterRequest';
 import RegisterLinks from '../../resources/v1/hateoas/Auth/RegisterLinks';
-import {RegisterResource} from '../../resources/v1/Auth/RegisterResource';
 
 const prisma = new PrismaClient();
 
 class AuthController {
     async register(req: Request, res: Response) {
-        try {
-            const { name, email, password, cpf, telephone, birth_day, crm, crm_state, specialty_name, account_type }: RegisterType = RegisterRequest.rules(req.body);
+        try {       
+            const { name, email, password, cpf, telephone, birth_day, crm, crm_state, specialty_name, account_type }: RegisterType = RegisterRequest.rules(req.body, req.i18n);
             const passwordHash: string = await bcrypt.hash(password, 15);
             let getMedicalSpecialtyId: { id: number } = { id: 0 };
 
@@ -44,7 +44,7 @@ class AuthController {
 
             if(checkUser) {
                 return JsonMessages({
-                    message: `User already exists`,
+                    message: req.i18n.t('error.user.exists'),
                     res
                 });
             }
@@ -97,13 +97,13 @@ class AuthController {
             
             return JsonMessages({
                 statusCode: 201,
-                message: `User has been created`,
+                message: req.i18n.t('success.user.created'),
                 data: new RegisterResource(createUser),
                 _links: RegisterLinks._links(),
                 res
             });
         } catch (error: unknown) {
-            return exceptions(error, res);
+            return exceptions({error, req, res});
         }
     }
 }

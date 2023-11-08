@@ -2,6 +2,7 @@ import { PrismaClientInitializationError, PrismaClientKnownRequestError, PrismaC
 import { Response } from 'express';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import { JsonMessages } from '../functions/function';
+import { ExceptionsType } from '../types/type';
 import { z } from 'zod';
 
 /**
@@ -10,7 +11,7 @@ import { z } from 'zod';
  * @param res Application response
  * @returns JSON response
 */
-export default function exceptions(error: any, res: Response): Response<any, Record<string, any>> {
+export default function exceptions({error, req, res }: ExceptionsType): Response<any, Record<string, any>> {
     console.log(error.issues);
 
     switch (true) {
@@ -32,7 +33,7 @@ export default function exceptions(error: any, res: Response): Response<any, Rec
 
         case error instanceof PrismaClientKnownRequestError:
             if(error.code === 'P2002' && error.meta.target === 'User_email_key') {
-                error.meta.target = 'User e-mail already exists';
+                error.meta.target = req?.i18n.t('error.data.unique', { field: `${req?.i18n.t('glossary.email')}`});
             }
 
             return JsonMessages({
@@ -55,7 +56,7 @@ export default function exceptions(error: any, res: Response): Response<any, Rec
         case !error:
             return JsonMessages({
                 statusCode: 401,
-                message: "The informed token is invalid or doesn't exists",
+                message: `${req?.i18n.t('error.data.invalidToken')}`,
                 res
             });
 
@@ -78,7 +79,7 @@ export default function exceptions(error: any, res: Response): Response<any, Rec
         default:
             return JsonMessages({
                 statusCode: 500,
-                message: 'Internal Server Error',
+                message: `${req?.i18n.t('error.server.internal')}`,
                 res
             });
     }
