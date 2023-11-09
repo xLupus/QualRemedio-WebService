@@ -1,0 +1,52 @@
+{
+    "success": {
+        "user": {
+            "created": "User created successfully"
+        }
+    },
+    "error": {
+        "user": {
+            "exists": "User already exists",
+            "notFound": "User not found"
+        },
+        "validation": {
+            "input": {
+                "invalidString": "Specified format must be string",
+                "invalidDate": "Invalid date format",
+                "invalidEmailFormat": "Invalid e-mail format",
+                "maxLength": {
+                    "name": "Name must not have more than 40 characters",
+                    "email": "E-mail must not have more than 30 characters",
+                    "password": "Password must not have more than 24 characters",
+                    "speacialty_name": "Speacialty_name must not have more than 25 characters"
+                },
+                "minLength": {
+                    "password": "Password must have at least 8 characters"
+                },
+                "regExp": {
+                    "name": "Field does not accept numbers, simbols or speacial characters",
+                    "crm": "Field only accepts number",
+                    "crm_state": "Field only accepts letters"
+                },
+                "length": {
+                    "telephone": "Field must have 11 characters",
+                    "cpf": "Field must have 11 characters",
+                    "crm_state": "Field must have 2 characters",
+                    "crm": "Field must have 6 characters"
+                },
+                "empty": "Field must not be empty",
+                "required": "Field must be specified"
+            }
+        },
+        "data": {
+            "unique": "{{field}} already exists",
+            "invalidToken": "The informed token is invalid or doesn't exists"
+        },
+        "server": {
+            "internal": "Internal Server Error"
+        }
+    },
+    "glossary": {
+        "email": "E-mail"
+    }
+}

@@ -1,5 +1,7 @@
 import { Response } from 'express';
 import { JsonMessages } from '../types/type';
+import { z } from 'zod';
+import RegisterRequest from '../http/requests/v1/RegisterRequest';
 //import { PrismaClient, Token_blacklist } from '@prisma/client';
 
 //const prisma = new PrismaClient();
@@ -42,3 +44,6 @@ export async function verifyToken(token: string): Promise<boolean> {
     return invalidToken ? true : false;
 }
 */
+
+//Field Validation
+//TODO: Ver como separar as validações em funções sem erro de `undefined`
