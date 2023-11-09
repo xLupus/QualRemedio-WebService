@@ -1,110 +1,119 @@
 import { Prisma, PrismaClient, User } from '@prisma/client';
+import { DefaultArgs } from '@prisma/client/runtime/library';
 import { Request, Response } from 'express';
 import { RegisterType } from '../../../types/type';
 import { JsonMessages } from '../../../functions/function';
 import { RegisterResource } from '../../resources/v1/Auth/RegisterResource';
+import { i18n } from 'i18next';
 
 import exceptions from '../../../errors/handler';
 import bcrypt from 'bcrypt';
 import RegisterRequest from '../../requests/v1/RegisterRequest';
 import RegisterLinks from '../../resources/v1/hateoas/Auth/RegisterLinks';
 
-const prisma = new PrismaClient();
+const prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new PrismaClient();
 
 class AuthController {
-    async register(req: Request, res: Response) {
+    async register(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
-            const { name, email, password, cpf, telephone, birth_day, crm, crm_state, specialty_name, account_type }: RegisterType = RegisterRequest.rules(req.body, req.i18n);
+            const translate: i18n = req.i18n;
+            const { name, email, password, cpf, telephone, birth_day, crm, crm_state, specialty_name, account_type }: RegisterType = RegisterRequest.rules(req.body, translate);
             const passwordHash: string = await bcrypt.hash(password, 15);
-            let MedicalSpecialtyId: { id: number } = { id: 0 };
+            let medicalSpecialtyId: { id: number } = { id: 0 };
+            let checkUser: Prisma.UserWhereInput;
+            let user: Prisma.UserCreateInput | User[] | null;
+            let data: Prisma.UserUpdateInput;
 
-            const roleId = await prisma.role.findFirstOrThrow({
+            const roleId: { id: number } = await prisma.role.findFirstOrThrow({
                 where: { name: account_type },
                 select: { id: true }
             });
 
             if(account_type === 'doctor' || account_type === 'carer') {
-                MedicalSpecialtyId = await prisma.medical_Specialty.findFirstOrThrow({
+                medicalSpecialtyId = await prisma.medical_Specialty.findFirstOrThrow({
                     where: { name: specialty_name },
                     select: { id: true }
                 });              
             }
-        
-            const checkUser: User | null = await prisma.user.findUnique({ where: { email } });
 
-            if(checkUser) {
-                const checkUserRole: User | null = await prisma.user.findUnique({
-                    where: {
+            checkUser = {
+                OR: [
+                    {
                         email,
-                        role: { some: { id: roleId!.id } }
+                    },
+                    {
+                        telephone
                     }
-                });
+                ]  
+            };
 
-                if(!checkUserRole) {
+            if(account_type === 'doctor' && (crm && crm_state)) {   
+                checkUser.OR = [
+                    {
+                        doctor: {
+                            some: {
+                                crm,
+                                crm_state
+                            }
+                        }
+                    }
+                ]
+            }
+            
+            user = await prisma.user.findMany({ where: checkUser });
+
+            if(user.length > 0) {
+                checkUser.role = { some: { id: roleId!.id } } //role
+
+                data = { //data
+                    role: {
+                        connect: {
+                            id: roleId!.id
+                        }
+                    }
+                }
+
+                const checkUserRole: User[] | null = await prisma.user.findMany({ where: checkUser });
+
+                if(checkUserRole.length === 0) {
                     if(account_type === 'doctor' && (crm && crm_state)) {
-                        await prisma.user.update({
-                            where: { email },
-                            data: {
-                                role: {
-                                    connect: {
-                                        id: roleId!.id
-                                    }
-                                },
-                                doctor: {
-                                    create: {
-                                        crm_state,
-                                        crm,
-                                        specialty: {
-                                            connect: { id: MedicalSpecialtyId!.id }
-                                        }
-                                    }
-                                }                
+                        data.doctor = {
+                            create: {
+                                crm_state,
+                                crm,
+                                specialty: {
+                                    connect: { id: medicalSpecialtyId!.id }
+                                }
                             }
-                        });
+                        }
                     } else if(account_type === 'carer') {
-                        await prisma.user.update({
-                            where: { email },
-                            data: {
-                                role: {
-                                    connect: {
-                                        id: roleId!.id
-                                    }
-                                },
-                                carer: {
-                                    create: {
-                                        specialty: {
-                                            connect: { id: MedicalSpecialtyId!.id }
-                                        }
-                                    }
-                                }                
+                        data.carer = {
+                            create: {
+                                specialty: {
+                                    connect: { id: medicalSpecialtyId!.id }
+                                }
                             }
-                        });
-                    } else {
-                        await prisma.user.update({
-                            where: { email },
-                            data: {
-                                role: {
-                                    connect: {
-                                        id: roleId!.id
-                                    }
-                                }              
-                            }
-                        });
+                        }
                     }
 
+                    await prisma.user.update({
+                        where: { email },
+                        data
+                    });
+    
                     return JsonMessages({
-                        message: req.i18n.t('success.user.created'),
+                        message: translate.t('success.user.created'),
                         res
                     });   
                 }
 
                 return JsonMessages({
-                    message: req.i18n.t('error.user.exists'),
+                    message: translate.t('error.user.exists'),
                     res
-                });                   
+                }); 
             }
 
-            let user: Prisma.UserCreateInput = {
+            user = {
                 name,
                 email,
                 password: passwordHash,
@@ -128,7 +137,7 @@ class AuthController {
                         crm_state,
                         crm,
                         specialty: {
-                            connect: { id: MedicalSpecialtyId!.id }
+                            connect: { id: medicalSpecialtyId!.id }
                         }
                     }
                 }
@@ -136,7 +145,7 @@ class AuthController {
                 user.carer = {
                     create: {
                         specialty: {
-                            connect: { id: MedicalSpecialtyId!.id }
+                            connect: { id: medicalSpecialtyId!.id }
                         }
                     }
                 }
@@ -152,7 +161,7 @@ class AuthController {
             
             return JsonMessages({
                 statusCode: 201,
-                message: req.i18n.t('success.user.created'),
+                message: translate.t('success.user.created'),
                 data: new RegisterResource(createUser),
                 _links: RegisterLinks._links(),
                 res

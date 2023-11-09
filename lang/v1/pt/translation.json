@@ -6,8 +6,8 @@
     },
     "error": {
         "user": {
-            "exists": "Usuário já existe",
-            "notFound": "Usuário não encontrado"
+            "exists": "O Usuário informado já existe",
+            "notFound": "O Usuário informado não foi encontrado"
         },
         "validation": {
             "input": {
