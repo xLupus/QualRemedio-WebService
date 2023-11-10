@@ -7,72 +7,72 @@ import { z } from 'zod';
 
 /**
  * Handler application errors
- * @param error Error to handler
+ * @param err Error to handler
  * @param res Application response
  * @returns JSON response
 */
-export default function exceptions({error, req, res }: ExceptionsType): Response<any, Record<string, any>> {
-    console.log(error.issues);
+export default function exceptions({ err, req, res }: ExceptionsType): Response<any, Record<string, any>> {
+    console.log(err);
 
     switch (true) {
-        case error instanceof PrismaClientInitializationError:
+        case err instanceof PrismaClientInitializationError:
             return JsonMessages({
                 statusCode: 500,
                 message: 'Prisma initialization error',
-                data: error,
+                data: err,
                 res
             });
 
-        case error instanceof PrismaClientValidationError:
+        case err instanceof PrismaClientValidationError:
             return JsonMessages({
                 statusCode: 422,
                 message: 'Prisma validation error',
-                data: error,
+                data: err,
                 res
             });
 
-        case error instanceof PrismaClientKnownRequestError:
-            if(error.code === 'P2002' && error.meta.target === 'User_email_key') {
-                error.meta.target = req?.i18n.t('error.data.unique', { field: `${req?.i18n.t('glossary.email')}`});
+        case err instanceof PrismaClientKnownRequestError:
+            if(err.code === 'P2002' && err.meta.target === 'User_email_key') {
+                err.meta.target = req?.i18n.t('error.data.unique', { field: `${req?.i18n.t('glossary.email')}`});
             }
 
             return JsonMessages({
                 statusCode: 422,
                 message: 'Prisma request error',
-                data: error,
+                data: err,
                 res
             });
 
-        case error instanceof z.ZodError:
+        case err instanceof z.ZodError:
             return JsonMessages({
                 statusCode: 422,
                 message: 'Zod validation error',
-                data: error,
+                data: err,
                 res
             });
 
-        case error.message === 'No auth token':
-        case error instanceof JsonWebTokenError:
-        case !error:
+        case err.message === 'No auth token':
+        case err instanceof JsonWebTokenError:
+        case !err:
             return JsonMessages({
                 statusCode: 401,
                 message: `${req?.i18n.t('error.data.invalidToken')}`,
                 res
             });
 
-        case error instanceof Error:
+        case err instanceof Error:
             return JsonMessages({
                 statusCode: 422,
                 message: 'Error Exception',
-                data: error.message,
+                data: err.message,
                 res
             });
 
-        case error instanceof SyntaxError:
+        case err instanceof SyntaxError:
             return JsonMessages({
                 statusCode: 400,
                 message: 'Syntax Error',
-                data: error.message,
+                data: err.message,
                 res
             });
 

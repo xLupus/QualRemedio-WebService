@@ -57,7 +57,7 @@ interface RegisterErrorMessages {
 
 //Exceptions
 interface ExceptionsType {
-  error: any;
+  err: any;
   req?: Request;
   res: Response;
 }
