@@ -25,6 +25,12 @@ interface RegisterType {
   specialty_name?: string | undefined;
 }
 
+interface BondType {
+  user_to_id?: number | undefined;
+  bond_id?: number | undefined;
+  status_id?: number | undefined;
+}
+
 //Error messages
 
 interface RegisterErrorMessages {
@@ -55,6 +61,13 @@ interface RegisterErrorMessages {
   requiredFieldError: string;
 }
 
+interface BondErrorMessages {
+  invalidTypeError: string;
+  integerNumberError: string;
+  emptyFieldError: string;
+  requiredFieldError: string;
+}
+
 //Exceptions
 interface ExceptionsType {
   err: any;
@@ -65,9 +78,11 @@ interface ExceptionsType {
 export {
   Data, 
 
+  BondErrorMessages,
   JsonMessages,
   RegisterErrorMessages, 
 
+  BondType,
   RegisterType,
   ExceptionsType
 }

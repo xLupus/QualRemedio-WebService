@@ -2,12 +2,21 @@
     "success": {
         "user": {
             "created": "Usuário criado com sucesso"
+        },
+        "bond": {
+            "created": "Vínculo criado com sucesso",
+            "returned": "Vinculo(s) do usuário retornado(s) com sucesso",
+            "updated": "Vinculo atualizado com sucesso",
+            "deleted": "Vinculo removido com sucesso"
         }
     },
     "error": {
         "user": {
             "exists": "O Usuário informado já existe",
             "notFound": "O Usuário informado não foi encontrado"
+        },
+        "bond": {
+            "notFound": "Nenhum vínculo foi encontrado"
         },
         "validation": {
             "input": {

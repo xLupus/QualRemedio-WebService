@@ -2,12 +2,21 @@
     "success": {
         "user": {
             "created": "User created successfully"
+        },
+        "bond": {
+            "created": "Bond created successfully",
+            "returned": "Bond returned successfully",
+            "updated": "Bond updated successfully",
+            "deleted": "Bond deleted successfully"
         }
     },
     "error": {
         "user": {
             "exists": "User already exists",
             "notFound": "User not found"
+        },
+        "bond": {
+            "notFound": "User Bond not found"
         },
         "validation": {
             "input": {
