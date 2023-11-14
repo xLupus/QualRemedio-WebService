@@ -1,4 +1,5 @@
 import { Response, Request } from "express";
+import { i18n } from "i18next";
 
 //Function types
 type Data = string | number | null | object;
@@ -27,8 +28,8 @@ interface RegisterType {
 
 interface BondType {
   user_to_id?: number | undefined;
-  bond_id?: number | undefined;
   status_id?: number | undefined;
+  bond_id?: number | undefined;
 }
 
 //Error messages
@@ -81,7 +82,7 @@ export {
   BondErrorMessages,
   JsonMessages,
   RegisterErrorMessages, 
-
+  
   BondType,
   RegisterType,
   ExceptionsType

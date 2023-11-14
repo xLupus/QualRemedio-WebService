@@ -16,13 +16,18 @@
             "notFound": "User not found"
         },
         "bond": {
-            "notFound": "User Bond not found"
+            "notFound": "User Bond not found",
+            "status": {
+                "notFound": "Bond status not found"
+            }
         },
         "validation": {
             "input": {
                 "invalidString": "Specified format must be string",
+                "invalidNumber": "Specified format must be number",
                 "invalidDate": "Invalid date format",
                 "invalidEmailFormat": "Invalid e-mail format",
+                "integerNumber": "Number must be integer",
                 "maxLength": {
                     "name": "Name must not have more than 40 characters",
                     "email": "E-mail must not have more than 30 characters",

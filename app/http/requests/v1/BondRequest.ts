@@ -3,7 +3,7 @@ import { i18n } from "i18next";
 import { BondErrorMessages, BondType } from '../../../types/type';
 
 class BondRequest {
-    rules({ user_to_id, bond_id, status_id }: BondType, translate: i18n, reqMethod?: string | undefined) {
+    rules({ user_to_id, status_id, bond_id }: BondType, translate: i18n, reqMethod?: string) {
         const {
             invalidTypeError,
             integerNumberError,
@@ -19,8 +19,8 @@ class BondRequest {
                 })
                 .int({ message: integerNumberError })
                 .min(1, { message: emptyFieldError })
-                .optional()
-                .superRefine((val, ctx) => {
+                .optional(),
+               /*  .superRefine((val, ctx) => {
                     if(val === undefined && !reqMethod) {
                         ctx.addIssue({
                             code: z.ZodIssueCode.invalid_type,
@@ -50,7 +50,7 @@ class BondRequest {
                             });
                         }
                     }    
-                }),
+                }), */
 
             bond_id: z
                 .number({ 
@@ -59,8 +59,8 @@ class BondRequest {
                 })
                 .int({ message: integerNumberError })
                 .min(1, { message: emptyFieldError })
-                .optional()
-                .superRefine((val, ctx) => {
+                .optional(),
+                /* .superRefine((val, ctx) => {
                     if(val === undefined && reqMethod) {
                         ctx.addIssue({
                             code: z.ZodIssueCode.invalid_type,
@@ -90,7 +90,7 @@ class BondRequest {
                             });
                         }
                     }    
-                }),
+                }), */
 
             status_id: z
                 .number({ 
@@ -99,8 +99,8 @@ class BondRequest {
                 })
                 .int({ message: integerNumberError })
                 .min(1, { message: emptyFieldError })
-                .optional()
-                .superRefine((val, ctx) => {
+                .optional(),
+                /* .superRefine((val, ctx) => {
                     if(val === undefined && !reqMethod) {
                         ctx.addIssue({
                             code: z.ZodIssueCode.invalid_type,
@@ -123,7 +123,7 @@ class BondRequest {
                             });
                         }
                     }    
-                })
+                }) */
         });
         
         return validator.parse({ user_to_id, bond_id, status_id });
@@ -131,8 +131,8 @@ class BondRequest {
 
     messages(translate: i18n): BondErrorMessages {
         return {
-            invalidTypeError: translate.t('error.validation.input.invalidDate'),
-            integerNumberError: translate.t('error.validation.input.invalidDate'),
+            invalidTypeError: translate.t('error.validation.input.invalidNumber'),
+            integerNumberError: translate.t('error.validation.input.integerNumber'),
             emptyFieldError: translate.t('error.validation.input.empty'),
             requiredFieldError: translate.t('error.validation.input.required')
         }

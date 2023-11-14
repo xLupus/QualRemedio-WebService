@@ -16,13 +16,18 @@
             "notFound": "O Usuário informado não foi encontrado"
         },
         "bond": {
-            "notFound": "Nenhum vínculo foi encontrado"
+            "notFound": "Nenhum vínculo foi encontrado",
+            "status": {
+                "notFound": "O status de vínculo informado não existe"
+            }
         },
         "validation": {
             "input": {
                 "invalidString": "O formato especificado deve ser string",
+                "invalidNumber": "O formato especificado deve ser número",
                 "invalidDate": "O formato da data não é valido",
                 "invalidEmailFormat": "O formato de e-mail é inválido",
+                "integerNumber": "O formato de número deve ser integro",
                 "maxLength": {
                     "name": "O nome deve ter no máximo 40 caracteres",
                     "email": "O e-mail deve ter no máximo 30 caracteres",

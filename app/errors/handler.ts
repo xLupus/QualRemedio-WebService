@@ -12,7 +12,7 @@ import { z } from 'zod';
  * @returns JSON response
 */
 export default function exceptions({ err, req, res }: ExceptionsType): Response<any, Record<string, any>> {
-    console.log(err);
+    console.log(err.message);
 
     switch (true) {
         case err instanceof PrismaClientInitializationError:
@@ -32,14 +32,27 @@ export default function exceptions({ err, req, res }: ExceptionsType): Response<
             });
 
         case err instanceof PrismaClientKnownRequestError:
-            if(err.code === 'P2002' && err.meta.target === 'User_email_key') {
-                err.meta.target = req?.i18n.t('error.data.unique', { field: `${req?.i18n.t('glossary.email')}`});
+            let statusCode: number = 422;
+            
+            if(err.code === 'P2020') { //unique keys
+                if(err === 'User_email_key') {
+                    err.meta.target = req?.i18n.t('error.data.unique', { field: `${req?.i18n.t('glossary.email')}`});
+                }
+            } else if(err.code === 'P2025') { //not found
+                if(err.message === 'No Bond_Status found') {
+                    err.message = req?.i18n.t('error.bond.status.notFound');
+                } else if(err.message === 'No Bond found') {
+                    err.message = req?.i18n.t('error.bond.notFound');
+                }
+
+               statusCode = 200;
+            } else {
+                err.message = 'Prisma request error'
             }
 
             return JsonMessages({
-                statusCode: 422,
-                message: 'Prisma request error',
-                data: err,
+                statusCode,
+                message: err.message,
                 res
             });
 

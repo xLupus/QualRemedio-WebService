@@ -8,8 +8,8 @@ export class BondResource {
     resource(data: any) {
         return {
             id: data.id,
+            name: data.name,
             email: data.email,
-            cpf: data.cpf,
             telephone: data.telephone,
             birth_day: moment(data.birth_day.toISOString(), 'YYYY-MM-DD').format('DD-MM-YYYY')
         }

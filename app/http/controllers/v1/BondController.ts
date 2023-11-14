@@ -13,6 +13,7 @@ import DestroyBondLinks from '../../resources/v1/hateoas/Bond/DestroyBondLinks';
 import ShowBondLinks from '../../resources/v1/hateoas/Bond/ShowBondLinks';
 import IndexBondLinks from '../../resources/v1/hateoas/Bond/IndexBondLinks';
 import { ShowBondResource } from '../../resources/v1/Bond/ShowBondResource';
+import { IndexBondResource } from '../../resources/v1/Bond/IndexBondResource';
 
 const prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new PrismaClient();
 
@@ -30,11 +31,33 @@ class BondController {
                 });
             }
 
-            const bonds: Bond[] | null = await prisma.bond.findMany({
-                where: {
-                    from: { id: user.id }
+            const bonds = await prisma.bond.findMany({
+                select: {
+                    id: true,
+                    from_user: true,
+                    to_user: true,
+                    status_id: true,
+                    to: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            cpf: true,
+                            telephone: true,
+                            birth_day: true
+                        }  
+                    }
                 },
-                include: { to: true }
+                where: {
+                    OR: [
+                        {
+                            from: { id: user.id }
+                        },
+                        {
+                            to: { id: user.id }
+                        }
+                    ]
+                }
             });
 
             if(bonds.length === 0) {
@@ -46,8 +69,8 @@ class BondController {
 
             return JsonMessages({
                 message: translate.t('success.bond.returned'),
+                //data: new IndexBondResource(bonds),
                 data: bonds,
-               // data: new RegisterResource(createUser),
                 _links: IndexBondLinks._links(),
                 res
             });
@@ -71,10 +94,17 @@ class BondController {
                 });
             }
 
-            const bond = await prisma.bond.findUnique({
+            const bond = await prisma.bond.findUniqueOrThrow({
                 where: { 
                     id: bond_id,
-                    from: { id: user.id }
+                    OR: [
+                        {
+                            from: { id: user.id }
+                        },
+                        {
+                            to: { id: user.id }
+                        }
+                    ]
                 },
                 select: {
                     id: true,
@@ -83,13 +113,6 @@ class BondController {
                     status_id: true
                 }
             });
-
-            if(!bond) {
-                return JsonMessages({
-                    message: translate.t('error.bond.notFound'),
-                    res
-                });
-            }
 
             return JsonMessages({
                 message: translate.t('success.bond.returned'),
@@ -117,14 +140,7 @@ class BondController {
                 });
             }
 
-            const userTo: User | null = await prisma.user.findUnique({ where: { id: user_to_id }});
-
-            if(!userTo) {
-                return JsonMessages({
-                    message: translate.t('error.user.notFound'),
-                    res
-                });
-            }
+            await prisma.user.findUniqueOrThrow({ where: { id: user_to_id }}); //find userTo id
 
             const createUserBond = await prisma.user.update({
                 data: {
@@ -165,7 +181,7 @@ class BondController {
     async update(req: Request, res: Response) {
         try {
             const translate: i18n = req.i18n;
-            const { bond_id, status_id }: BondType = BondRequest.rules({ bond_id: Number(req.params.id) }, translate);
+            const { bond_id, status_id }: BondType = BondRequest.rules({bond_id: Number(req.params.id), status_id: req.body.status_id}, translate, req.method);
 
             const user = req.user as any;
 
@@ -177,28 +193,19 @@ class BondController {
                 });
             }
 
-            const bond: Bond | null = await prisma.bond.findUnique({
+            await prisma.bond.findUniqueOrThrow({ //find an userTo - bond
                 where: { 
                     id: bond_id,
-                    from: { id: user.id }
+                    to: { id: user.id }
                 }
             });
 
-            if(!bond) {
-                return JsonMessages({
-                    message: translate.t('error.bond.notFound'),
-                    res
-                });
-            }
-
             const bondStatus: Bond_Status | null = await prisma.bond_Status.findUniqueOrThrow({ where: { id: status_id } });
 
-            const updateBond = await prisma.bond.update({
+            const updateBondStatus = await prisma.bond.update({
                 data: {
                     status: {
-                        connect: {
-                            id: bondStatus.id
-                        }
+                        connect: { id: bondStatus.id }
                     }
                 },
                 where: { id: bond_id }
@@ -206,7 +213,7 @@ class BondController {
 
             return JsonMessages({
                 message: translate.t('success.bond.updated'),
-                data: updateBond,
+                data: updateBondStatus,
                 _links: ShowBondLinks._links(bond_id),
                 res
             });
@@ -230,21 +237,19 @@ class BondController {
                 });
             }
 
-            const bond: User | null = await prisma.user.findUnique({ where: { id: bond_id }});
-
-            if(!bond) {
-                return JsonMessages({
-                    message: translate.t('error.bond.notFound'),
-                    res
-                });
-            }
+            await prisma.bond.findUniqueOrThrow({ 
+                where: { 
+                    id: bond_id,
+                    status: {
+                        id: 2
+                    }
+                }
+            }); //find an user bond
 
             const removeBond = await prisma.user.update({
                 data: {
                     bond_started_by: {
-                        delete: {
-                            id: bond_id
-                        }
+                        delete: { id: bond_id }
                     }
                 },
                 where: { id: user.id },
@@ -252,14 +257,15 @@ class BondController {
                     id: true,
                     name: true,
                     email: true,
-                    birth_day: true
+                    birth_day: true,
+                    telephone: true
                 }
             });
 
             return JsonMessages({
                 message: translate.t('success.bond.deleted'),
                 data: new BondResource(removeBond),
-                _links: DestroyBondLinks._links(bond_id),
+                _links: DestroyBondLinks._links(),
                 res
             });
         } catch (err: unknown) {
