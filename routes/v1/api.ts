@@ -10,12 +10,36 @@ const apiContext: string = "api/v1";
 
 //router.all("*", passportJWT);
 //Auth
-router.post('/auth/login', AuthController.login)
-  .delete('/auth/logout', AuthController.logout)
+router.post(
+  '/auth/login',
+  AuthController.login
+)
+
+router.delete(
+  '/auth/logout',
+  AuthController.logout
+)
 
 //User
-router.get('/users', UserController.index)
-  .get('/users/:user_id', UserController.show)
+router.get(
+  '/users',
+  UserController.index
+)
+
+router.get(
+  '/users/:user_id',
+  UserController.show
+)
+
+router.patch(
+  '/users/:user_id/password',
+  UserController.change_password
+)
+
+router.delete(
+  '/users/:user_id',
+  UserController.delete
+)
 
 
 export { router as routerApi_V1, apiContext }

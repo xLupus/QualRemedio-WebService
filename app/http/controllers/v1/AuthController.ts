@@ -11,20 +11,15 @@ import exceptions from "../../../errors/handler"
 const prisma = new PrismaClient();
 
 class AuthController {
-
-  async teste(req: Request, res: Response) {
-    return JsonMessages({
-      statusCode: 200,
-      message: 'Acessando',
-      res
-    })
-  }
   //TODO - Colocar os schemas no requestBody e Responses
   /**
    * @swagger
    * /auth/login:
    *    post:
    *      summary: Autentica um usuario no sistema
+   * 
+   *      tags:
+   *        - Autenticação
    * 
    *      requestBody:
    *        required: true
@@ -177,6 +172,9 @@ class AuthController {
    * /auth/user:
    *    delete: 
    *      summary: Invalida um json web token
+   * 
+   *      tags:
+   *        - Autenticação
    *      
    *      parameters:
    *        - in: header
