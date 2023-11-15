@@ -34,11 +34,11 @@ class AuthController {
                 select: { id: true }
             });
 
-            if(account_type === 'doctor' || account_type === 'carer') {
+            if (account_type === 'doctor' || account_type === 'carer') {
                 medicalSpecialtyId = await prisma.medical_Specialty.findFirstOrThrow({
                     where: { name: specialty_name },
                     select: { id: true }
-                });              
+                });
             }
 
             checkUser = {
@@ -49,10 +49,10 @@ class AuthController {
                     {
                         telephone
                     }
-                ]  
+                ]
             };
 
-            if(account_type === 'doctor' && (crm && crm_state)) {   
+            if (account_type === 'doctor' && (crm && crm_state)) {
                 checkUser.OR = [
                     {
                         doctor: {
@@ -64,10 +64,10 @@ class AuthController {
                     }
                 ]
             }
-            
+
             user = await prisma.user.findMany({ where: checkUser });
 
-            if(user.length > 0) {
+            if (user.length > 0) {
                 checkUser.role = { some: { id: roleId!.id } } //role
 
                 data = { //data
@@ -80,8 +80,8 @@ class AuthController {
 
                 const checkUserRole: User[] | null = await prisma.user.findMany({ where: checkUser });
 
-                if(checkUserRole.length === 0) {
-                    if(account_type === 'doctor' && (crm && crm_state)) {
+                if (checkUserRole.length === 0) {
+                    if (account_type === 'doctor' && (crm && crm_state)) {
                         data.doctor = {
                             create: {
                                 crm_state,
@@ -91,7 +91,7 @@ class AuthController {
                                 }
                             }
                         }
-                    } else if(account_type === 'carer') {
+                    } else if (account_type === 'carer') {
                         data.carer = {
                             create: {
                                 specialty: {
@@ -105,17 +105,17 @@ class AuthController {
                         where: { email },
                         data
                     });
-    
+
                     return JsonMessages({
                         message: translate.t('success.user.created'),
                         res
-                    });   
+                    });
                 }
 
                 return JsonMessages({
                     message: translate.t('error.user.exists'),
                     res
-                }); 
+                });
             }
 
             user = {
@@ -136,7 +136,7 @@ class AuthController {
                 }
             };
 
-            if(account_type === 'doctor' && (crm && crm_state)) {
+            if (account_type === 'doctor' && (crm && crm_state)) {
                 user.doctor = {
                     create: {
                         crm_state,
@@ -146,7 +146,7 @@ class AuthController {
                         }
                     }
                 }
-            } else if(account_type === 'carer') {
+            } else if (account_type === 'carer') {
                 user.carer = {
                     create: {
                         specialty: {
@@ -156,14 +156,14 @@ class AuthController {
                 }
             }
 
-            const createUser = await prisma.user.create({ 
+            const createUser = await prisma.user.create({
                 data: user,
                 include: {
                     doctor: true,
                     carer: true
                 }
             });
-            
+
             return JsonMessages({
                 statusCode: 201,
                 message: translate.t('success.user.created'),
@@ -172,203 +172,202 @@ class AuthController {
                 res
             });
         } catch (err: unknown) {
-            return exceptions({err, req, res});
+            return exceptions({ err, req, res });
         }
     }
 
-  async teste(req: Request, res: Response) {
-    return JsonMessages({
-      statusCode: 200,
-      message: 'Acessando',
-      res
-    })
-  }
-  //TODO - Colocar os schemas no requestBody e Responses
-  /**
-   * @swagger
-   * /auth/login:
-   *    post:
-   *      summary: Autentica um usuario no sistema
-   * 
-   *      requestBody:
-   *        required: true
-   *        content: 
-   *          application/json:
-   *            schema:
-   *              type: object
-   * 
-   *              properties:
-   *                email:
-   *                  type: string
-   *                password:
-   *                  type: string
-   *                role:
-   *                  type: integer
-   * 
-   *              required:
-   *                - email
-   *                - password
-   *                - role
-   * 
-   *      responses:
-   *        '200':
-   *          description: Rever
-   *          content:
-   *            application/json:
-   *              schema:
-   *                type: object  
-   *                properties:
-   *                  status:
-   *                    type: integer
-   * 
-   *                  message: 
-   *                    type: string
-   * 
-   *                  data:
-   *                    type: object
-   * 
-   *        '400':
-   *          description: Rever
-   *          content:
-   *            application/json:
-   *              schema:
-   *                type: object  
-   *                properties:
-   *                  status:
-   *                    type: integer
-   * 
-   *                  message: 
-   *                    type: string
-   * 
-   *                  data:
-   *                    type: object
-   * 
-   *        '500':
-   *          description: Rever
-   *          content:
-   *            application/json:
-   *              schema:
-   *                type: object  
-   *                properties:
-   *                  status:
-   *                    type: integer
-   * 
-   *                  message: 
-   *                    type: string
-   * 
-   *                  data:
-   *                    type: object
-   *  
-   */
+    //TODO - Colocar os schemas no requestBody e Responses
+    /**
+     * @swagger
+     * /auth/login:
+     *    post:
+     *      summary: Autentica um usuario no sistema
+     * 
+     *      tags:
+     *        - Autenticação
+     * 
+     *      requestBody:
+     *        required: true
+     *        content: 
+     *          application/json:
+     *            schema:
+     *              type: object
+     * 
+     *              properties:
+     *                email:
+     *                  type: string
+     *                password:
+     *                  type: string
+     *                role:
+     *                  type: integer
+     * 
+     *              required:
+     *                - email
+     *                - password
+     *                - role
+     * 
+     *      responses:
+     *        '200':
+     *          description: Rever
+     *          content:
+     *            application/json:
+     *              schema:
+     *                type: object  
+     *                properties:
+     *                  status:
+     *                    type: integer
+     * 
+     *                  message: 
+     *                    type: string
+     * 
+     *                  data:
+     *                    type: object
+     * 
+     *        '400':
+     *          description: Rever
+     *          content:
+     *            application/json:
+     *              schema:
+     *                type: object  
+     *                properties:
+     *                  status:
+     *                    type: integer
+     * 
+     *                  message: 
+     *                    type: string
+     * 
+     *                  data:
+     *                    type: object
+     * 
+     *        '500':
+     *          description: Rever
+     *          content:
+     *            application/json:
+     *              schema:
+     *                type: object  
+     *                properties:
+     *                  status:
+     *                    type: integer
+     * 
+     *                  message: 
+     *                    type: string
+     * 
+     *                  data:
+     *                    type: object
+     *  
+     */
     async login(req: Request, res: Response) {
-    const json_message: IRequestResponse = { message: "", res }
-    const validation = LoginRequest.rules(req.body)
+        const json_message: IRequestResponse = { message: "", res }
+        const validation = LoginRequest.rules(req.body)
 
-    if (!validation.success) {
-      json_message.data = { errors: validation.error.formErrors.fieldErrors }
-      return JsonMessages(json_message)
-    }
+        if (!validation.success) {
+            json_message.data = { errors: validation.error.formErrors.fieldErrors }
+            return JsonMessages(json_message)
+        }
 
-    const { email, password, role } = validation.data
+        const { email, password, role } = validation.data
 
-    try {
-      const user = await prisma.user.findUnique({
-        where: {
-          email,
-          role: { some: { id: role } }
-        },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          password: true,
-          role: {
-            where: { id: role },
-            select: { 
-              id: true, 
-              name: true, 
-              description: true 
+        try {
+            const user = await prisma.user.findUnique({
+                where: {
+                    email,
+                    role: { some: { id: role } }
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    password: true,
+                    role: {
+                        where: { id: role },
+                        select: {
+                            id: true,
+                            name: true,
+                            description: true
+                        }
+                    }
+                },
+            })
+
+            if (!user || !await bcrypt.compare(password, user.password)) {
+                json_message.statusCode = 400
+                json_message.message = "Credenciais Invalidas"
+
+                return JsonMessages(json_message)
             }
-          }
-        },
-      })
 
-      if (!user || !await bcrypt.compare(password, user.password)) {
-        json_message.statusCode = 400
-        json_message.message = "Credenciais Invalidas"
+            const token_expires_in = '72h'
+
+            const jwt_payload = {
+                id: user.id,
+                role: user.role[0]
+            }
+
+            const token = jwt.sign(
+                jwt_payload,
+                process.env.SECRET_KEY || 'secret',
+                { expiresIn: token_expires_in }
+            )
+
+            json_message.statusCode = 200
+
+            json_message.data = {
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role[0]
+                },
+                authorization: {
+                    type: 'bearer',
+                    token,
+                    expiresIn: token_expires_in
+                }
+            }
+
+        } catch (err: any) {
+            console.log(req.i18n);
+
+            return exceptions({ err, res })
+        }
 
         return JsonMessages(json_message)
-      }
+    }
 
-      const token_expires_in = '72h'
+    /**
+     * @swagger
+     * /auth/user:
+     *    delete: 
+     *      summary: Invalida um json web token
+     * 
+     *      tags:
+     *        - Autenticação
+     *      
+     *      parameters:
+     *        - in: header
+     *          name: Authorization
+     *          description: Um JWT bearer token
+     *          schema:
+     *            type: string
+     *            format: JWT
+     *          
+     * 
+     */
+    public async logout(req: Request, res: Response) {
+        //TODO - Rever authorization header
+        const token = req.headers.authorization!.split(' ')[1]
 
-      const jwt_payload = {
-        id: user.id,
-        role: user.role[0]
-      }
+        try {
+            invalidateToken(token);
 
-      const token = jwt.sign(
-        jwt_payload,
-        process.env.SECRET_KEY || 'secret',
-        { expiresIn: token_expires_in }
-      )
-
-      json_message.statusCode = 200
-
-      json_message.data = {
-        user: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          role: user.role[0]
-        },
-        authorization: {
-          type: 'bearer',
-          token,
-          expiresIn: token_expires_in
+            return JsonMessages({
+                message: 'User has been logged out',
+                res
+            });
+        } catch (err: unknown) {
+            return exceptions({ err, res });
         }
-      }
-
-    } catch (err: any) {
-        console.log(req.i18n);
-        
-      return exceptions({err, res})
     }
-
-    return JsonMessages(json_message)
-  }
-
-  /**
-   * @swagger
-   * /auth/user:
-   *    delete: 
-   *      summary: Invalida um json web token
-   *      
-   *      parameters:
-   *        - in: header
-   *          name: Authorization
-   *          description: Um JWT bearer token
-   *          schema:
-   *            type: string
-   *            format: JWT
-   *          
-   * 
-   */
-  public async logout(req: Request, res: Response) {
-    //TODO - Rever authorization header
-    const token = req.headers.authorization!.split(' ')[1]
-
-    try {
-        invalidateToken(token);
-
-      return JsonMessages({
-        message: 'User has been logged out',
-        res
-      });
-    } catch (err: unknown) {
-      return exceptions({err, res});
-    }
-  }
 
 }
 
