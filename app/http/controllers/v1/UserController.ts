@@ -4,6 +4,7 @@ import { JsonMessages } from "../../../functions/function"
 import exceptions from "../../../errors/handler"
 import bcrypt from "bcrypt"
 import { change_password_schema, id_parameter_schema, paginate_schema } from "../../schemas";
+import { JsonMessages as IResponseMessage } from "../../../types/type"
 
 const prisma = new PrismaClient();
 
@@ -45,8 +46,14 @@ class UserController {
    */
   async index(req: Request, res: Response) {
     const findmany_args: Prisma.UserFindManyArgs = {}
-
     const { filter, sort, skip, take } = req.query
+
+    const json_message: IResponseMessage = {
+      statusCode: 200,
+      message: 'Lista de Usuarios',
+      data: {},
+      res
+    }
 
     if (filter) {
       const available_filter_fields = ['name', 'email']
@@ -87,26 +94,45 @@ class UserController {
       }
     }
 
-    if (take && skip) {
-      const paginate_validation = paginate_schema.safeParse({ take, skip })
-
-      if (paginate_validation.success) {
-        findmany_args.take = paginate_validation.data.take
-        findmany_args.skip = paginate_validation.data.skip
-      }
-    }
-
-    //findmany_args.select = {} //TODO - Decidir quais campos retornar
-
     try {
-      const users = await prisma.user.findMany(findmany_args)
-
-      return JsonMessages({
-        statusCode: 200,
-        message: 'Lista de Usuarios',
-        data: { users },
-        res
+      const total_users = await prisma.user.findMany({
+        where: findmany_args.where
       })
+
+      json_message.data = {
+        total_users: total_users.length
+      }
+
+      if (take && skip) {
+        const paginate_validation = paginate_schema.safeParse({ take, skip })
+
+        if (paginate_validation.success) {
+          const { take, skip } = paginate_validation.data
+
+          findmany_args.take = take
+          findmany_args.skip = skip
+
+          json_message.data = {
+            ...json_message.data as object,
+            number_of_pages: Math.round(total_users.length / take)
+          }
+        }
+      }
+
+      //findmany_args.select = {} //TODO - Decidir quais campos retornar
+      
+      try {
+        const users = await prisma.user.findMany(findmany_args)
+
+        json_message.data = {
+          ...json_message.data as object,
+          users
+        }
+
+        return JsonMessages(json_message)
+      } catch (err: any) {
+        return exceptions(err, res)
+      }
     } catch (err: any) {
       return exceptions(err, res)
     }

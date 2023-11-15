@@ -39,7 +39,7 @@ export const paginate_schema = z.object({
 
     z.number()
       .int()
-      .positive()
+      .nonnegative()
   ),
 
   take: z.preprocess(
