@@ -12,8 +12,7 @@ import StoreBondLinks from '../../resources/v1/hateoas/Bond/StoreBondLinks';
 import DestroyBondLinks from '../../resources/v1/hateoas/Bond/DestroyBondLinks';
 import ShowBondLinks from '../../resources/v1/hateoas/Bond/ShowBondLinks';
 import IndexBondLinks from '../../resources/v1/hateoas/Bond/IndexBondLinks';
-import { ShowBondResource } from '../../resources/v1/Bond/ShowBondResource';
-import { IndexBondResource } from '../../resources/v1/Bond/IndexBondResource';
+import UpdateBondLinks from '../../resources/v1/hateoas/Bond/UpdateBondLinks';
 
 const prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new PrismaClient();
 
@@ -116,7 +115,7 @@ class BondController {
 
             return JsonMessages({
                 message: translate.t('success.bond.returned'),
-                data: new ShowBondResource(bond),
+                data: new BondResource(bond, req.method),
                 _links: ShowBondLinks._links(bond_id),
                 res
             });
@@ -162,6 +161,7 @@ class BondController {
                     id: true,
                     name: true,
                     email: true,
+                    telephone: true,
                     birth_day: true
                 }
             });
@@ -169,7 +169,7 @@ class BondController {
             return JsonMessages({
                 statusCode: 201,
                 message: translate.t('success.bond.created'),
-                data: new BondResource(createUserBond),
+                data: new BondResource(createUserBond, req.method),
                 _links: StoreBondLinks._links(createUserBond.id),
                 res
             });
@@ -181,7 +181,7 @@ class BondController {
     async update(req: Request, res: Response) {
         try {
             const translate: i18n = req.i18n;
-            const { bond_id, status_id }: BondType = BondRequest.rules({bond_id: Number(req.params.id), status_id: req.body.status_id}, translate, req.method);
+            const { bond_id, status_id }: BondType = BondRequest.rules({ bond_id: Number(req.params.id), status_id: req.body.status_id }, translate, req.method);
 
             const user = req.user as any;
 
@@ -202,19 +202,46 @@ class BondController {
 
             const bondStatus: Bond_Status | null = await prisma.bond_Status.findUniqueOrThrow({ where: { id: status_id } });
 
+            const currentBondStatus: Bond | null = await prisma.bond.findUnique({
+                where: { 
+                    id: bond_id,
+                    OR: [
+                        {
+                            status_id: 2
+                        },
+                        {
+                            status_id: 3
+                        }
+                    ]
+                }
+            });
+
+            if(currentBondStatus) {
+                return JsonMessages({
+                    message: translate.t('error.bond.status.cannotBeChanged'),
+                    res
+                });
+            }
+
             const updateBondStatus = await prisma.bond.update({
                 data: {
                     status: {
                         connect: { id: bondStatus.id }
                     }
                 },
-                where: { id: bond_id }
+                where: { id: bond_id },
+                select: {
+                    id: true,
+                    from_user: true,
+                    to_user: true,
+                    status_id: true
+                }
             });
 
             return JsonMessages({
                 message: translate.t('success.bond.updated'),
-                data: updateBondStatus,
-                _links: ShowBondLinks._links(bond_id),
+                data: new BondResource(updateBondStatus),
+                _links: UpdateBondLinks._links(bond_id),
                 res
             });
         } catch (err: unknown) {
@@ -240,9 +267,7 @@ class BondController {
             await prisma.bond.findUniqueOrThrow({ 
                 where: { 
                     id: bond_id,
-                    status: {
-                        id: 2
-                    }
+                    status: { id: 2 }
                 }
             }); //find an user bond
 

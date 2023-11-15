@@ -1,7 +1,7 @@
 import { port } from "../../../../../../config/server";
 import { apiContext } from "../../../../../../routes/v1/api";
 
-class ShowBondLinks {
+class StoreBondLinks {
     _links(bondId: number | undefined): object[] {
         return [
             {
@@ -16,8 +16,8 @@ class ShowBondLinks {
             },
             {
                 href: `http://localhost:${port}/${apiContext}/user/bond/${bondId}`,
-                rel: 'update_an_user_bond',
-                method: 'PATCH'
+                rel: 'list_user_bond',
+                method: 'GET'
             },
             {
                 href: `http://localhost:${port}/${apiContext}/user/bond/${bondId}`,
@@ -28,4 +28,4 @@ class ShowBondLinks {
     }
 }
 
-export default new ShowBondLinks();
+export default new StoreBondLinks();

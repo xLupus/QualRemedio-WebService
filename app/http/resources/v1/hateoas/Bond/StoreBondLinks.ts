@@ -16,6 +16,11 @@ class StoreBondLinks {
             },
             {
                 href: `http://localhost:${port}/${apiContext}/user/bond/${bondId}`,
+                rel: 'update_an_user_bond',
+                method: 'PATCH'
+            },
+            {
+                href: `http://localhost:${port}/${apiContext}/user/bond/${bondId}`,
                 rel: 'unlink_an_user',
                 method: 'DELETE'
             }

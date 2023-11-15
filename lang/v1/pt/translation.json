@@ -18,7 +18,8 @@
         "bond": {
             "notFound": "Nenhum vínculo foi encontrado",
             "status": {
-                "notFound": "O status de vínculo informado não existe"
+                "notFound": "O status de vínculo informado não existe",
+                "cannotBeChanged": "Um vinculo após aceito ou recusado não pode ter o status alterado"
             }
         },
         "validation": {
