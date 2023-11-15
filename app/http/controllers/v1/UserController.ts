@@ -214,7 +214,7 @@ class UserController {
    *          description: Retorna as informações de um usuario
    *    
    */
-  async delete(req: Request, res: Response) {
+  async destroy(req: Request, res: Response) {
     const { user_id } = req.params
     const { password } = req.body
 

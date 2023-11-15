@@ -38,7 +38,7 @@ router.patch(
 
 router.delete(
   '/users/:user_id',
-  UserController.delete
+  UserController.destroy
 )
 
 
