@@ -17,6 +17,7 @@ import UpdateBondLinks from '../../resources/v1/hateoas/Bond/UpdateBondLinks';
 const prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new PrismaClient();
 
 class BondController {
+    //TODO: Ver de qual role veio o vinculo, e se cabe a adiçao de duas novas colunas na tabela bond
     async index(req: Request, res: Response) {
         try {
             const translate: i18n = req.i18n;
@@ -127,7 +128,7 @@ class BondController {
     async store(req: Request, res: Response) {
         try {
             const translate: i18n = req.i18n;
-            const { user_to_id }: BondType = BondRequest.rules(req.body, translate);
+            const { user_to_id, user_to_role_id }: BondType = BondRequest.rules(req.body, translate);
             
             const user = req.user as any;
         
@@ -139,8 +140,38 @@ class BondController {
                 });
             }
 
-            await prisma.user.findUniqueOrThrow({ where: { id: user_to_id }}); //find userTo id
+            const userTo = await prisma.user.findUniqueOrThrow({
+                where: { id: user_to_id },
+                include: {
+                    role: {
+                        where: { id: user_to_role_id }
+                    }
+                }
+            }); //finds the user which the bond was sent
 
+            if(userTo.id === user.id) {
+                return JsonMessages({
+                    message: translate.t('error.bond.user.equals'),
+                    res
+                });
+            } else if(userTo.role[0].id === user.role[0].id) {
+                return JsonMessages({
+                    message: translate.t('error.bond.user.roleEquals'),
+                    res
+                });
+            } else if((user.role[0].id === 2 || user.role[0].id === 3) && (userTo.role[0].id === 3 || userTo.role[0].id === 2)) {
+                return JsonMessages({
+                    message: 'Só é possível estabelecer um vínculo com um paciente',
+                    res
+                });
+            }
+
+
+
+
+
+
+return;
             const createUserBond = await prisma.user.update({
                 data: {
                     bond_started_by: {
@@ -267,7 +298,16 @@ class BondController {
             await prisma.bond.findUniqueOrThrow({ 
                 where: { 
                     id: bond_id,
-                    status: { id: 2 }
+                    status: {
+                        OR: [
+                            {
+                                id: 2
+                            },
+                            {
+                                id: 3
+                            }
+                        ]
+                    }
                 }
             }); //find an user bond
 

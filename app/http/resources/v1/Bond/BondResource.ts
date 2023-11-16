@@ -6,7 +6,7 @@ export class BondResource {
     }
     
     resource(data: any, reqMethod?: string | undefined) {
-        if(reqMethod === 'GET' && data.length) {
+        if(reqMethod === 'GET' && data.length !== undefined) {
             return {
                 id: data.id,
                 from_user: data.from_user,

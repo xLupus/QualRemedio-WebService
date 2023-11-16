@@ -20,6 +20,10 @@
             "status": {
                 "notFound": "Bond status not found",
                 "cannotBeChanged": "Once bond has accepted or recused, it status cannot be changed"
+            },
+            "user": {
+                "equals": "Cannot stabilish bond with yourself",
+                "roleEquals": "Cannot stabilish bond with a person that has the same role as you"
             }
         },
         "validation": {

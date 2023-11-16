@@ -20,6 +20,10 @@
             "status": {
                 "notFound": "O status de vínculo informado não existe",
                 "cannotBeChanged": "Um vinculo após aceito ou recusado não pode ter o status alterado"
+            },
+            "user": {
+                "equals": "Não é possível estabelecer um vínculo com você mesmo",
+                "roleEquals": "Não é possível estabelecer um vínculo com alguém que tenha o mesmo cargo que você"
             }
         },
         "validation": {

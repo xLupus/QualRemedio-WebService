@@ -30,6 +30,7 @@ interface BondType {
   user_to_id?: number | undefined;
   status_id?: number | undefined;
   bond_id?: number | undefined;
+  user_to_role_id?: number | undefined;
 }
 
 //Error messages
