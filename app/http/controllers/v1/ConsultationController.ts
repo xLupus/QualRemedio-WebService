@@ -1,21 +1,134 @@
 import { Request, Response } from "express";
-import { PrismaClient } from "@prisma/client"
+import { Prisma, PrismaClient } from "@prisma/client"
 import exceptions from '../../../errors/handler'
 import { JsonMessages } from "../../../functions/function";
-import ConsultationRequest from "../../requests/v1/ConsultationRequest";
-import { id_parameter_schema } from "../../schemas";
+import StoreConsultationRequest from "../../requests/v1/consultation/StoreConsultationRequest";
+import { id_parameter_schema, paginate_schema } from "../../schemas";
+import { JsonMessages as IResponseMessage } from "../../../types/type";
+import UpdateConsultationRequest from "../../requests/v1/consultation/UpdateConsultationRequest";
 
 const prisma = new PrismaClient()
 
 class ConsultationController {
+  /**
+   * 
+   */
   async index(req: Request, res: Response) {
+    const findmany_args: Prisma.ConsultationFindManyArgs = {}
+    const { filter, sort, skip, take } = req.query
+
+    const json_message: IResponseMessage = {
+      statusCode: 200,
+      message: 'Lista de Consultas',
+      data: {},
+      res
+    }
+
+    if (filter) {
+      const available_filter_fields = ['name', 'email'] //TODO - Mudar 
+
+      filter.toString().split(',').map(filterParam => {
+        const [filterColumn, filterValue] = filterParam.split(':')
+
+        if (available_filter_fields.includes(filterColumn)) {
+
+        }
+      })
+    }
+
+    if (sort) {
+      const available_sort_fields = ['name', 'email']  //TODO - Mudar 
+
+      const sortParam = sort.toString();
+      const param = sortParam.slice(1);
+
+      if (available_sort_fields.includes(param)) {
+        const orderOperator = sortParam[0] == '-' ? 'desc' : 'asc';
+
+      }
+    }
+
     try {
-      const consultations = await prisma.consultation.findMany()
+      const total_users = await prisma.consultation.findMany({
+        where: findmany_args.where
+      })
+
+      json_message.data = {
+        total_consultations: total_users.length
+      }
+
+      if (take && skip) {
+        const paginate_validation = paginate_schema.safeParse({ take, skip })
+
+        if (paginate_validation.success) {
+          const { take, skip } = paginate_validation.data
+
+          findmany_args.take = take
+          findmany_args.skip = skip
+
+          json_message.data = {
+            ...json_message.data as object,
+            number_of_pages: Math.round(total_users.length / take)
+          }
+        }
+      }
+
+      //findmany_args.select = {} //TODO - Decidir quais campos retornar
+
+      try {
+        const consultations = await prisma.consultation.findMany(findmany_args)
+
+        json_message.data = {
+          ...json_message.data as object,
+          consultations
+        }
+
+        return JsonMessages(json_message)
+      } catch (err: any) {
+        return exceptions({ err, res })
+      }
+    } catch (err: any) {
+      return exceptions({ err, res })
+    }
+  }
+
+  /**
+   * 
+   */
+  async show(req: Request, res: Response) {
+    const consultation_id_validation = id_parameter_schema.safeParse(req.params.consultation_id)
+
+    if (!consultation_id_validation.success)
+      return JsonMessages({
+        statusCode: 200,
+        data: {
+          errors: consultation_id_validation.error.formErrors.formErrors
+        },
+        message: '',
+        res
+      })
+
+    try {
+      const consultation = await prisma.consultation.findUnique({
+        where: { id: consultation_id_validation.data },
+        include: {
+          created_by: true,
+          specialty: true,
+          status: true,
+        }
+      })
+
+      if (!consultation)
+        return JsonMessages({
+          statusCode: 200,
+          message: 'Consulta não encontrada',
+          res
+        })
 
       return JsonMessages({
         statusCode: 200,
-        message: 'Lista de Consultas',
-        data: consultations,
+        message: '',
+        data: consultation,
         res
       })
 
@@ -23,14 +136,19 @@ class ConsultationController {
       return exceptions({ err, res })
     }
   }
-
+  /** 
+   * 
+   */
   async store(req: Request, res: Response) {
     const bond_id_validation = id_parameter_schema.safeParse(req.params.bond_id)
-    const consultation_validation = ConsultationRequest.rules(req.body)
+    const consultation_validation = await StoreConsultationRequest.rules(req.body)
 
     if (!bond_id_validation.success)
       return JsonMessages({
         statusCode: 200,
+        data: {
+          errors: bond_id_validation.error.formErrors.formErrors
+        },
         message: '',
         res
       })
@@ -38,23 +156,209 @@ class ConsultationController {
     if (!consultation_validation.success)
       return JsonMessages({
         statusCode: 200,
+        data: {
+          errors: consultation_validation.error.formErrors.fieldErrors
+        },
         message: '',
         res
       })
 
-    const { reason, consultation_status, created_by_user, date, department_id, observation } = consultation_validation.data
+    try {
+      const bond = await prisma.bond.findUnique({
+        where: { id: bond_id_validation.data }
+      })
+
+      if (!bond)
+        return JsonMessages({
+          statusCode: 200,
+          message: 'Vinculo não encontrado',
+          res
+        })
+
+      try {
+        const { reason, consultation_status, created_by_user, date, department_id, observation } = consultation_validation.data
+
+        await prisma.consultation.create({
+          data: {
+            bond_id: bond_id_validation.data,
+            deparment_id: department_id,
+            reason,
+            observation,
+            consultation_status,
+            created_by_user,
+            date_of_consultation: date,
+          }
+        })
+
+        return JsonMessages({
+          statusCode: 200,
+          message: 'Consulta Criada com sucesso',
+          res
+        })
+
+      } catch (err: any) {
+        return exceptions({ err, res })
+      }
+    } catch (err: any) {
+      return exceptions({ err, res })
+    }
+
+  }
+
+  /**
+   * 
+   */
+  async update(req: Request, res: Response) {
+    const consultation_id_validation = id_parameter_schema.safeParse(req.params.consultation_id)
+    const consultation_update_validation = await UpdateConsultationRequest.rules(req.body)
+    const consultation_update_input: Prisma.ConsultationUpdateInput = {}
+
+    if (!consultation_id_validation.success)
+      return JsonMessages({
+        statusCode: 200,
+        data: {
+          errors: consultation_id_validation.error.formErrors.formErrors
+        },
+        message: '',
+        res
+      })
+
+    if (!consultation_update_validation.success)
+      return JsonMessages({
+        statusCode: 200,
+        data: {
+          errors: consultation_update_validation.error.formErrors.fieldErrors
+        },
+        message: '',
+        res
+      })
 
     try {
+      const consultation_id = consultation_id_validation.data
 
+      const consultation = await prisma.consultation.findUnique({
+        where: { id: consultation_id }
+      })
 
+      if (!consultation)
+        return JsonMessages({
+          statusCode: 200,
+          message: 'Consulta não encontrada',
+          res
+        })
+
+      const { data } = consultation_update_validation
+
+      consultation_update_input.reason = data.reason ?? undefined
+      consultation_update_input.observation = data.observation ?? undefined
+      consultation_update_input.date_of_consultation = data.date ?? undefined
+      consultation_update_input.specialty = data.department_id ? { connect: { id: data.department_id } } : undefined
+      consultation_update_input.status = data.consultation_status ? { connect: { id: data.consultation_status } } : undefined
+
+      try {
+        await prisma.consultation.update({
+          where: { id: consultation_id },
+          data: consultation_update_input
+        })
+
+      } catch (err: any) {
+        return exceptions({ err, res })
+      }
+    } catch (err: any) {
+      return exceptions({ err, res })
+    }
+
+    return JsonMessages({
+      statusCode: 200,
+      message: 'Consulta Atualizada com Sucesso',
+      data: {
+        consultation_update_input
+      },
+      res
+    })
+  }
+
+  /**
+   * 
+   */
+  async destroy(req: Request, res: Response) {
+    const consultation_id_validation = id_parameter_schema.safeParse(req.params.consultation_id)
+
+    if (!consultation_id_validation.success)
+      return JsonMessages({
+        statusCode: 200,
+        data: {
+          errors: consultation_id_validation.error.formErrors.formErrors
+        },
+        message: '',
+        res
+      })
+
+    try {
+      const consultation = await prisma.consultation.findUnique({
+        where: { id: consultation_id_validation.data }
+      })
+
+      if (!consultation)
+        return JsonMessages({
+          statusCode: 200,
+          message: 'Consulta não encontrada',
+          res
+        })
+
+      try {
+        await prisma.consultation.delete({
+          where: { id: consultation_id_validation.data }
+        })
+
+        return JsonMessages({
+          statusCode: 200,
+          message: 'Consulta apagada com sucesso',
+          res
+        })
+
+      } catch (err: any) {
+        return exceptions({ err, res })
+      }
     } catch (err: any) {
       return exceptions({ err, res })
     }
   }
 
-  async update(req: Request, res: Response) { }
+  /**
+   * 
+   */
+  async prescriptions(req: Request, res: Response) {
+    const consultation_id_validation = id_parameter_schema.safeParse(req.params.consultation_id)
 
-  async destroy(req: Request, res: Response) { }
+    if (!consultation_id_validation.success)
+      return JsonMessages({
+        statusCode: 200,
+        data: {
+          errors: consultation_id_validation.error.formErrors.formErrors
+        },
+        message: '',
+        res
+      })
+
+    try {
+      const prescriptions = await prisma.consultation.findUnique({
+        where: { id: consultation_id_validation.data },
+        include: {
+          prescription: true
+        }
+      })
+
+      return JsonMessages({
+        statusCode: 200,
+        message: '',
+        data: prescriptions,
+        res
+      })
+    } catch (err: any) {
+      return exceptions({ err, res })
+    }
+  }
 }
 
 export default new ConsultationController()
