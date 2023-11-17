@@ -25,19 +25,22 @@ class ConsultationController {
     }
 
     if (filter) {
-      const available_filter_fields = ['name', 'email'] //TODO - Mudar 
+      const available_filter_fields = ['created_by'] //TODO - Mudar 
 
       filter.toString().split(',').map(filterParam => {
         const [filterColumn, filterValue] = filterParam.split(':')
 
         if (available_filter_fields.includes(filterColumn)) {
+          if (filterColumn == 'created_by') {
+            findmany_args.where = { created_by_user: Number(filterValue) }
+          }
 
         }
       })
     }
 
     if (sort) {
-      const available_sort_fields = ['name', 'email']  //TODO - Mudar 
+      const available_sort_fields = ['created_by']  //TODO - Mudar 
 
       const sortParam = sort.toString();
       const param = sortParam.slice(1);

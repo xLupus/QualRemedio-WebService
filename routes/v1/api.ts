@@ -15,10 +15,11 @@ router.delete('/auth/logout', AuthController.logout)
 router.post('/auth/teste', AuthController.teste)
 
 //Consultation
+router.post('/bond/:bond_id/consultations', ConsultationController.store)
+router.get('/bond/:bond_id/consultations', ConsultationController.index)
 router.get('/consultations', ConsultationController.index)
 router.get('/consultations/:consultation_id', ConsultationController.show)
 router.get('/consultations/:consultation_id/prescriptions', ConsultationController.prescriptions)
-router.post('/bond/:bond_id/consultations', ConsultationController.store)
 router.patch('/consultations/:consultation_id', ConsultationController.update)
 
 export { router as routerApiV1, apiContext }  
