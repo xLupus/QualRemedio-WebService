@@ -17,11 +17,12 @@ import UpdateBondLinks from '../../resources/v1/hateoas/Bond/UpdateBondLinks';
 const prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new PrismaClient();
 
 class BondController {
-    //TODO: Ver de qual role veio o vinculo, e se cabe a adiçao de duas novas colunas na tabela bond
+    //TODO: desenvolver um filtro aqui
     async index(req: Request, res: Response) {
         try {
             const translate: i18n = req.i18n;
             const user = req.user as any;
+            const userRoleId: number = user.role[0].id;
 
             if(!user) {
                 return JsonMessages({
@@ -51,15 +52,27 @@ class BondController {
                 where: {
                     OR: [
                         {
-                            from: { id: user.id }
+                            from_role: { id: userRoleId}
                         },
                         {
-                            to: { id: user.id }
+                            to_role: { id: userRoleId}
+                        }
+                    ],
+                    AND: [
+                        {
+                            OR: [
+                                {
+                                    from: { id: user.id }
+                                },
+                                {
+                                    to: { id: user.id }
+                                }
+                            ]
                         }
                     ]
                 }
             });
-
+            
             if(bonds.length === 0) {
                 return JsonMessages({
                     message: translate.t('error.bond.notFound'),
@@ -85,6 +98,7 @@ class BondController {
             const { bond_id }: BondType = BondRequest.rules({ bond_id: Number(req.params.id) }, translate, req.method);
 
             const user = req.user as any;
+            const userRoleId: number = user.role[0].id;
 
             if(!user) {
                 return JsonMessages({
@@ -99,17 +113,34 @@ class BondController {
                     id: bond_id,
                     OR: [
                         {
-                            from: { id: user.id }
+                            from_role: { id: userRoleId }
                         },
                         {
-                            to: { id: user.id }
+                            to_role: { id: userRoleId }
+                        }
+                    ],
+                    AND: [
+                        {
+                            OR: [
+                                {
+                                    from: { id: user.id }
+                                },
+                                {
+                                    to: { id: user.id }
+                                }
+                            ]
                         }
                     ]
                 },
                 select: {
                     id: true,
                     from_user: true,
-                    to_user: true,
+                    to: {
+                        include: {
+                            doctor: userRoleId === 2 && true,
+                            carer: userRoleId === 3 && true
+                        }
+                    },
                     status_id: true
                 }
             });
@@ -131,7 +162,8 @@ class BondController {
             const { user_to_id, user_to_role_id }: BondType = BondRequest.rules(req.body, translate);
             
             const user = req.user as any;
-        
+            const userRoleId: number = user.role[0].id;
+
             if(!user) {
                 return JsonMessages({
                     statusCode: 410,
@@ -140,7 +172,7 @@ class BondController {
                 });
             }
 
-            const userTo = await prisma.user.findUniqueOrThrow({
+            const toUser = await prisma.user.findUniqueOrThrow({
                 where: { id: user_to_id },
                 include: {
                     role: {
@@ -149,33 +181,35 @@ class BondController {
                 }
             }); //finds the user which the bond was sent
 
-            if(userTo.id === user.id) {
+            const toUserRoleId: number = toUser.role[0].id;
+
+            if(toUser.id === user.id) {
                 return JsonMessages({
                     message: translate.t('error.bond.user.equals'),
                     res
                 });
-            } else if(userTo.role[0].id === user.role[0].id) {
+            } else if(toUserRoleId === userRoleId) {
                 return JsonMessages({
                     message: translate.t('error.bond.user.roleEquals'),
                     res
                 });
-            } else if((user.role[0].id === 2 || user.role[0].id === 3) && (userTo.role[0].id === 3 || userTo.role[0].id === 2)) {
+            } else if((userRoleId === 2 || userRoleId === 3) && (toUserRoleId === 3 || toUserRoleId === 2)) {
                 return JsonMessages({
                     message: 'Só é possível estabelecer um vínculo com um paciente',
                     res
                 });
             }
 
-
-
-
-
-
-return;
             const createUserBond = await prisma.user.update({
-                data: {
+                data: {               
                     bond_started_by: {
                         create: {
+                            from_role: {
+                                connect: { id: userRoleId }
+                            },
+                            to_role: {
+                                connect: { id: toUserRoleId }
+                            },
                             to: {
                                 connect: {
                                     id: user_to_id

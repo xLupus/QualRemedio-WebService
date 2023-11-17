@@ -23,10 +23,28 @@ export class BondResource {
         } else if(reqMethod === 'GET') {
             return {
                 id: data.id,
-                name: data.name,
-                email: data.email,
-                telephone: data.telephone,
-                birth_day: moment(data.birth_day.toISOString(), 'YYYY-MM-DD').format('DD-MM-YYYY')
+                from_user: data.from_user,
+                to: {
+                    id: data.to.id,
+                    name: data.to.name,
+                    email: data.to.email,
+                    telephone: data.to.telephone,
+                    birth_day: moment(data.to.birth_day.toISOString(), 'YYYY-MM-DD').format('DD-MM-YYYY'),
+                    account_type: {
+                        doctor: data.to.doctor && {
+                            id: data.to.doctor[0].id,
+                            crm: data.to.doctor[0].crm,
+                            crm_state: data.to.doctor[0].crm_state,
+                            crm_verified: data.to.doctor[0].crm_verified,
+                            specialty_id: data.to.doctor[0].specialty_id
+                        },
+                        carer: data.to.carer && {
+                            id: data.to.carer[0].id,
+                            specialty_id: data.to.carer[0].specialty_id
+                        }
+                    }
+                },
+                status_id: data.to.status_id
             }    
         } else if(reqMethod === 'POST') {
             return {
