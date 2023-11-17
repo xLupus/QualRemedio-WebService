@@ -10,7 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-//TODO - Rever os Varchar()
 model Consultation_Status {
   id     Int    @id @default(autoincrement())
   status String @db.VarChar(30)
@@ -44,8 +43,8 @@ model Medical_Specialty {
 }
 
 model Token_Blacklist {
-  id    String @id @default(uuid())
-  token String @db.VarChar(600)
+  id    Int    @id @default(autoincrement())
+  token String @unique @db.VarChar(700)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -73,6 +72,9 @@ model Role {
 
   role_permission Role_Permission[]
   user            User[]
+
+  bond_started_by_role Bond[] @relation("bond_started_by_role")
+  bond_invited_to_role Bond[] @relation("bond_invited_to_role")
 }
 
 model User {
@@ -103,15 +105,15 @@ model User {
 }
 
 model Profile {
-  id          Int      @id @default(autoincrement())
-  bio         String?  @db.VarChar(300)
-  picture_url String?  @db.VarChar(300)
+  id          Int     @id @default(autoincrement())
+  bio         String? @db.VarChar(300)
+  picture_url String? @db.VarChar(300)
 
-  user        User?    @relation(fields: [user_id], references: [id])
-  user_id     Int?     @unique
+  user    User? @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user_id Int?  @unique
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Doctor {
@@ -120,11 +122,11 @@ model Doctor {
   crm          String  @db.Char(6)
   crm_verified Boolean @default(true)
 
-  user_id      Int     @unique
+  user_id      Int @unique
   specialty_id Int
 
-  user      User              @relation(fields: [user_id], references: [id])
-  specialty Medical_Specialty @relation(fields: [specialty_id], references: [id])
+  user      User              @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  specialty Medical_Specialty @relation(fields: [specialty_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -135,8 +137,8 @@ model Carer {
   user_id      Int @unique
   specialty_id Int
 
-  user      User              @relation(fields: [user_id], references: [id])
-  specialty Medical_Specialty @relation(fields: [specialty_id], references: [id])
+  user      User              @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  specialty Medical_Specialty @relation(fields: [specialty_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -146,7 +148,7 @@ model Employeer {
   id      Int @id @default(autoincrement())
   user_id Int @unique
 
-  user User @relation(fields: [user_id], references: [id])
+  user User @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -157,8 +159,8 @@ model Role_Permission {
   role_id       Int
   permission_id Int
 
-  role       Role       @relation(fields: [role_id], references: [id])
-  permission Permission @relation(fields: [permission_id], references: [id])
+  role       Role       @relation(fields: [role_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  permission Permission @relation(fields: [permission_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -171,7 +173,7 @@ model Notification {
   read    Boolean @default(false)
 
   user_id Int
-  user User @relation(fields: [user_id], references: [id])
+  user    User @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -182,26 +184,32 @@ model Remider {
   label     String
   date_time DateTime @db.DateTime()
 
-  user_id   Int
-  user User @relation(fields: [user_id], references: [id])
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model Bond {
-  id        Int @id @default(autoincrement())
-  from_user Int
-  to_user   Int
-  status_id Int
-
-  from   User        @relation("bond_started_by", fields: [from_user], references: [id])
-  to     User        @relation("bond_invited_to", fields: [to_user], references: [id])
-  status Bond_Status @relation(fields: [status_id], references: [id])
+  id             Int @id @default(autoincrement())
+  from_user_role Int
+  to_user_role   Int
+  from_user      Int
+  to_user        Int
+  status_id      Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  from_role Role        @relation("bond_started_by_role", fields: [from_user_role], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  to_role   Role        @relation("bond_invited_to_role", fields: [to_user_role], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  from      User        @relation("bond_started_by", fields: [from_user], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  to        User        @relation("bond_invited_to", fields: [to_user], references: [id], onUpdate: Cascade, onDelete: Cascade)
   
+  status    Bond_Status @relation(fields: [status_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
   bond_permission Bond_Permission[]
   consultation    Consultation[]
 }
@@ -214,8 +222,8 @@ model Bond_Permission {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  permission Permission @relation(fields: [permission_id], references: [id])
-  bond       Bond       @relation(fields: [bond_id], references: [id])
+  permission Permission @relation(fields: [permission_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  bond       Bond       @relation(fields: [bond_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
 
 model Consultation {
@@ -224,17 +232,17 @@ model Consultation {
   reason               String   @db.VarChar(255)
   observation          String   @db.VarChar(2000)
   bond_id              Int
-  deparment_id         Int
+  department_id        Int
   consultation_status  Int
   created_by_user      Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  bond       Bond                @relation(fields: [bond_id], references: [id])
-  specialty  Medical_Specialty   @relation(fields: [deparment_id], references: [id])
-  status     Consultation_Status @relation(fields: [consultation_status], references: [id])
-  created_by User                @relation(fields: [created_by_user], references: [id])
+  bond       Bond                @relation(fields: [bond_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  specialty  Medical_Specialty   @relation(fields: [department_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  status     Consultation_Status @relation(fields: [consultation_status], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  created_by User                @relation(fields: [created_by_user], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   prescription Prescription[]
 }
@@ -250,5 +258,5 @@ model Prescription {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  consultation Consultation @relation(fields: [consultation_id], references: [id])
+  consultation Consultation @relation(fields: [consultation_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }

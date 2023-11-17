@@ -1,6 +1,6 @@
 import { Response } from 'express';
 import { JsonMessages } from '../types/type';
-import { PrismaClient, Token_Blacklist } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -36,7 +36,7 @@ export async function invalidateToken(token: string): Promise<void> {
  * @returns boolean
 */
 export async function verifyToken(token: string): Promise<boolean> {
-    const invalidToken = await prisma.token_Blacklist.findFirst({ where: { token } })
+    const invalidToken = await prisma.token_Blacklist.findUnique({ where: { token } })
 
     return invalidToken ? true : false;
 }

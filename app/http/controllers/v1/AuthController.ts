@@ -44,7 +44,7 @@ class AuthController {
             checkUser = {
                 OR: [
                     {
-                        email,
+                        email
                     },
                     {
                         telephone
@@ -52,6 +52,7 @@ class AuthController {
                 ]
             };
 
+<<<<<<< HEAD
             if (account_type === 'doctor' && (crm && crm_state)) {
                 checkUser.OR = [
                     {
@@ -60,14 +61,29 @@ class AuthController {
                                 crm,
                                 crm_state
                             }
+=======
+            if(account_type === 'doctor' && (crm && crm_state)) {
+                checkUser.OR?.push({
+                    doctor: {
+                        some: {
+                            crm,
+                            crm_state
+>>>>>>> feadccc99551a8d14bd0e083e0b7fe0afa5f39eb
                         }
                     }
-                ]
+                });
             }
+<<<<<<< HEAD
 
             user = await prisma.user.findMany({ where: checkUser });
 
             if (user.length > 0) {
+=======
+
+            user = await prisma.user.findFirst({ where: checkUser });
+
+            if(user) {
+>>>>>>> feadccc99551a8d14bd0e083e0b7fe0afa5f39eb
                 checkUser.role = { some: { id: roleId!.id } } //role
 
                 data = { //data
@@ -78,10 +94,15 @@ class AuthController {
                     }
                 }
 
-                const checkUserRole: User[] | null = await prisma.user.findMany({ where: checkUser });
+                const checkUserRole: User | null = await prisma.user.findFirst({ where: checkUser });
 
+<<<<<<< HEAD
                 if (checkUserRole.length === 0) {
                     if (account_type === 'doctor' && (crm && crm_state)) {
+=======
+                if(!checkUserRole) {
+                    if(account_type === 'doctor' && (crm && crm_state)) {
+>>>>>>> feadccc99551a8d14bd0e083e0b7fe0afa5f39eb
                         data.doctor = {
                             create: {
                                 crm_state,
@@ -107,6 +128,7 @@ class AuthController {
                     });
 
                     return JsonMessages({
+                        statusCode: 201,
                         message: translate.t('success.user.created'),
                         res
                     });
