@@ -30,11 +30,12 @@ CREATE TABLE `Medical_Specialty` (
 
 -- CreateTable
 CREATE TABLE `Token_Blacklist` (
-    `id` VARCHAR(191) NOT NULL,
-    `token` VARCHAR(600) NOT NULL,
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `token` VARCHAR(700) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `Token_Blacklist_token_key`(`token`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -156,9 +157,9 @@ CREATE TABLE `Remider` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `label` VARCHAR(191) NOT NULL,
     `date_time` DATETIME NOT NULL,
-    `user_id` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
+    `user_id` INTEGER NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -166,6 +167,8 @@ CREATE TABLE `Remider` (
 -- CreateTable
 CREATE TABLE `Bond` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `from_user_role` INTEGER NOT NULL,
+    `to_user_role` INTEGER NOT NULL,
     `from_user` INTEGER NOT NULL,
     `to_user` INTEGER NOT NULL,
     `status_id` INTEGER NOT NULL,
@@ -193,7 +196,7 @@ CREATE TABLE `Consultation` (
     `reason` VARCHAR(255) NOT NULL,
     `observation` VARCHAR(2000) NOT NULL,
     `bond_id` INTEGER NOT NULL,
-    `deparment_id` INTEGER NOT NULL,
+    `department_id` INTEGER NOT NULL,
     `consultation_status` INTEGER NOT NULL,
     `created_by_user` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -226,64 +229,70 @@ CREATE TABLE `_RoleToUser` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `Profile` ADD CONSTRAINT `Profile_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `Profile` ADD CONSTRAINT `Profile_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Doctor` ADD CONSTRAINT `Doctor_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Doctor` ADD CONSTRAINT `Doctor_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Doctor` ADD CONSTRAINT `Doctor_specialty_id_fkey` FOREIGN KEY (`specialty_id`) REFERENCES `Medical_Specialty`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Doctor` ADD CONSTRAINT `Doctor_specialty_id_fkey` FOREIGN KEY (`specialty_id`) REFERENCES `Medical_Specialty`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Carer` ADD CONSTRAINT `Carer_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Carer` ADD CONSTRAINT `Carer_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Carer` ADD CONSTRAINT `Carer_specialty_id_fkey` FOREIGN KEY (`specialty_id`) REFERENCES `Medical_Specialty`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Carer` ADD CONSTRAINT `Carer_specialty_id_fkey` FOREIGN KEY (`specialty_id`) REFERENCES `Medical_Specialty`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Employeer` ADD CONSTRAINT `Employeer_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Employeer` ADD CONSTRAINT `Employeer_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Role_Permission` ADD CONSTRAINT `Role_Permission_role_id_fkey` FOREIGN KEY (`role_id`) REFERENCES `Role`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Role_Permission` ADD CONSTRAINT `Role_Permission_role_id_fkey` FOREIGN KEY (`role_id`) REFERENCES `Role`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Role_Permission` ADD CONSTRAINT `Role_Permission_permission_id_fkey` FOREIGN KEY (`permission_id`) REFERENCES `Permission`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Role_Permission` ADD CONSTRAINT `Role_Permission_permission_id_fkey` FOREIGN KEY (`permission_id`) REFERENCES `Permission`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Notification` ADD CONSTRAINT `Notification_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Notification` ADD CONSTRAINT `Notification_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Remider` ADD CONSTRAINT `Remider_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Remider` ADD CONSTRAINT `Remider_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Bond` ADD CONSTRAINT `Bond_from_user_fkey` FOREIGN KEY (`from_user`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Bond` ADD CONSTRAINT `Bond_from_user_role_fkey` FOREIGN KEY (`from_user_role`) REFERENCES `Role`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Bond` ADD CONSTRAINT `Bond_to_user_fkey` FOREIGN KEY (`to_user`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Bond` ADD CONSTRAINT `Bond_to_user_role_fkey` FOREIGN KEY (`to_user_role`) REFERENCES `Role`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Bond` ADD CONSTRAINT `Bond_status_id_fkey` FOREIGN KEY (`status_id`) REFERENCES `Bond_Status`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Bond` ADD CONSTRAINT `Bond_from_user_fkey` FOREIGN KEY (`from_user`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Bond_Permission` ADD CONSTRAINT `Bond_Permission_permission_id_fkey` FOREIGN KEY (`permission_id`) REFERENCES `Permission`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Bond` ADD CONSTRAINT `Bond_to_user_fkey` FOREIGN KEY (`to_user`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Bond_Permission` ADD CONSTRAINT `Bond_Permission_bond_id_fkey` FOREIGN KEY (`bond_id`) REFERENCES `Bond`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Bond` ADD CONSTRAINT `Bond_status_id_fkey` FOREIGN KEY (`status_id`) REFERENCES `Bond_Status`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Consultation` ADD CONSTRAINT `Consultation_bond_id_fkey` FOREIGN KEY (`bond_id`) REFERENCES `Bond`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Bond_Permission` ADD CONSTRAINT `Bond_Permission_permission_id_fkey` FOREIGN KEY (`permission_id`) REFERENCES `Permission`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Consultation` ADD CONSTRAINT `Consultation_deparment_id_fkey` FOREIGN KEY (`deparment_id`) REFERENCES `Medical_Specialty`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Bond_Permission` ADD CONSTRAINT `Bond_Permission_bond_id_fkey` FOREIGN KEY (`bond_id`) REFERENCES `Bond`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Consultation` ADD CONSTRAINT `Consultation_consultation_status_fkey` FOREIGN KEY (`consultation_status`) REFERENCES `Consultation_Status`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Consultation` ADD CONSTRAINT `Consultation_bond_id_fkey` FOREIGN KEY (`bond_id`) REFERENCES `Bond`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Consultation` ADD CONSTRAINT `Consultation_created_by_user_fkey` FOREIGN KEY (`created_by_user`) REFERENCES `User`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Consultation` ADD CONSTRAINT `Consultation_department_id_fkey` FOREIGN KEY (`department_id`) REFERENCES `Medical_Specialty`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Prescription` ADD CONSTRAINT `Prescription_consultation_id_fkey` FOREIGN KEY (`consultation_id`) REFERENCES `Consultation`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Consultation` ADD CONSTRAINT `Consultation_consultation_status_fkey` FOREIGN KEY (`consultation_status`) REFERENCES `Consultation_Status`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Consultation` ADD CONSTRAINT `Consultation_created_by_user_fkey` FOREIGN KEY (`created_by_user`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Prescription` ADD CONSTRAINT `Prescription_consultation_id_fkey` FOREIGN KEY (`consultation_id`) REFERENCES `Consultation`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `_RoleToUser` ADD CONSTRAINT `_RoleToUser_A_fkey` FOREIGN KEY (`A`) REFERENCES `Role`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
