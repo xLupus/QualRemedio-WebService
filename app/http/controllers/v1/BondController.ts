@@ -323,30 +323,18 @@ class BondController {
                 });
             }
 
-            await prisma.bond.findUniqueOrThrow({ //find an userTo - bond
+            await prisma.bond.findUniqueOrThrow({ //find an toUser - bond
                 where: { 
                     id: bond_id,
                     to: { id: user.id }
                 }
             });
 
-            const bondStatus: Bond_Status | null = await prisma.bond_Status.findUniqueOrThrow({ where: { id: status_id } });
+            const bondStatusId: Bond_Status | null = await prisma.bond_Status.findUniqueOrThrow({ where: { id: status_id } });
 
-            const currentBondStatus: Bond | null = await prisma.bond.findUnique({
-                where: { 
-                    id: bond_id,
-                    OR: [
-                        {
-                            status_id: 2
-                        },
-                        {
-                            status_id: 3
-                        }
-                    ]
-                }
-            });
+            const currentBond: Bond | null = await prisma.bond.findUniqueOrThrow({ where: { id: bond_id } });
 
-            if(currentBondStatus) {
+            if(currentBond.status_id === 2 || currentBond.status_id === 3 && status_id === 2) {
                 return JsonMessages({
                     message: translate.t('error.bond.status.cannotBeChanged'),
                     res
@@ -356,15 +344,12 @@ class BondController {
             const updateBondStatus = await prisma.bond.update({
                 data: {
                     status: {
-                        connect: { id: bondStatus.id }
+                        connect: { id: bondStatusId.id }
                     }
                 },
                 where: { id: bond_id },
-
             });
 
-            console.log(updateBondStatus);
-            
             return JsonMessages({
                 message: translate.t('success.bond.updated'),
                 data: new BondResource(updateBondStatus),
@@ -391,21 +376,7 @@ class BondController {
                 });
             }
 
-            await prisma.bond.findUniqueOrThrow({ 
-                where: { 
-                    id: bond_id,
-                    status: {
-                        OR: [
-                            {
-                                id: 2
-                            },
-                            {
-                                id: 3
-                            }
-                        ]
-                    }
-                }
-            }); //find an user bond
+            await prisma.bond.findUniqueOrThrow({ where: { id: bond_id } }); //find an user bond
 
             const removeBond = await prisma.user.update({
                 data: {

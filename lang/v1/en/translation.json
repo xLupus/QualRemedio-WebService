@@ -20,7 +20,7 @@
             "notFound": "User Bond not found",
             "status": {
                 "notFound": "Bond status not found",
-                "cannotBeChanged": "Once bond has accepted or recused, it status cannot be changed"
+                "cannotBeChanged": "Cannot change bond status after it has accepted, or from recused to accepted"
             },
             "user": {
                 "equals": "Cannot stabilish bond with yourself",

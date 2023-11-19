@@ -20,7 +20,7 @@
             "notFound": "Nenhum vínculo foi encontrado",
             "status": {
                 "notFound": "O status de vínculo informado não existe",
-                "cannotBeChanged": "Um vinculo após aceito ou recusado não pode ter o status alterado"
+                "cannotBeChanged": "Não é possível alterar o status do vínculo após aceito, ou de recusado para aceito"
             },
             "user": {
                 "equals": "Não é possível estabelecer um vínculo com você mesmo",
