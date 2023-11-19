@@ -33,29 +33,13 @@ class BondController {
             }
 
             const bonds = await prisma.bond.findMany({
-                select: {
-                    id: true,
-                    from_user: true,
-                    to_user: true,
-                    status_id: true,
-                    to: {
-                        select: {
-                            id: true,
-                            name: true,
-                            email: true,
-                            cpf: true,
-                            telephone: true,
-                            birth_day: true
-                        }  
-                    }
-                },
                 where: {
                     OR: [
                         {
-                            from_role: { id: userRoleId}
+                            from_role: { id: userRoleId }
                         },
                         {
-                            to_role: { id: userRoleId}
+                            to_role: { id: userRoleId }
                         }
                     ],
                     AND: [
@@ -70,9 +54,20 @@ class BondController {
                             ]
                         }
                     ]
+                },
+                select: {
+                    id: true,
+                    from_user: true,
+                    to: {
+                        include: {
+                            doctor: userRoleId === 2 && true,
+                            carer: userRoleId === 3 && true
+                        }
+                    },
+                    status_id: true
                 }
             });
-            
+
             if(bonds.length === 0) {
                 return JsonMessages({
                     message: translate.t('error.bond.notFound'),
@@ -82,8 +77,7 @@ class BondController {
 
             return JsonMessages({
                 message: translate.t('success.bond.returned'),
-                //data: new IndexBondResource(bonds),
-                data: bonds,
+                data: new BondResource(bonds, req.method),
                 _links: IndexBondLinks._links(),
                 res
             });
@@ -172,7 +166,9 @@ class BondController {
                 });
             }
 
-            const toUser = await prisma.user.findUniqueOrThrow({
+            await prisma.role.findUniqueOrThrow({ where: { id: user_to_role_id } });
+
+            const toUser = await prisma.user.findUnique({
                 where: { id: user_to_id },
                 include: {
                     role: {
@@ -180,6 +176,13 @@ class BondController {
                     }
                 }
             }); //finds the user which the bond was sent
+
+            if(!toUser) {
+                return JsonMessages({
+                    message: translate.t('error.user.notFound'),
+                    res
+                });
+            }
 
             const toUserRoleId: number = toUser.role[0].id;
 
@@ -195,49 +198,83 @@ class BondController {
                 });
             } else if((userRoleId === 2 || userRoleId === 3) && (toUserRoleId === 3 || toUserRoleId === 2)) {
                 return JsonMessages({
-                    message: 'Só é possível estabelecer um vínculo com um paciente',
+                    message: translate.t('error.bond.user.onlyPatient'),
                     res
                 });
             }
 
-            const createUserBond = await prisma.user.update({
-                data: {               
-                    bond_started_by: {
-                        create: {
-                            from_role: {
-                                connect: { id: userRoleId }
-                            },
-                            to_role: {
-                                connect: { id: toUserRoleId }
-                            },
-                            to: {
-                                connect: {
-                                    id: user_to_id
+            const userBondExists: Bond | null = await prisma.bond.findFirst({
+                where: {
+                    OR: [
+                        {
+                            OR: [
+                                {
+                                    from_role: { id: userRoleId }
+                                },
+                                {
+                                    from_role: { id: toUserRoleId }
                                 }
-                            },
-                            status: {
-                                connect: { id: 1 }
-                            }
+                            ]
+                        },
+                        {
+                            OR: [
+                                {
+                                    to_role: { id: userRoleId }
+                                },
+                                {
+                                    to_role: { id: toUserRoleId }
+                                }
+                            ]
                         }
+                    ],
+                    AND: [
+                        {
+                            OR: [
+                                {
+                                    OR: [
+                                        {
+                                            from: { id: user.id }
+                                        },
+                                        {
+                                            from: { id: toUser.id }
+                                        }
+                                    ]
+                                },
+                                {
+                                    OR: [
+                                        {
+                                            to: { id: user.id }
+                                        },
+                                        {
+                                            to: { id: toUser.id }
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ],
+                    status: {
+                        OR: [
+                            {
+                                id: 1
+                            },
+                            {
+                                id: 2
+                            }
+                        ]     
                     }
-                },
-                where: { id: user.id },
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    telephone: true,
-                    birth_day: true
                 }
             });
+            
+            if(userBondExists) {
+                return JsonMessages({
+                    message: translate.t('error.bond.exists'),
+                    res
+                });
+            }
+console.log(userBondExists);
 
-            return JsonMessages({
-                statusCode: 201,
-                message: translate.t('success.bond.created'),
-                data: new BondResource(createUserBond, req.method),
-                _links: StoreBondLinks._links(createUserBond.id),
-                res
-            });
+         
         } catch (err: unknown) {
             return exceptions({err, req, res});
         }
@@ -295,14 +332,11 @@ class BondController {
                     }
                 },
                 where: { id: bond_id },
-                select: {
-                    id: true,
-                    from_user: true,
-                    to_user: true,
-                    status_id: true
-                }
+
             });
 
+            console.log(updateBondStatus);
+            
             return JsonMessages({
                 message: translate.t('success.bond.updated'),
                 data: new BondResource(updateBondStatus),

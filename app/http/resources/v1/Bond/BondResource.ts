@@ -6,21 +6,41 @@ export class BondResource {
     }
     
     resource(data: any, reqMethod?: string | undefined) {
-        if(reqMethod === 'GET' && data.length !== undefined) {
-            return {
-                id: data.id,
-                from_user: data.from_user,
-                to_user: data.to_user,
-                status_id: data.status_id,
-                to: {
-                    id: data.id,
-                    email: data.email,
-                    cpf: data.cpf,
-                    telephone: data.telephone,
-                    birth_day: moment(data.birth_day.toISOString(), 'YYYY-MM-DD').format('DD-MM-YYYY')
-                }
+        if(reqMethod === 'GET') {
+            if(data.length !== undefined) {
+                const bondData: unknown[] = [];
+
+                data.map((el: any) => {
+                    bondData.push({
+                        id: el.id,
+                        from_user: el.from_user,
+                        to: {
+                            id: el.to.id,
+                            name: el.to.name,
+                            email: el.to.email,
+                            telephone: el.to.telephone,
+                            birth_day: moment(el.to.birth_day.toISOString(), 'YYYY-MM-DD').format('DD-MM-YYYY'),
+                            account_type: {
+                                doctor: el.to.doctor && {
+                                    id: el.to.doctor[0].id,
+                                    crm: el.to.doctor[0].crm,
+                                    crm_state: el.to.doctor[0].crm_state,
+                                    crm_verified: el.to.doctor[0].crm_verified,
+                                    specialty_id: el.to.doctor[0].specialty_id
+                                },
+                                carer: el.to.carer && {
+                                    id: el.to.carer[0].id,
+                                    specialty_id: el.to.carer[0].specialty_id
+                                }
+                            }
+                        },
+                        status_id: el.status_id
+                    });
+                });
+
+                return bondData;   
             }
-        } else if(reqMethod === 'GET') {
+
             return {
                 id: data.id,
                 from_user: data.from_user,
@@ -44,7 +64,7 @@ export class BondResource {
                         }
                     }
                 },
-                status_id: data.to.status_id
+                status_id: data.status_id
             }    
         } else if(reqMethod === 'POST') {
             return {

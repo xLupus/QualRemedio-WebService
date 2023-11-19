@@ -23,8 +23,12 @@
             },
             "user": {
                 "equals": "Não é possível estabelecer um vínculo com você mesmo",
-                "roleEquals": "Não é possível estabelecer um vínculo com alguém que tenha o mesmo cargo que você"
+                "roleEquals": "Não é possível estabelecer um vínculo com alguém que tenha o mesmo cargo que você",
+                "onlyPatient": "Só é possível estabelecer um vínculo com um paciente"
             }
+        },
+         "role": {
+            "notFound": "Nenhum cargo foi encontrado"
         },
         "validation": {
             "input": {

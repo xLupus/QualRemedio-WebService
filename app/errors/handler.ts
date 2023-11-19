@@ -4,6 +4,7 @@ import { JsonWebTokenError } from 'jsonwebtoken';
 import { JsonMessages } from '../functions/function';
 import { ExceptionsType } from '../types/type';
 import { z } from 'zod';
+import { i18n } from 'i18next';
 
 /**
  * Handler application errors
@@ -12,6 +13,7 @@ import { z } from 'zod';
  * @returns JSON response
 */
 export default function exceptions({ err, req, res }: ExceptionsType): Response<any, Record<string, any>> {
+    const translate: i18n | undefined = req?.i18n;
     console.log(err.message);
 
     switch (true) {
@@ -36,18 +38,18 @@ export default function exceptions({ err, req, res }: ExceptionsType): Response<
             
             if(err.code === 'P2020') { //unique keys
                 if(err === 'User_email_key') {
-                    err.meta.target = req?.i18n.t('error.data.unique', { field: `${req?.i18n.t('glossary.email')}`});
+                    err.meta.target = translate?.t('error.data.unique', { field: `${translate?.t('glossary.email')}`});
                 }
             } else if(err.code === 'P2025') { //not found
                 if(err.message === 'No Bond_Status found') {
-                    err.message = req?.i18n.t('error.bond.status.notFound');
-                } else if(err.message === 'No Bond found') {
-                    err.message = req?.i18n.t('error.bond.notFound');
+                    err.message = translate?.t('error.bond.status.notFound');
+                } else if(err.message === 'No Role found') {
+                    err.message = translate?.t('error.role.notFound');
                 }
 
                statusCode = 200;
             } else {
-                err.message = 'Prisma request error'
+                err.message = 'Prisma request error';
             }
 
             return JsonMessages({
