@@ -56,10 +56,12 @@ router.post(
   ConsultationController.store
 )
 
+/*
 router.get(
   '/bond/:bond_id/consultations',
   ConsultationController.index
 )
+*/
 
 router.get(
   '/consultations',

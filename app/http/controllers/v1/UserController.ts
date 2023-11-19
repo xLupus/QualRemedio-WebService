@@ -114,7 +114,7 @@ class UserController {
 
           json_message.data = {
             ...json_message.data as object,
-            number_of_pages: Math.round(total_users.length / take)
+            number_of_pages: Math.ceil(total_users.length / take)
           }
         }
       }
