@@ -25,16 +25,31 @@ class ConsultationController {
     }
 
     if (filter) {
-      const available_filter_fields = ['created_by'] //TODO - Mudar 
+      const available_filter_fields = ['created_by', 'bond'] //TODO - Mudar 
 
       filter.toString().split(',').map(filterParam => {
         const [filterColumn, filterValue] = filterParam.split(':')
 
         if (available_filter_fields.includes(filterColumn)) {
           if (filterColumn == 'created_by') {
-            findmany_args.where = { created_by_user: Number(filterValue) }
+            const created_by_validation = id_parameter_schema.safeParse(filterValue)
+
+            if (created_by_validation.success)
+              findmany_args.where = {
+                ...findmany_args.where,
+                created_by_user: created_by_validation.data
+              }
           }
 
+          if (filterColumn == 'bond') {
+            const bond_validation = id_parameter_schema.safeParse(filterValue)
+
+            if (bond_validation.success)
+              findmany_args.where = {
+                ...findmany_args.where,
+                bond_id: bond_validation.data
+              }
+          }
         }
       })
     }
@@ -71,12 +86,10 @@ class ConsultationController {
 
           json_message.data = {
             ...json_message.data as object,
-            number_of_pages: Math.round(total_users.length / take)
+            number_of_pages: Math.ceil(total_users.length / take)
           }
         }
       }
-
-      //findmany_args.select = {} //TODO - Decidir quais campos retornar
 
       try {
         const consultations = await prisma.consultation.findMany(findmany_args)
@@ -184,7 +197,7 @@ class ConsultationController {
         await prisma.consultation.create({
           data: {
             bond_id: bond_id_validation.data,
-            deparment_id: department_id,
+            department_id,
             reason,
             observation,
             consultation_status,
@@ -212,9 +225,9 @@ class ConsultationController {
    * 
    */
   async update(req: Request, res: Response) {
+    const consultation_update_input: Prisma.ConsultationUpdateInput = {}
     const consultation_id_validation = id_parameter_schema.safeParse(req.params.consultation_id)
     const consultation_update_validation = await UpdateConsultationRequest.rules(req.body)
-    const consultation_update_input: Prisma.ConsultationUpdateInput = {}
 
     if (!consultation_id_validation.success)
       return JsonMessages({
@@ -274,9 +287,6 @@ class ConsultationController {
     return JsonMessages({
       statusCode: 200,
       message: 'Consulta Atualizada com Sucesso',
-      data: {
-        consultation_update_input
-      },
       res
     })
   }
@@ -345,17 +355,24 @@ class ConsultationController {
       })
 
     try {
-      const prescriptions = await prisma.consultation.findUnique({
+      const consultation = await prisma.consultation.findUnique({
         where: { id: consultation_id_validation.data },
         include: {
           prescription: true
         }
       })
 
+      if (!consultation)
+        return JsonMessages({
+          statusCode: 200,
+          message: 'Consulta não encontrada',
+          res
+        })
+
       return JsonMessages({
         statusCode: 200,
         message: '',
-        data: prescriptions,
+        data: consultation,
         res
       })
     } catch (err: any) {
