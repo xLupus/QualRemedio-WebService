@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Bond, User, Bond_Status } from '@prisma/client';
+import { Prisma, PrismaClient, Bond, Bond_Status } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import { Request, Response } from 'express';
 import { JsonMessages } from '../../../functions/function';
@@ -8,8 +8,8 @@ import { BondResource } from '../../resources/v1/Bond/BondResource';
 
 import exceptions from '../../../errors/handler';
 import BondRequest from '../../requests/v1/BondRequest';
-import StoreBondLinks from '../../resources/v1/hateoas/Bond/StoreBondLinks';
 import DestroyBondLinks from '../../resources/v1/hateoas/Bond/DestroyBondLinks';
+import StoreBondLinks from '../../resources/v1/hateoas/Bond/StoreBondLinks';
 import ShowBondLinks from '../../resources/v1/hateoas/Bond/ShowBondLinks';
 import IndexBondLinks from '../../resources/v1/hateoas/Bond/IndexBondLinks';
 import UpdateBondLinks from '../../resources/v1/hateoas/Bond/UpdateBondLinks';
@@ -18,7 +18,7 @@ const prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new
 
 class BondController {
     //TODO: desenvolver um filtro aqui
-    async index(req: Request, res: Response) {
+    async index(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
             const translate: i18n = req.i18n;
             const user = req.user as any;
@@ -86,7 +86,7 @@ class BondController {
         }
     }
 
-    async show(req: Request, res: Response) {
+    async show(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
             const translate: i18n = req.i18n;
             const { bond_id }: BondType = BondRequest.rules({ bond_id: Number(req.params.id) }, translate, req.method);
@@ -102,7 +102,7 @@ class BondController {
                 });
             }
 
-            const bond = await prisma.bond.findUniqueOrThrow({
+            const bond = await prisma.bond.findUnique({
                 where: { 
                     id: bond_id,
                     OR: [
@@ -139,6 +139,13 @@ class BondController {
                 }
             });
 
+            if(!bond) {
+                return JsonMessages({
+                    message: translate.t('error.bond.notFound'),
+                    res
+                });
+            }
+
             return JsonMessages({
                 message: translate.t('success.bond.returned'),
                 data: new BondResource(bond, req.method),
@@ -150,7 +157,7 @@ class BondController {
         }
     }
 
-    async store(req: Request, res: Response) {
+    async store(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
             const translate: i18n = req.i18n;
             const { user_to_id, user_to_role_id }: BondType = BondRequest.rules(req.body, translate);
@@ -203,84 +210,105 @@ class BondController {
                 });
             }
 
-            const userBondExists: Bond | null = await prisma.bond.findFirst({
-                where: {
+            const userBond: Bond | null = await prisma.bond.findFirst({
+                where: {                   
                     OR: [
                         {
-                            OR: [
-                                {
-                                    from_role: { id: userRoleId }
-                                },
-                                {
-                                    from_role: { id: toUserRoleId }
-                                }
-                            ]
+                            from_role: { id: userRoleId }
                         },
                         {
-                            OR: [
-                                {
-                                    to_role: { id: userRoleId }
-                                },
-                                {
-                                    to_role: { id: toUserRoleId }
-                                }
-                            ]
+                            to_role: { id: userRoleId }
                         }
                     ],
                     AND: [
                         {
                             OR: [
                                 {
-                                    OR: [
-                                        {
-                                            from: { id: user.id }
-                                        },
-                                        {
-                                            from: { id: toUser.id }
-                                        }
-                                    ]
-                                },
+                                    from_role: { id: toUserRoleId }
+                                },               
                                 {
-                                    OR: [
-                                        {
-                                            to: { id: user.id }
-                                        },
-                                        {
-                                            to: { id: toUser.id }
-                                        }
-                                    ]
-                                }
+                                    to_role: { id: toUserRoleId }
+                                } 
+                            ]
+                        },
+                        {
+                            OR: [
+                                {
+                                    from: { id: user.id }
+                                },               
+                                {
+                                    to: { id: user.id }
+                                } 
+                            ]
+                        },
+                        {
+                            OR: [
+                                {
+                                    from: { id: toUser.id }
+                                },               
+                                {
+                                    to: { id: toUser.id }
+                                } 
                             ]
                         }
-                    ],
-                    status: {
-                        OR: [
-                            {
-                                id: 1
-                            },
-                            {
-                                id: 2
-                            }
-                        ]     
-                    }
+                    ]
                 }
             });
-            
-            if(userBondExists) {
+ 
+            if(userBond?.status_id !== 3) { //Checking by status to verify if bond 'exists' or not
                 return JsonMessages({
                     message: translate.t('error.bond.exists'),
                     res
                 });
             }
-console.log(userBondExists);
+       
+            const createUserBond = await prisma.user.update({
+                where: { id: user.id },
+                data: { 
+                    bond_started_by: {
+                        upsert: {
+                            where: { id: userBond.id },
+                            create: {
+                                from_role: {
+                                    connect: { id: userRoleId }
+                                },
+                                to_role: {
+                                    connect: { id: toUserRoleId }
+                                },
+                                to: {
+                                    connect: { id: user_to_id }
+                                },
+                                status: {
+                                    connect: { id: 1 }
+                                }
+                            },
+                            update: { status_id: 1 }
+                        }
+                        
+                    }
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    telephone: true,
+                    birth_day: true
+                }
+            });
 
-         
+            return JsonMessages({
+                statusCode: 201,
+                message: translate.t('success.bond.created'),
+                data: new BondResource(createUserBond, req.method),
+                _links: StoreBondLinks._links(createUserBond.id),
+                res
+            });
         } catch (err: unknown) {
             return exceptions({err, req, res});
         }
     }
 
-    async update(req: Request, res: Response) {
+    async update(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
             const translate: i18n = req.i18n;
             const { bond_id, status_id }: BondType = BondRequest.rules({ bond_id: Number(req.params.id), status_id: req.body.status_id }, translate, req.method);
@@ -348,7 +376,7 @@ console.log(userBondExists);
         }
     }
 
-    async destroy(req: Request, res: Response) {
+    async destroy(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
             const translate: i18n = req.i18n;
             const { bond_id }: BondType = BondRequest.rules({ bond_id: Number(req.params.id) }, translate, req.method);

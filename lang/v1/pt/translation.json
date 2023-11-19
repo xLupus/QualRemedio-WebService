@@ -16,6 +16,7 @@
             "notFound": "O Usuário informado não foi encontrado"
         },
         "bond": {
+            "exists": "O usuário já está vínculado",
             "notFound": "Nenhum vínculo foi encontrado",
             "status": {
                 "notFound": "O status de vínculo informado não existe",

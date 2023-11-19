@@ -45,6 +45,8 @@ export default function exceptions({ err, req, res }: ExceptionsType): Response<
                     err.message = translate?.t('error.bond.status.notFound');
                 } else if(err.message === 'No Role found') {
                     err.message = translate?.t('error.role.notFound');
+                } else if(err.message === 'No Bond found') {
+                    err.message = translate?.t('error.bond.notFound')
                 }
 
                statusCode = 200;
@@ -71,7 +73,7 @@ export default function exceptions({ err, req, res }: ExceptionsType): Response<
         case !err:
             return JsonMessages({
                 statusCode: 401,
-                message: `${req?.i18n.t('error.data.invalidToken')}`,
+                message: `${translate?.t('error.data.invalidToken')}`,
                 res
             });
 
@@ -94,7 +96,7 @@ export default function exceptions({ err, req, res }: ExceptionsType): Response<
         default:
             return JsonMessages({
                 statusCode: 500,
-                message: `${req?.i18n.t('error.server.internal')}`,
+                message: `${translate?.t('error.server.internal')}`,
                 res
             });
     }

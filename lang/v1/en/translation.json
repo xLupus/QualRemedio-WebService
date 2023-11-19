@@ -16,8 +16,8 @@
             "notFound": "User not found"
         },
         "bond": {
-            "notFound": "User Bond not found",
             "exists": "User Bond already exists",
+            "notFound": "User Bond not found",
             "status": {
                 "notFound": "Bond status not found",
                 "cannotBeChanged": "Once bond has accepted or recused, it status cannot be changed"
