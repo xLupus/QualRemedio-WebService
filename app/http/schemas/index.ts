@@ -8,8 +8,8 @@ export const id_parameter_schema = z.preprocess(
 
   z.number({ invalid_type_error: "O id deve ser do tipo Number" })
     .min(1, 'Campo Obrigatorio')
-    .int()
-    .positive()
+    .int('O valor deve ser um Numero Inteiro')
+    .positive('O valor deve ser maior do que 0')
 )
 
 /**

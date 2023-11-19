@@ -2,6 +2,7 @@ import { Router } from "express";
 import { passportJWT } from "../../app/http/middleware/passport";
 import AuthController from "../../app/http/controllers/v1/AuthController";
 import UserController from "../../app/http/controllers/v1/UserController";
+import ConsultationController from "../../app/http/controllers/v1/ConsultationController";
 
 const router: Router = Router();
 const apiContext: string = "api/v1";
@@ -48,5 +49,41 @@ router.delete(
   UserController.destroy
 )
 
+
+//Consultation
+router.post(
+  '/bond/:bond_id/consultations',
+  ConsultationController.store
+)
+
+router.get(
+  '/bond/:bond_id/consultations',
+  ConsultationController.index
+)
+
+router.get(
+  '/consultations',
+  ConsultationController.index
+)
+
+router.get(
+  '/consultations/:consultation_id',
+  ConsultationController.show
+)
+
+router.patch(
+  '/consultations/:consultation_id',
+  ConsultationController.update
+)
+
+router.get(
+  '/consultations/:consultation_id/prescriptions',
+  ConsultationController.prescriptions
+)
+
+router.delete(
+  '/consultations/:consultation_id',
+  ConsultationController.destroy
+)
 
 export { router as routerApiV1, apiContext }
