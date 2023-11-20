@@ -4,6 +4,7 @@ import { JsonWebTokenError } from 'jsonwebtoken';
 import { JsonMessages } from '../functions/function';
 import { ExceptionsType } from '../types/type';
 import { z } from 'zod';
+import { i18n } from 'i18next';
 
 /**
  * Handler application errors
@@ -12,7 +13,8 @@ import { z } from 'zod';
  * @returns JSON response
 */
 export default function exceptions({ err, req, res }: ExceptionsType): Response<any, Record<string, any>> {
-    console.log(err);
+    const translate: i18n | undefined = req?.i18n;
+    console.log(err.message);
 
     switch (true) {
         case err instanceof PrismaClientInitializationError:
@@ -32,14 +34,29 @@ export default function exceptions({ err, req, res }: ExceptionsType): Response<
             });
 
         case err instanceof PrismaClientKnownRequestError:
-            if(err.code === 'P2002' && err.meta.target === 'User_email_key') {
-                err.meta.target = req?.i18n.t('error.data.unique', { field: `${req?.i18n.t('glossary.email')}`});
+            let statusCode: number = 422;
+            
+            if(err.code === 'P2020') { //unique keys
+                if(err === 'User_email_key') {
+                    err.meta.target = translate?.t('error.data.unique', { field: `${translate?.t('glossary.email')}`});
+                }
+            } else if(err.code === 'P2025') { //not found
+                if(err.message === 'No Bond_Status found') {
+                    err.message = translate?.t('error.bond.status.notFound');
+                } else if(err.message === 'No Role found') {
+                    err.message = translate?.t('error.role.notFound');
+                } else if(err.message === 'No Bond found') {
+                    err.message = translate?.t('error.bond.notFound')
+                }
+
+               statusCode = 200;
+            } else {
+                err.message = 'Prisma request error';
             }
 
             return JsonMessages({
-                statusCode: 422,
-                message: 'Prisma request error',
-                data: err,
+                statusCode,
+                message: err.message,
                 res
             });
 
@@ -56,7 +73,7 @@ export default function exceptions({ err, req, res }: ExceptionsType): Response<
         case !err:
             return JsonMessages({
                 statusCode: 401,
-                message: `${req?.i18n.t('error.data.invalidToken')}`,
+                message: `${translate?.t('error.data.invalidToken')}`,
                 res
             });
 
@@ -79,7 +96,7 @@ export default function exceptions({ err, req, res }: ExceptionsType): Response<
         default:
             return JsonMessages({
                 statusCode: 500,
-                message: `${req?.i18n.t('error.server.internal')}`,
+                message: `${translate?.t('error.server.internal')}`,
                 res
             });
     }

@@ -2,18 +2,45 @@
     "success": {
         "user": {
             "created": "Usuário criado com sucesso"
+        },
+        "bond": {
+            "created": "Vínculo criado com sucesso",
+            "returned": "Vinculo(s) do usuário retornado(s) com sucesso",
+            "updated": "Vinculo atualizado com sucesso",
+            "deleted": "Vinculo removido com sucesso"
         }
     },
     "error": {
         "user": {
             "exists": "O Usuário informado já existe",
-            "notFound": "O Usuário informado não foi encontrado"
+            "notFound": "O Usuário informado não foi encontrado",
+            "role": {
+                "notFound": "Nenhum cargo foi encontrado para este usuário"
+            }
+        },
+        "bond": {
+            "exists": "O usuário já está vínculado",
+            "notFound": "Nenhum vínculo foi encontrado",
+            "status": {
+                "notFound": "O status de vínculo informado não existe",
+                "cannotBeChanged": "Não é possível alterar o status do vínculo após aceito, ou de recusado para aceito"
+            },
+            "user": {
+                "equals": "Não é possível estabelecer um vínculo com você mesmo",
+                "roleEquals": "Não é possível estabelecer um vínculo com alguém que tenha o mesmo cargo que você",
+                "onlyPatient": "Só é possível estabelecer um vínculo com um paciente"
+            }
+        },
+        "role": {
+            "notFound": "Nenhum cargo foi encontrado"
         },
         "validation": {
             "input": {
                 "invalidString": "O formato especificado deve ser string",
+                "invalidNumber": "O formato especificado deve ser número",
                 "invalidDate": "O formato da data não é valido",
                 "invalidEmailFormat": "O formato de e-mail é inválido",
+                "integerNumber": "O formato de número deve ser integro",
                 "maxLength": {
                     "name": "O nome deve ter no máximo 40 caracteres",
                     "email": "O e-mail deve ter no máximo 30 caracteres",
@@ -35,7 +62,8 @@
                     "crm": "O campo informado deve ter 6 caracteres"
                 },
                 "empty": "Preencha este campo",
-                "required": "Este campo deve ser especificado"
+                "required": "Este campo deve ser especificado",
+                "nonNegative": "O campo informado não pode conter valores menores que 0"
             }
         },
         "data": {

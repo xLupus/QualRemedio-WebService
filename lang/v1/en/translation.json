@@ -2,18 +2,45 @@
     "success": {
         "user": {
             "created": "User created successfully"
+        },
+        "bond": {
+            "created": "User Bond created successfully",
+            "returned": "User Bond(s) returned successfully",
+            "updated": "User Bond updated successfully",
+            "deleted": "User Bond deleted successfully"
         }
     },
     "error": {
         "user": {
             "exists": "User already exists",
-            "notFound": "User not found"
+            "notFound": "User not found",
+            "role": {
+                "notFound": "No User bond found for that user"
+            }
+        },
+        "bond": {
+            "exists": "User Bond already exists",
+            "notFound": "User Bond not found",
+            "status": {
+                "notFound": "Bond status not found",
+                "cannotBeChanged": "Cannot change bond status after it has accepted, or from recused to accepted"
+            },
+            "user": {
+                "equals": "Cannot stabilish bond with yourself",
+                "roleEquals": "Cannot stabilish bond with a person that has the same role as you",
+                "onlyPatient": "Only patient can be bind"
+            }
+        },
+        "role": {
+            "notFound": "Role not found"
         },
         "validation": {
             "input": {
                 "invalidString": "Specified format must be string",
+                "invalidNumber": "Specified format must be number",
                 "invalidDate": "Invalid date format",
                 "invalidEmailFormat": "Invalid e-mail format",
+                "integerNumber": "Number must be integer",
                 "maxLength": {
                     "name": "Name must not have more than 40 characters",
                     "email": "E-mail must not have more than 30 characters",
@@ -35,7 +62,8 @@
                     "crm": "Field must have 6 characters"
                 },
                 "empty": "Field must not be empty",
-                "required": "Field must be specified"
+                "required": "Field must be specified",
+                "nonNegative": "Field must not have values less then 0"
             }
         },
         "data": {
