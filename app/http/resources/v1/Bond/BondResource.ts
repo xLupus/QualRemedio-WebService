@@ -112,7 +112,7 @@ export class BondResource {
                 } : {},
                 status_id: data.status_id
             }    
-        } else if(reqMethod === 'POST') {
+        } else if(reqMethod === 'POST' || reqMethod === 'DELETE') {
             return {
                 id: data.id,
                 name: data.name,

@@ -14,8 +14,8 @@ app.use(passport.initialize());
 app.use(express.json());
 
 //api v1
-app.use(i18NextInstanceV1); //**deixar nessa prioridade para o funcionamento correto das traduções !!!**
+app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use(i18NextInstanceV1); //**deixar nessa prioridade para o funcionamento correto das traduções (SEMPRE antes das rotas) !!!**
 app.use('/api/v1', routerApiV1);
-app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 
 app.listen(port, () => console.log(`Server running on port: ${port}`));

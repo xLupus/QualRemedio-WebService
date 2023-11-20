@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 import { i18n } from "i18next";
-import { BondErrorMessages, QueryParamsErrorMessages, QueryParamsType } from '../../../types/type';
+import { QueryParamsErrorMessages, QueryParamsType } from '../../../types/type';
 
 class QueryParamsRequest {
     rules({ filter, sort, skip, take }: QueryParamsType, translate: i18n) {

@@ -18,6 +18,16 @@ import QueryParamsRequest from '../../requests/v1/QueryParamsRequest';
 const prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new PrismaClient();
 
 class BondController {
+    //TODO: Documentação
+    /**
+     * @swagger
+     * /user/bond:
+     *    get: 
+     *        summary: Show all user bonds
+     *        tags: ['User Bond']
+     *        security: 
+     *            - bearerAuth: []
+     */
     async index(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
             const translate: i18n = req.i18n;
@@ -133,6 +143,15 @@ class BondController {
         }
     }
 
+    /**
+     * @swagger
+     * /user/bond:
+     *    get: 
+     *        summary: Show all user bonds
+     *        tags: ['User Bond']
+     *        security: 
+     *            - bearerAuth: []
+     */
     async show(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
             const translate: i18n = req.i18n;
@@ -213,6 +232,15 @@ class BondController {
         }
     }
 
+    /**
+     * @swagger
+     * /user/bond:
+     *    post: 
+     *        summary: Show all user bonds
+     *        tags: ['User Bond']
+     *        security: 
+     *            - bearerAuth: []
+     */
     async store(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
             const translate: i18n = req.i18n;
@@ -243,6 +271,11 @@ class BondController {
             if(!toUser) {
                 return JsonMessages({
                     message: translate.t('error.user.notFound'),
+                    res
+                });
+            } else if(toUser.role.length === 0) {
+                return JsonMessages({
+                    message: translate.t('error.user.role.notFound'),
                     res
                 });
             }
@@ -311,7 +344,7 @@ class BondController {
                 }
             });
  
-            if(userBond?.status_id !== 3) { //Checking by status to verify if bond 'exists' or not
+            if(userBond?.status_id === 2 || userBond?.status_id === 1) { //Checking by status to verify if bond 'exists' or not
                 return JsonMessages({
                     message: translate.t('error.bond.exists'),
                     res
@@ -323,7 +356,7 @@ class BondController {
                 data: { 
                     bond_started_by: {
                         upsert: {
-                            where: { id: userBond.id },
+                            where: { id: userBond ? userBond.id : 0 },
                             create: {
                                 from_role: {
                                     connect: { id: userRoleId }
@@ -364,6 +397,15 @@ class BondController {
         }
     }
 
+    /**
+     * @swagger
+     * /user/bond:
+     *    patch: 
+     *        summary: Show all user bonds
+     *        tags: ['User Bond']
+     *        security: 
+     *            - bearerAuth: []
+     */
     async update(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
             const translate: i18n = req.i18n;
@@ -417,6 +459,15 @@ class BondController {
         }
     }
 
+    /**
+     * @swagger
+     * /user/bond:
+     *    delete: 
+     *        summary: Show all user bonds
+     *        tags: ['User Bond']
+     *        security: 
+     *            - bearerAuth: []
+     */
     async destroy(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
             const translate: i18n = req.i18n;
@@ -452,7 +503,7 @@ class BondController {
 
             return JsonMessages({
                 message: translate.t('success.bond.deleted'),
-                data: new BondResource({ data: removeBond }),
+                data: new BondResource({ data: removeBond }, req.method),
                 _links: DestroyBondLinks._links(),
                 res
             });

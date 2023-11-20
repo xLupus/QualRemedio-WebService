@@ -13,7 +13,10 @@
     "error": {
         "user": {
             "exists": "O Usuário informado já existe",
-            "notFound": "O Usuário informado não foi encontrado"
+            "notFound": "O Usuário informado não foi encontrado",
+            "role": {
+                "notFound": "Nenhum cargo foi encontrado para este usuário"
+            }
         },
         "bond": {
             "exists": "O usuário já está vínculado",
@@ -28,7 +31,7 @@
                 "onlyPatient": "Só é possível estabelecer um vínculo com um paciente"
             }
         },
-         "role": {
+        "role": {
             "notFound": "Nenhum cargo foi encontrado"
         },
         "validation": {

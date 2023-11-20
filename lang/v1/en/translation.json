@@ -13,7 +13,10 @@
     "error": {
         "user": {
             "exists": "User already exists",
-            "notFound": "User not found"
+            "notFound": "User not found",
+            "role": {
+                "notFound": "No User bond found for that user"
+            }
         },
         "bond": {
             "exists": "User Bond already exists",
