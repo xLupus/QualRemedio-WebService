@@ -59,7 +59,8 @@
                     "crm": "O campo informado deve ter 6 caracteres"
                 },
                 "empty": "Preencha este campo",
-                "required": "Este campo deve ser especificado"
+                "required": "Este campo deve ser especificado",
+                "nonNegative": "O campo informado não pode conter valores menores que 0"
             }
         },
         "data": {

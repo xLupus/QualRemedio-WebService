@@ -11,7 +11,6 @@ class BondRequest {
             requiredFieldError
         } = this.messages(translate);
 
-
         let validator = z.object({
             user_to_id: z
                 .number({

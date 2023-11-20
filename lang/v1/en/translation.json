@@ -4,10 +4,10 @@
             "created": "User created successfully"
         },
         "bond": {
-            "created": "Bond created successfully",
-            "returned": "Bond returned successfully",
-            "updated": "Bond updated successfully",
-            "deleted": "Bond deleted successfully"
+            "created": "User Bond created successfully",
+            "returned": "User Bond(s) returned successfully",
+            "updated": "User Bond updated successfully",
+            "deleted": "User Bond deleted successfully"
         }
     },
     "error": {
@@ -59,7 +59,8 @@
                     "crm": "Field must have 6 characters"
                 },
                 "empty": "Field must not be empty",
-                "required": "Field must be specified"
+                "required": "Field must be specified",
+                "nonNegative": "Field must not have values less then 0"
             }
         },
         "data": {

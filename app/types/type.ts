@@ -1,8 +1,9 @@
 import { Response, Request } from "express";
-import { i18n } from "i18next";
+import QueryString from 'qs';
 
 //Function types
 type Data = string | number | null | object;
+type QueryParams = string | QueryString.ParsedQs | string[] | QueryString.ParsedQs[] | undefined;
 
 interface JsonMessages {
   statusCode?: number;
@@ -33,6 +34,12 @@ interface BondType {
   user_to_role_id?: number | undefined;
 }
 
+interface QueryParamsType {
+  filter?: QueryParams
+  sort?: QueryParams
+  skip?: QueryParams | number
+  take?: QueryParams | number
+}
 //Error messages
 
 interface RegisterErrorMessages {
@@ -70,6 +77,18 @@ interface BondErrorMessages {
   requiredFieldError: string;
 }
 
+
+interface QueryParamsErrorMessages {
+  invalidTypeError: {
+    string: string;
+    number: string;
+  };
+  integerNumberError: string;
+  emptyFieldError: string;
+  requiredFieldError: string;
+  nonNegativeError: string;
+}
+
 //Exceptions
 interface ExceptionsType {
   err: any;
@@ -83,8 +102,10 @@ export {
   BondErrorMessages,
   JsonMessages,
   RegisterErrorMessages, 
+  QueryParamsErrorMessages,
   
   BondType,
   RegisterType,
-  ExceptionsType
+  ExceptionsType,
+  QueryParamsType
 }

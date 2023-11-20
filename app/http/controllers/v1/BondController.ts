@@ -3,7 +3,7 @@ import { DefaultArgs } from '@prisma/client/runtime/library';
 import { Request, Response } from 'express';
 import { JsonMessages } from '../../../functions/function';
 import { i18n } from 'i18next';
-import { BondType } from '../../../types/type';
+import { BondType, QueryParamsType } from '../../../types/type';
 import { BondResource } from '../../resources/v1/Bond/BondResource';
 
 import exceptions from '../../../errors/handler';
@@ -13,14 +13,16 @@ import StoreBondLinks from '../../resources/v1/hateoas/Bond/StoreBondLinks';
 import ShowBondLinks from '../../resources/v1/hateoas/Bond/ShowBondLinks';
 import IndexBondLinks from '../../resources/v1/hateoas/Bond/IndexBondLinks';
 import UpdateBondLinks from '../../resources/v1/hateoas/Bond/UpdateBondLinks';
+import QueryParamsRequest from '../../requests/v1/QueryParamsRequest';
 
 const prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new PrismaClient();
 
 class BondController {
-    //TODO: desenvolver um filtro aqui
     async index(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
             const translate: i18n = req.i18n;
+            const { filter, sort, skip, take }: QueryParamsType = QueryParamsRequest.rules(req.query, translate);
+        
             const user = req.user as any;
             const userRoleId: number = user.role[0].id;
 
@@ -32,7 +34,7 @@ class BondController {
                 });
             }
 
-            const bonds = await prisma.bond.findMany({
+            const findManyArgs: Prisma.BondFindManyArgs = {
                 where: {
                     OR: [
                         {
@@ -57,16 +59,61 @@ class BondController {
                 },
                 select: {
                     id: true,
+                    from_user_role: true,
+                    to_user_role: true,
                     from_user: true,
+                    to_user: true,
+                    from: {
+                        include: {
+                            doctor: true,
+                            carer: true
+                        }
+                    },
                     to: {
                         include: {
-                            doctor: userRoleId === 2 && true,
-                            carer: userRoleId === 3 && true
+                            doctor: true,
+                            carer: true
                         }
                     },
                     status_id: true
                 }
-            });
+            };
+           
+            if(filter) {
+                const availableFilterFields: string[] = ['status'];
+        
+                filter.toString().split(',').map(filterParam => {
+                    const [filterColumn, filterValue]: string[] = filterParam.split(':');
+            
+                    if (availableFilterFields.includes(filterColumn)) {
+                        if (filterColumn === 'status') {
+                            findManyArgs.where = {
+                                ...findManyArgs.where,
+                                status_id: Number(filterValue)
+                            }
+                        }
+                    }
+                })
+            }
+        
+            if(sort) {
+                const availableSortFields: string[] = ['id'];
+                const sortParam: string = sort.toString();
+                const param: string = sortParam.slice(1);
+        
+                if (availableSortFields.includes(param)) {
+                    const orderOperator: 'desc' | 'asc' = sortParam[0] === '-' ? 'desc' : 'asc';
+            
+                    if (param === 'id') findManyArgs.orderBy = { id: orderOperator };
+                }
+            }
+
+            if(take || skip) {              
+                findManyArgs.take = take;
+                findManyArgs.skip = skip;
+            }
+
+            const bonds: Bond[] | null = await prisma.bond.findMany(findManyArgs);
 
             if(bonds.length === 0) {
                 return JsonMessages({
@@ -77,7 +124,7 @@ class BondController {
 
             return JsonMessages({
                 message: translate.t('success.bond.returned'),
-                data: new BondResource(bonds, req.method),
+                data: new BondResource({ data: bonds, userId: user.id }, req.method),
                 _links: IndexBondLinks._links(),
                 res
             });
@@ -128,11 +175,20 @@ class BondController {
                 },
                 select: {
                     id: true,
+                    from_user_role: true,
+                    to_user_role: true,
                     from_user: true,
+                    to_user: true,
+                    from: {
+                        include: {
+                            doctor: true,
+                            carer: true
+                        }
+                    },
                     to: {
                         include: {
-                            doctor: userRoleId === 2 && true,
-                            carer: userRoleId === 3 && true
+                            doctor: true,
+                            carer: true
                         }
                     },
                     status_id: true
@@ -144,11 +200,11 @@ class BondController {
                     message: translate.t('error.bond.notFound'),
                     res
                 });
-            }
+            } 
 
             return JsonMessages({
                 message: translate.t('success.bond.returned'),
-                data: new BondResource(bond, req.method),
+                data: new BondResource({ data: bond, userId: user.id }, req.method),
                 _links: ShowBondLinks._links(bond_id),
                 res
             });
@@ -299,7 +355,7 @@ class BondController {
             return JsonMessages({
                 statusCode: 201,
                 message: translate.t('success.bond.created'),
-                data: new BondResource(createUserBond, req.method),
+                data: new BondResource({ data: createUserBond }, req.method),
                 _links: StoreBondLinks._links(createUserBond.id),
                 res
             });
@@ -352,7 +408,7 @@ class BondController {
 
             return JsonMessages({
                 message: translate.t('success.bond.updated'),
-                data: new BondResource(updateBondStatus),
+                data: new BondResource({ data: updateBondStatus }),
                 _links: UpdateBondLinks._links(bond_id),
                 res
             });
@@ -396,7 +452,7 @@ class BondController {
 
             return JsonMessages({
                 message: translate.t('success.bond.deleted'),
-                data: new BondResource(removeBond),
+                data: new BondResource({ data: removeBond }),
                 _links: DestroyBondLinks._links(),
                 res
             });
