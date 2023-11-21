@@ -1,8 +1,10 @@
 import { Router } from "express";
 import { passportJWT } from "../../app/http/middleware/passport";
+
 import AuthController from "../../app/http/controllers/v1/AuthController";
 import BondController from "../../app/http/controllers/v1/BondController";
 import ReminderController from "../../app/http/controllers/v1/ReminderController";
+import BondPermissionController from "../../app/http/controllers/v1/BondPermissionController";
 
 const router: Router = Router();
 const apiContext: string = "api/v1";
@@ -25,6 +27,16 @@ router.route('/user/bond/:id')
     .get(BondController.show)
     .patch(BondController.update)
     .delete(BondController.destroy);
+
+//Bond Permission
+router.route('/user/bond/:bondId/permission')
+    .get(BondPermissionController.index)
+    .post(BondPermissionController.store)
+
+router.route('/user/bond/:bondId/permission/:permissionId')
+    .get(BondPermissionController.show)
+    .patch(BondPermissionController.update)
+    .delete(BondPermissionController.destroy);
 
 //Reminder
 router.route('/user/reminder')
