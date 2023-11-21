@@ -8,6 +8,12 @@
             "returned": "Vinculo(s) do usuário retornado(s) com sucesso",
             "updated": "Vinculo atualizado com sucesso",
             "deleted": "Vinculo removido com sucesso"
+        },
+        "reminder": {
+            "created": "Lembrete criado com sucesso",
+            "returned": "Lembrete(s) do usuário retornado(s) com sucesso",
+            "updated": "Lembrete atualizado com sucesso",
+            "deleted": "Lembrete removido com sucesso"
         }
     },
     "error": {
@@ -34,6 +40,10 @@
         "role": {
             "notFound": "Nenhum cargo foi encontrado"
         },
+        "reminder": {
+            "exists": "O lembrete informado já existe",
+            "notFound": "Nenhum lembrete foi encontrado"
+        },
         "validation": {
             "input": {
                 "invalidString": "O formato especificado deve ser string",
@@ -52,8 +62,9 @@
                 },
                 "regExp": {
                     "name": "O campo não aceita números, símbolos ou caracteres especiais",
-                    "crm": "O campo aceita apeans números",
-                    "crm_state": "O campo aceita apenas letras"
+                    "crm": "O campo aceita apenas números",
+                    "crm_state": "O campo aceita apenas letras",
+                    "label": "O campo não aceita símbolos"
                 },
                 "length": {
                     "telephone": "O campo informado deve ter 11 caracteres",

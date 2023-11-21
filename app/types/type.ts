@@ -34,6 +34,12 @@ interface BondType {
   user_to_role_id?: number | undefined;
 }
 
+interface ReminderType {
+  label?: string | undefined;
+  date_time?: string | Date | undefined;
+  reminder_id?: number | undefined;
+}
+
 interface QueryParamsType {
   filter?: QueryParams
   sort?: QueryParams
@@ -77,6 +83,18 @@ interface BondErrorMessages {
   requiredFieldError: string;
 }
 
+interface ReminderErrorMessages {
+  invalidTypeError: {
+    string: string;
+    number: string;
+    date: string;
+  };
+  integerNumberError: string;
+  emptyFieldError: string;
+  requiredFieldError: string;
+  regExpError: string;
+}
+
 
 interface QueryParamsErrorMessages {
   invalidTypeError: {
@@ -100,10 +118,12 @@ export {
   Data, 
 
   BondErrorMessages,
+  ReminderErrorMessages,
   JsonMessages,
   RegisterErrorMessages, 
   QueryParamsErrorMessages,
   
+  ReminderType,
   BondType,
   RegisterType,
   ExceptionsType,

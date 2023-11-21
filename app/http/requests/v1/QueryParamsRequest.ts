@@ -20,50 +20,14 @@ class QueryParamsRequest {
                     required_error: requiredFieldError,
                     invalid_type_error: invalidTypeError.string
                 })
-                .optional()
-                .superRefine((val, ctx) => {
-                    if(val) {
-                        if(val.length < 1) {
-                            ctx.addIssue({
-                                code: z.ZodIssueCode.too_small,
-                                minimum: 1,
-                                inclusive: true,
-                                type: 'number',
-                                message: emptyFieldError,
-                            });
-                        }
-
-                        if(isNaN(Number(val.substring(7, 8)))) {
-                            ctx.addIssue({
-                                code: z.ZodIssueCode.custom,
-                                message: invalidTypeError.number,
-                                fatal: true
-                            });
-
-                            return z.NEVER;
-                        }
-                    }
-                }),
+                .optional(),
 
             sort: z
                 .string({ 
                     required_error: requiredFieldError,
                     invalid_type_error: invalidTypeError.string
                 })
-                .optional()
-                .superRefine((val, ctx) => {
-                    if(val) {
-                        if(val.length < 1) {
-                            ctx.addIssue({
-                                code: z.ZodIssueCode.too_small,
-                                minimum: 1,
-                                inclusive: true,
-                                type: 'string',
-                                message: emptyFieldError,
-                            });
-                        }
-                    }
-                }),
+                .optional(),
 
             skip: z
                 .preprocess(

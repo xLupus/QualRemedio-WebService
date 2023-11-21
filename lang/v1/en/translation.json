@@ -8,6 +8,12 @@
             "returned": "User Bond(s) returned successfully",
             "updated": "User Bond updated successfully",
             "deleted": "User Bond deleted successfully"
+        },
+        "reminder": {
+            "created": "User Reminder created successfully",
+            "returned": "User Reminder(s) returned successfully",
+            "updated": "User Reminder updated successfully",
+            "deleted": "User Reminder deleted successfully"
         }
     },
     "error": {
@@ -34,6 +40,10 @@
         "role": {
             "notFound": "Role not found"
         },
+        "reminder": {
+            "exists": "User reminder already exists",
+            "notFound": "User reminder not found"
+        },
         "validation": {
             "input": {
                 "invalidString": "Specified format must be string",
@@ -53,7 +63,8 @@
                 "regExp": {
                     "name": "Field does not accept numbers, simbols or speacial characters",
                     "crm": "Field only accepts number",
-                    "crm_state": "Field only accepts letters"
+                    "crm_state": "Field only accepts letters",
+                    "label": "Filed only accepts letters"
                 },
                 "length": {
                     "telephone": "Field must have 11 characters",
