@@ -14,6 +14,12 @@
             "returned": "User Reminder(s) returned successfully",
             "updated": "User Reminder updated successfully",
             "deleted": "User Reminder deleted successfully"
+        },
+        "notification": {
+            "created": "User Notifications created successfully",
+            "returned": "User Notifications(s) returned successfully",
+            "updated": "User Notifications updated successfully",
+            "deleted": "User Notifications deleted successfully"
         }
     },
     "error": {
@@ -43,6 +49,11 @@
         "reminder": {
             "exists": "User reminder already exists",
             "notFound": "User reminder not found"
+        },
+        "notification": {
+            "exists": "User notification already exists",
+            "notFound": "User notification not found",
+            "cannotBeChanged": "Cannot change notification after it had read"
         },
         "validation": {
             "input": {
@@ -74,7 +85,8 @@
                 },
                 "empty": "Field must not be empty",
                 "required": "Field must be specified",
-                "nonNegative": "Field must not have values less then 0"
+                "nonNegative": "Field must not have values less then 0",
+                "atLeastOne": "At least one field must be specified"
             }
         },
         "data": {

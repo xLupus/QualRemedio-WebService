@@ -14,6 +14,12 @@
             "returned": "Lembrete(s) do usuário retornado(s) com sucesso",
             "updated": "Lembrete atualizado com sucesso",
             "deleted": "Lembrete removido com sucesso"
+        },
+        "notification": {
+            "created": "Notificação criada com sucesso",
+            "returned": "Notificação(ões) do usuário retornada(s) com sucesso",
+            "updated": "Notificação atualizada com sucesso",
+            "deleted": "Notificação removida com sucesso"
         }
     },
     "error": {
@@ -43,6 +49,11 @@
         "reminder": {
             "exists": "O lembrete informado já existe",
             "notFound": "Nenhum lembrete foi encontrado"
+        },
+        "notification": {
+            "exists": "A notificação informada já existe",
+            "notFound": "Nenhuma notificação foi encontrada",
+            "cannotBeChanged": "A notificação não pode ser alterada depois de lida"
         },
         "validation": {
             "input": {
@@ -74,7 +85,8 @@
                 },
                 "empty": "Preencha este campo",
                 "required": "Este campo deve ser especificado",
-                "nonNegative": "O campo informado não pode conter valores menores que 0"
+                "nonNegative": "O campo informado não pode conter valores menores que 0",
+                "atLeastOne": "Pelo menos um dos campos deve ser informado"
             }
         },
         "data": {

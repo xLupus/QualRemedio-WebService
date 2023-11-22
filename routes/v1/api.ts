@@ -5,6 +5,7 @@ import AuthController from "../../app/http/controllers/v1/AuthController";
 import BondController from "../../app/http/controllers/v1/BondController";
 import ReminderController from "../../app/http/controllers/v1/ReminderController";
 import BondPermissionController from "../../app/http/controllers/v1/BondPermissionController";
+import NotificationController from "../../app/http/controllers/v1/NotificationController";
 
 const router: Router = Router();
 const apiContext: string = "api/v1";
@@ -47,5 +48,15 @@ router.route('/user/reminder/:id')
     .get(ReminderController.show)
     .patch(ReminderController.update)
     .delete(ReminderController.destroy);
+
+//Notification
+router.route('/users/notifications')
+    .get(NotificationController.index)
+    .post(NotificationController.store)
+
+router.route('/users/notifications/:id')
+    .get(NotificationController.show)
+    .patch(NotificationController.update)
+    .delete(NotificationController.destroy);
 
 export { router as routerApiV1, apiContext }
