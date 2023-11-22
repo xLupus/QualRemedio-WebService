@@ -1,5 +1,3 @@
-import moment from 'moment';
-
 export class NotificationResource {
     constructor(data: any, reqMethod?: string | undefined) {
         return this.resource(data, reqMethod) as any;
@@ -12,8 +10,9 @@ export class NotificationResource {
             data.map((el: any) => {
                 bondData.push({
                     id: el.id,
-                    label: el.label,
-                    date_time: moment(el.date_time.toISOString(), 'YYYY-MM-DD hh:mm:ss').format('DD-MM-YYYY hh:mm:ss')
+                    title: el.title,
+                    message: el.message,
+                    read: el.read
                 });
             });
 
@@ -22,8 +21,9 @@ export class NotificationResource {
 
         return {
             id: data.id,
-            label: data.label,
-            date_time: moment(data.date_time.toISOString(), 'YYYY-MM-DD hh:mm:ss').format('DD-MM-YYYY hh:mm:ss')
+            title: data.title,
+            message: data.message,
+            read: data.read
         }
     }
 }

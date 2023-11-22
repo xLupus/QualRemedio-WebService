@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { i18n } from "i18next";
 import { NotificationErrorMessages, NotificationType } from '../../../types/type';
-import moment from "moment";
 
 class ReminderRequest {
     rules({ title, message, read, notification_id }: NotificationType, translate: i18n, reqMethod?: string | undefined) {
@@ -21,14 +20,7 @@ class ReminderRequest {
                 })
                 .optional()
                 .superRefine((val, ctx) => {
-                    if(!reqMethod && notification_id) {
-                        ctx.addIssue({
-                            code: z.ZodIssueCode.custom,
-                            message: `Este campo não pode ser especificado`
-                        });
-                    }
-
-                    if((reqMethod === 'POST' || reqMethod === 'PATCH')) {
+                    if(reqMethod === 'POST') {
                         if(val === undefined) {
                             ctx.addIssue({
                                 code: z.ZodIssueCode.invalid_type,
@@ -41,7 +33,14 @@ class ReminderRequest {
                             return z.NEVER;
                         }
 
-                        if(val!.length < 1) {
+                        if(notification_id?.toString() === '' || notification_id!.toString().length > 0 ) {
+                            ctx.addIssue({
+                                code: z.ZodIssueCode.custom,
+                                message: `Este campo não pode ser especificado`
+                            });
+                        }
+
+                        if(val.length < 1) {
                             ctx.addIssue({
                                 code: z.ZodIssueCode.too_small,
                                 minimum: 1,
@@ -53,16 +52,36 @@ class ReminderRequest {
 
                             return z.NEVER;
                         }
+                    }
 
-                        //TODO: ver o código dos caracteres e colocar aqui
-                        if(/[^a-zA-Z0-9,.:/\\\s\u00C0-\u00C5\u00C7-\u00CF\u00D1-\u00D6\u00D9-\u00DB\u00E0-\u00E3\u00E5\u00E7-\u00F5\u00F9-\u00FB]/g.test(val)) {
+                    if(reqMethod === 'PATCH') {
+                        if(val === '') return z.NEVER;
+
+                        if(!title && !message) {
                             ctx.addIssue({
-                                code: z.ZodIssueCode.invalid_string,
-                                validation: 'regex',
-                                message: regExpError,
-                            });  
+                                code: z.ZodIssueCode.invalid_type,
+                                received: 'undefined',
+                                expected: 'string',
+                                message: requiredFieldError,
+                                fatal: true
+                            });
+
+                            return z.NEVER;
                         }
                     }
+
+                    if(reqMethod === 'POST' || reqMethod === 'PATCH') {
+                        if(val) {
+                            //TODO: ver o código dos caracteres e colocar aqui
+                            if(/[^a-zA-Z0-9,.:?/\\\s\u00C0-\u00C5\u00C7-\u00CF\u00D1-\u00D6\u00D9-\u00DB\u00E0-\u00E3\u00E5\u00E7-\u00F5\u00F9-\u00FB]/g.test(val)) {
+                                ctx.addIssue({
+                                    code: z.ZodIssueCode.invalid_string,
+                                    validation: 'regex',
+                                    message: regExpError,
+                                });  
+                            }
+                        }
+                    }    
                 }),
 
             message: z
@@ -72,14 +91,7 @@ class ReminderRequest {
                 })
                 .optional()
                 .superRefine((val, ctx) => {
-                    if(!reqMethod && notification_id) {
-                        ctx.addIssue({
-                            code: z.ZodIssueCode.custom,
-                            message: `Este campo não pode ser especificado`
-                        });
-                    }
-
-                    if((reqMethod === 'POST' || reqMethod === 'PATCH')) {
+                    if(reqMethod === 'POST') {
                         if(val === undefined) {
                             ctx.addIssue({
                                 code: z.ZodIssueCode.invalid_type,
@@ -91,8 +103,16 @@ class ReminderRequest {
 
                             return z.NEVER;
                         }
+                        
+                        if(notification_id?.toString() === '' || notification_id!.toString().length > 0 ) {
+                            ctx.addIssue({
+                                code: z.ZodIssueCode.custom,
+                                message: `Este campo não pode ser especificado`
+                            });
+                        }
 
-                        if(val!.length < 1) {
+
+                        if(val.length < 1) {
                             ctx.addIssue({
                                 code: z.ZodIssueCode.too_small,
                                 minimum: 1,
@@ -104,14 +124,34 @@ class ReminderRequest {
 
                             return z.NEVER;
                         }
+                    }
 
-                        //TODO: ver o código dos caracteres e colocar aqui
-                        if(/[^a-zA-Z0-9,.:/\\\s\u00C0-\u00C5\u00C7-\u00CF\u00D1-\u00D6\u00D9-\u00DB\u00E0-\u00E3\u00E5\u00E7-\u00F5\u00F9-\u00FB]/g.test(val)) {
+                    if(reqMethod === 'PATCH') {
+                        if(val === '') return z.NEVER;
+
+                        if(!message && !title) {
                             ctx.addIssue({
-                                code: z.ZodIssueCode.invalid_string,
-                                validation: 'regex',
-                                message: regExpError,
-                            });  
+                                code: z.ZodIssueCode.invalid_type,
+                                received: 'undefined',
+                                expected: 'string',
+                                message: requiredFieldError,
+                                fatal: true
+                            });
+
+                            return z.NEVER;
+                        }
+                    }
+
+                    if(reqMethod === 'POST' || reqMethod === 'PATCH') {
+                        if(val) {
+                            //TODO: ver o código dos caracteres e colocar aqui
+                            if(/[^a-zA-Z0-9,.:?/\\\-\s\u00C0-\u00C5\u00C7-\u00CF\u00D1-\u00D6\u00D9-\u00DB\u00E0-\u00E3\u00E5\u00E7-\u00F5\u00F9-\u00FB]/g.test(val)) {
+                                ctx.addIssue({
+                                    code: z.ZodIssueCode.invalid_string,
+                                    validation: 'regex',
+                                    message: regExpError,
+                                });  
+                            }
                         }
                     }
                 }),
@@ -131,6 +171,7 @@ class ReminderRequest {
                 .int({ message: integerNumberError })
                 .positive()
                 .optional()
+
         });
         
         return validator.parse({ title, message, read, notification_id });

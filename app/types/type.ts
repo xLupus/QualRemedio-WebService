@@ -43,7 +43,7 @@ interface ReminderType {
 interface NotificationType {
   title?: string | undefined;
   message?: string | undefined;
-  read?: boolean | number | undefined;
+  read?: boolean | undefined;
   notification_id?: number | undefined;
 }
 

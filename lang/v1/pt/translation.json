@@ -16,10 +16,10 @@
             "deleted": "Lembrete removido com sucesso"
         },
         "notification": {
-            "created": "Notificação criado com sucesso",
-            "returned": "Notificação(ões) do usuário retornado(s) com sucesso",
-            "updated": "Notificação atualizado com sucesso",
-            "deleted": "Notificação removido com sucesso"
+            "created": "Notificação criada com sucesso",
+            "returned": "Notificação(ões) do usuário retornada(s) com sucesso",
+            "updated": "Notificação atualizada com sucesso",
+            "deleted": "Notificação removida com sucesso"
         }
     },
     "error": {
@@ -52,7 +52,8 @@
         },
         "notification": {
             "exists": "A notificação informada já existe",
-            "notFound": "Nenhuma notificação foi encontrada"
+            "notFound": "Nenhuma notificação foi encontrada",
+            "cannotBeChanged": "A notificação não pode ser alterada depois de lida"
         },
         "validation": {
             "input": {

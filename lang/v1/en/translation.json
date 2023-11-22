@@ -52,7 +52,8 @@
         },
         "notification": {
             "exists": "User notification already exists",
-            "notFound": "User notification not found"
+            "notFound": "User notification not found",
+            "cannotBeChanged": "Cannot change notification after it had read"
         },
         "validation": {
             "input": {

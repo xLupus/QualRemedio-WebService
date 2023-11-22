@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 import { JsonMessages } from '../../../functions/function';
 import { i18n } from 'i18next';
 import { QueryParamsType, NotificationType } from '../../../types/type';
-import { ReminderResource } from '../../resources/v1/Reminder/ReminderResource';
+import { NotificationResource } from '../../resources/v1/Notification/NotificationResource';
 
 import exceptions from '../../../errors/handler';
 import NotificationRequest from '../../requests/v1/NotificationRequest';
@@ -50,7 +50,7 @@ class NotificationController {
         
                 filter.toString().split(',').map(filterParam => {
                     const [filterColumn, filterValue]: string[] = filterParam.split(':');
-                    
+
                     if (availableFilterFields.includes(filterColumn)) {
                         if (filterColumn === 'title') {
                             findManyArgs.where = {
@@ -73,9 +73,9 @@ class NotificationController {
         
             if(sort) {
                 const availableSortFields: string[] = ['id', 'title', 'read'];
-                const sortParam: string = sort.toString();
-                const param: string = sortParam.slice(1);
-        
+                const sortParam: string = sort.toString();;            
+                const param: string = sortParam[0] === '-' ? sortParam.slice(1) : sortParam.slice(0);
+                
                 if (availableSortFields.includes(param)) {
                     const orderOperator: 'desc' | 'asc' = sortParam[0] === '-' ? 'desc' : 'asc';
             
@@ -103,7 +103,7 @@ class NotificationController {
 
             return JsonMessages({
                 message: translate.t('success.notification.returned'),
-                data: new ReminderResource({ data: notifications }, req.method),
+                data: new NotificationResource({ data: notifications }, req.method),
                 _links: IndexNotificationLinks._links(),
                 res
             });
@@ -121,7 +121,6 @@ class NotificationController {
      *        security: 
      *            - bearerAuth: []
      */
-    
     async show(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
             const translate: i18n = req.i18n;
@@ -137,23 +136,16 @@ class NotificationController {
                 });
             }
 
-            const notification: Notification | null = await prisma.notification.findUnique({
+            const notification: Notification | null = await prisma.notification.findUniqueOrThrow({
                 where: { 
                     id: notification_id,
                     user_id: user.id
                 }
             });
 
-            if(!notification) {
-                return JsonMessages({
-                    message: translate.t('error.notification.notFound'),
-                    res
-                });
-            }
-
             return JsonMessages({
                 message: translate.t('success.notification.returned'),
-                data: new ReminderResource({ data: notification }, req.method),
+                data: new NotificationResource({ data: notification }, req.method),
                 _links: ShowNotificationLinks._links(notification_id),
                 res
             });
@@ -202,24 +194,13 @@ class NotificationController {
                     user: {
                         connect: { id: user.id }
                     }
-                },
-                include: {
-                    user: {
-                        select: {
-                            id: true,
-                            name: true,
-                            email: true,
-                            birth_day: true,
-                            telephone: true
-                        }
-                    }
                 }
             });
         
             return JsonMessages({
                 statusCode: 201,
                 message: translate.t('success.notification.created'),
-                data: new ReminderResource({ data: createNotification }, req.method),
+                data: new NotificationResource({ data: createNotification }, req.method),
                 _links: StoreNotificationLinks._links(createNotification.id),
                 res
             });
@@ -269,6 +250,11 @@ class NotificationController {
                     message: translate.t('error.notification.notFound'),
                     res
                 });
+            } else if(notification.read === true) {
+                return JsonMessages({
+                    message: translate.t('error.notification.cannotBeChanged'),
+                    res
+                });
             }
 
             const updateNotification = await prisma.notification.update({
@@ -282,7 +268,7 @@ class NotificationController {
 
             return JsonMessages({
                 message: translate.t('success.notification.updated'),
-                data: new ReminderResource({ data: updateNotification }),
+                data: new NotificationResource({ data: updateNotification }),
                 _links: UpdateNotificationLinks._links(notification_id),
                 res
             });
@@ -315,25 +301,18 @@ class NotificationController {
                 });
             }
 
-            const notification: Notification | null = await prisma.notification.findUnique({
+            await prisma.notification.findUniqueOrThrow({
                 where: { 
                     id: notification_id,
                     user_id: user.id
                 }
             });
 
-            if(!notification) {
-                return JsonMessages({
-                    message: translate.t('error.notification.notFound'),
-                    res
-                });
-            }
-
             const removerNotification = await prisma.notification.delete({ where: { id: notification_id }});
 
             return JsonMessages({
                 message: translate.t('success.notification.deleted'),
-                data: new ReminderResource({ data: removerNotification }, req.method),
+                data: new NotificationResource({ data: removerNotification }, req.method),
                 _links: DestroyNotificationLinks._links(),
                 res
             });
