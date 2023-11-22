@@ -85,7 +85,8 @@
                 },
                 "empty": "Field must not be empty",
                 "required": "Field must be specified",
-                "nonNegative": "Field must not have values less then 0"
+                "nonNegative": "Field must not have values less then 0",
+                "atLeastOne": "At least one field must be specified"
             }
         },
         "data": {

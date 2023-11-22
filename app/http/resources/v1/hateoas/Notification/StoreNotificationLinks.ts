@@ -16,7 +16,7 @@ class StoreNotificationLinks {
             },
             {
                 href: `http://localhost:${port}/${apiContext}/users/notifications/${notificationId}`,
-                rel: 'update_an_user_bond',
+                rel: 'update_an_user_notification',
                 method: 'PATCH'
             },
             {

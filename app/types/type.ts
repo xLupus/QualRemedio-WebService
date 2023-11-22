@@ -111,7 +111,10 @@ interface NotificationErrorMessages {
   };
   integerNumberError: string;
   emptyFieldError: string;
-  requiredFieldError: string;
+  requiredFieldError: {
+    required: string;
+    atLeastOne: string;
+  };
   regExpError: string;
 }
 

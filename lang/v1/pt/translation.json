@@ -85,7 +85,8 @@
                 },
                 "empty": "Preencha este campo",
                 "required": "Este campo deve ser especificado",
-                "nonNegative": "O campo informado não pode conter valores menores que 0"
+                "nonNegative": "O campo informado não pode conter valores menores que 0",
+                "atLeastOne": "Pelo menos um dos campos deve ser informado"
             }
         },
         "data": {

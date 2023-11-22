@@ -64,7 +64,7 @@ class NotificationController {
                         if (filterColumn === 'read') {
                             findManyArgs.where = {
                                 ...findManyArgs.where,
-                                read: !!Number(filterValue)
+                                read: !!Number(filterValue) //TODO: Rever
                             }
                         }
                     }
