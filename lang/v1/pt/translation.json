@@ -14,6 +14,12 @@
             "returned": "Lembrete(s) do usuário retornado(s) com sucesso",
             "updated": "Lembrete atualizado com sucesso",
             "deleted": "Lembrete removido com sucesso"
+        },
+        "notification": {
+            "created": "Notificação criado com sucesso",
+            "returned": "Notificação(ões) do usuário retornado(s) com sucesso",
+            "updated": "Notificação atualizado com sucesso",
+            "deleted": "Notificação removido com sucesso"
         }
     },
     "error": {
@@ -43,6 +49,10 @@
         "reminder": {
             "exists": "O lembrete informado já existe",
             "notFound": "Nenhum lembrete foi encontrado"
+        },
+        "notification": {
+            "exists": "A notificação informada já existe",
+            "notFound": "Nenhuma notificação foi encontrada"
         },
         "validation": {
             "input": {

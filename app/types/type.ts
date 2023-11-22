@@ -40,6 +40,14 @@ interface ReminderType {
   reminder_id?: number | undefined;
 }
 
+interface NotificationType {
+  title?: string | undefined;
+  message?: string | undefined;
+  read?: boolean | number | undefined;
+  notification_id?: number | undefined;
+}
+
+
 interface QueryParamsType {
   filter?: QueryParams
   sort?: QueryParams
@@ -95,6 +103,19 @@ interface ReminderErrorMessages {
   regExpError: string;
 }
 
+interface NotificationErrorMessages {
+  invalidTypeError: {
+    string: string;
+    number: string;
+    date: string;
+  };
+  integerNumberError: string;
+  emptyFieldError: string;
+  requiredFieldError: string;
+  regExpError: string;
+}
+
+
 
 interface QueryParamsErrorMessages {
   invalidTypeError: {
@@ -119,6 +140,7 @@ export {
 
   BondErrorMessages,
   ReminderErrorMessages,
+  NotificationErrorMessages,
   JsonMessages,
   RegisterErrorMessages, 
   QueryParamsErrorMessages,
@@ -126,6 +148,7 @@ export {
   ReminderType,
   BondType,
   RegisterType,
+  NotificationType,
   ExceptionsType,
   QueryParamsType
 }

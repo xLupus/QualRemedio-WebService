@@ -14,6 +14,12 @@
             "returned": "User Reminder(s) returned successfully",
             "updated": "User Reminder updated successfully",
             "deleted": "User Reminder deleted successfully"
+        },
+        "notification": {
+            "created": "User Notifications created successfully",
+            "returned": "User Notifications(s) returned successfully",
+            "updated": "User Notifications updated successfully",
+            "deleted": "User Notifications deleted successfully"
         }
     },
     "error": {
@@ -43,6 +49,10 @@
         "reminder": {
             "exists": "User reminder already exists",
             "notFound": "User reminder not found"
+        },
+        "notification": {
+            "exists": "User notification already exists",
+            "notFound": "User notification not found"
         },
         "validation": {
             "input": {
