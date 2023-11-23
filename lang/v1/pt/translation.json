@@ -20,6 +20,9 @@
             "returned": "Notificação(ões) do usuário retornada(s) com sucesso",
             "updated": "Notificação atualizada com sucesso",
             "deleted": "Notificação removida com sucesso"
+        },
+        "email": {
+            "sended": "E-mail enviado com sucesso"
         }
     },
     "error": {
@@ -54,6 +57,9 @@
             "exists": "A notificação informada já existe",
             "notFound": "Nenhuma notificação foi encontrada",
             "cannotBeChanged": "A notificação não pode ser alterada depois de lida"
+        },
+        "email": {
+            "notSended": "Ocorreu um erro ao enviar o e-mail"
         },
         "validation": {
             "input": {

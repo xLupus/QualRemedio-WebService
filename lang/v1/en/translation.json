@@ -20,6 +20,9 @@
             "returned": "User Notifications(s) returned successfully",
             "updated": "User Notifications updated successfully",
             "deleted": "User Notifications deleted successfully"
+        },
+        "email": {
+            "sended": "E-mail sended successfully"
         }
     },
     "error": {
@@ -54,6 +57,9 @@
             "exists": "User notification already exists",
             "notFound": "User notification not found",
             "cannotBeChanged": "Cannot change notification after it had read"
+        },
+        "email": {
+            "notSended": "An error occured when sending e-mail"
         },
         "validation": {
             "input": {
