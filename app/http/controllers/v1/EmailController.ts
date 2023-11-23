@@ -24,35 +24,19 @@ class EmailController {
             const { email }: EmailType = EmailRequest.rules(req.body, translate);
             const availableEmailProviders: string[] = ['gmail.com', 'outlook.com', 'outlook.com.br'];
 
-            let transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo>;
-            let options = {};
-
             if(availableEmailProviders.includes(email.split('@')[1])) {
-                if(email.includes('gmail.com')) {
-                    options = {
-                        host: `smtp.gmail.com`,
-                        port: 587,
-                        secure: false,
-                        auth: {
-                            user: process.env.MAIL_USERNAME,
-                            pass: process.env.MAIL_PASSWORD
-                        },
-                        tls: { rejectUnauthorized: false }
+                const transporter: nodemailer.Transporter<SMTPTransport.SentMessageInfo> = nodemailer.createTransport({
+                    host: `${process.env.MAIL_HOST}`,
+                    port: Number(process.env.MAIL_PORT),
+                    secure: false,
+                    auth: {
+                        user: process.env.MAIL_USERNAME,
+                        pass: process.env.MAIL_PASSWORD
+                    },
+                    tls: {
+                        rejectUnauthorized: false
                     }
-                } else if(email.includes('outlook.com') || email.includes('outlook.com.br')) {
-                    options = {
-                        host: `${process.env.MAIL_HOST}`,
-                        port: 587,
-                        secure: false,
-                        auth: {
-                            user: process.env.MAIL_USERNAME,
-                            pass: process.env.MAIL_PASSWORD
-                        },
-                        tls: { rejectUnauthorized: false }
-                    }
-                }
-
-                transporter = nodemailer.createTransport(options);
+                });
 
                 await transporter.sendMail({
                     from: '<no-reply@qualremedio.com>',
