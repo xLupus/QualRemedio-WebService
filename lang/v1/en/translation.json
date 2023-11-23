@@ -59,7 +59,8 @@
             "cannotBeChanged": "Cannot change notification after it had read"
         },
         "email": {
-            "notSended": "An error occured when sending e-mail"
+            "notSended": "An error occured when sending e-mail",
+            "invalidProvider": "Specified provider is invalid"
         },
         "validation": {
             "input": {

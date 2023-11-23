@@ -59,7 +59,8 @@
             "cannotBeChanged": "A notificação não pode ser alterada depois de lida"
         },
         "email": {
-            "notSended": "Ocorreu um erro ao enviar o e-mail"
+            "notSended": "Ocorreu um erro ao enviar o e-mail",
+            "invalidProvider": "O provedor informado é inválido"
         },
         "validation": {
             "input": {
