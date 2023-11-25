@@ -47,6 +47,9 @@ interface NotificationType {
   notification_id?: number | undefined;
 }
 
+interface EmailType {
+  email: string;
+}
 
 interface QueryParamsType {
   filter?: QueryParams
@@ -118,8 +121,6 @@ interface NotificationErrorMessages {
   regExpError: string;
 }
 
-
-
 interface QueryParamsErrorMessages {
   invalidTypeError: {
     string: string;
@@ -131,10 +132,25 @@ interface QueryParamsErrorMessages {
   nonNegativeError: string;
 }
 
+interface EmailErrorMessages {
+  invalidTypeError: string;
+  invalidEmailFormatError: string;
+  maxLengthError: string;
+  emptyFieldError: string;
+  requiredFieldError: string;
+}
+
 //Exceptions
 interface ExceptionsType {
   err: any;
   req?: Request;
+  res: Response;
+}
+
+interface VerifyEmail {
+  email: string;
+  user: any;
+  req: Request;
   res: Response;
 }
 
@@ -145,13 +161,16 @@ export {
   ReminderErrorMessages,
   NotificationErrorMessages,
   JsonMessages,
+  VerifyEmail,
   RegisterErrorMessages, 
   QueryParamsErrorMessages,
+  EmailErrorMessages,
   
   ReminderType,
   BondType,
   RegisterType,
   NotificationType,
+  EmailType,
   ExceptionsType,
   QueryParamsType
 }

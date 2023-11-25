@@ -1,8 +1,13 @@
 import { Response } from 'express';
-import { JsonMessages } from '../types/type';
-import { PrismaClient } from '@prisma/client';
+import { JsonMessages, VerifyEmail } from '../types/type';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { i18n } from 'i18next';
 
-const prisma = new PrismaClient();
+import exceptions from '../errors/handler';
+import { transporter } from '../../config/nodemailer';
+import { DefaultArgs } from '@prisma/client/runtime/library';
+
+const prisma:  PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new PrismaClient();
 
 // Application Functions 
 /**
@@ -43,3 +48,36 @@ export async function verifyToken(token: string): Promise<boolean> {
 
 //Field Validation
 //TODO: Ver como separar as validações em funções sem erro de `undefined`
+
+/**
+ * 
+ * @param { VerifyEmail } object 
+ * @returns 
+ */
+export async function verifyEmail({ email, user, req, res }: VerifyEmail): Promise<Response<any, Record<string, any>>> {
+    const translate: i18n = req.i18n;
+    const availableEmailProviders: string[] = ['gmail.com', 'outlook.com', 'outlook.com.br'];
+
+    if(availableEmailProviders.includes(email.split('@')[1])) {
+        
+    }
+
+    await transporter.sendMail({
+        from: '<no-reply@qualremedio.com>',
+        to: `${email}`,
+        subject: "Hello World ✔",
+        text: "Hello world?",
+        html:
+        `
+            <span>Olá, ${user}, Verifica o seu e-mail clicando no link abaixo ...</span>
+            <button>
+                <a href=''>Verificar e-mail</a>
+            </button>
+        `
+    });
+
+    return JsonMessages({
+        message: translate.t('success.email.sended'),
+        res
+    });
+}
