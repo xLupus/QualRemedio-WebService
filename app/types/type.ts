@@ -147,6 +147,13 @@ interface ExceptionsType {
   res: Response;
 }
 
+interface VerifyEmail {
+  email: string;
+  user: any;
+  req: Request;
+  res: Response;
+}
+
 export {
   Data, 
 
@@ -154,6 +161,7 @@ export {
   ReminderErrorMessages,
   NotificationErrorMessages,
   JsonMessages,
+  VerifyEmail,
   RegisterErrorMessages, 
   QueryParamsErrorMessages,
   EmailErrorMessages,
