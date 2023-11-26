@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { JsonMessages, VerifyEmail } from '../types/type';
+import { JsonMessages, SendUserMail } from '../types/type';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { i18n } from 'i18next';
 
@@ -51,33 +51,26 @@ export async function verifyToken(token: string): Promise<boolean> {
 
 /**
  * 
- * @param { VerifyEmail } object 
+ * @param { SendUserMail } object 
  * @returns 
  */
-export async function verifyEmail({ email, user, req, res }: VerifyEmail): Promise<Response<any, Record<string, any>>> {
-    const translate: i18n = req.i18n;
-    const availableEmailProviders: string[] = ['gmail.com', 'outlook.com', 'outlook.com.br'];
+export async function sendUserMail({ userInfo, req, res }: SendUserMail): Promise<Response<any, Record<string, any>> | undefined> {
+    try {
+        const { email, name, token } = userInfo;
 
-    if(availableEmailProviders.includes(email.split('@')[1])) {
-        
+        await transporter.sendMail({
+            from: '<noreply@qualremedio.com>',
+            to: `${email}`,
+            subject: "Verfique o seu e-mail",
+            text: `Olá, ${name}, verifique o seu e-mail clicando no link abaixo \n `,
+            html:
+            `
+                <span>Olá, ${name}, Verifique o seu e-mail clicando no link abaixo ...</span>
+                <br>
+                <a href="http://localhost:7000/api/v1/users/email/verify/${token.token}">Verificar e-mail</a>
+            `
+        });
+    } catch (err: unknown) {
+        return exceptions({err, req, res});
     }
-
-    await transporter.sendMail({
-        from: '<no-reply@qualremedio.com>',
-        to: `${email}`,
-        subject: "Hello World ✔",
-        text: "Hello world?",
-        html:
-        `
-            <span>Olá, ${user}, Verifica o seu e-mail clicando no link abaixo ...</span>
-            <button>
-                <a href=''>Verificar e-mail</a>
-            </button>
-        `
-    });
-
-    return JsonMessages({
-        message: translate.t('success.email.sended'),
-        res
-    });
 }

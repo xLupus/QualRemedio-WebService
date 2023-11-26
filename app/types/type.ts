@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { Response, Request } from "express";
 import QueryString from 'qs';
 
@@ -71,6 +72,7 @@ interface RegisterErrorMessages {
     speacialty_name: string;
   };
   invalidEmailFormatError: string;
+  invalidProviderError: string;
   minLengthError: string;
   regexpError: {
     name: string;
@@ -147,9 +149,8 @@ interface ExceptionsType {
   res: Response;
 }
 
-interface VerifyEmail {
-  email: string;
-  user: any;
+interface SendUserMail {
+  userInfo: any;
   req: Request;
   res: Response;
 }
@@ -161,7 +162,7 @@ export {
   ReminderErrorMessages,
   NotificationErrorMessages,
   JsonMessages,
-  VerifyEmail,
+  SendUserMail,
   RegisterErrorMessages, 
   QueryParamsErrorMessages,
   EmailErrorMessages,

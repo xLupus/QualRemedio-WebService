@@ -1,7 +1,8 @@
 {
     "success": {
         "user": {
-            "created": "User created successfully"
+            "created": "User created successfully",
+            "verified": "User verified successfully!"
         },
         "bond": {
             "created": "User Bond created successfully",
@@ -60,7 +61,7 @@
         },
         "email": {
             "notSended": "An error occured when sending e-mail",
-            "invalidProvider": "Specified provider is invalid"
+            "linkExpired": "Your verification link may have expired. Please click on resend for verify your Email"
         },
         "validation": {
             "input": {
@@ -68,6 +69,7 @@
                 "invalidNumber": "Specified format must be number",
                 "invalidDate": "Invalid date format",
                 "invalidEmailFormat": "Invalid e-mail format",
+                "invalidProvider": "Specified provider is invalid",
                 "integerNumber": "Number must be integer",
                 "maxLength": {
                     "name": "Name must not have more than 40 characters",

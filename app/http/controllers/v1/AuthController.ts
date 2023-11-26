@@ -2,7 +2,7 @@ import { Prisma, PrismaClient, User, Token_Blacklist } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import { Request, Response } from 'express';
 import { RegisterType } from '../../../types/type';
-import { JsonMessages, invalidateToken } from '../../../functions/function';
+import { JsonMessages, invalidateToken, sendUserMail } from '../../../functions/function';
 import { RegisterResource } from '../../resources/v1/Auth/RegisterResource';
 import { i18n } from 'i18next';
 
@@ -11,6 +11,8 @@ import RegisterLinks from '../../resources/v1/hateoas/Auth/RegisterLinks';
 import LoginRequest from "../../requests/v1/LoginRequest";
 import exceptions from '../../../errors/handler';
 import bcrypt from 'bcrypt';
+import crpyto from 'crypto';
+
 import 'dotenv/config';
 
 import { JsonMessages as IRequestResponse } from "../../../types/type";
@@ -24,6 +26,7 @@ class AuthController {
             const translate: i18n = req.i18n;
             const { name, email, password, cpf, telephone, birth_day, crm, crm_state, specialty_name, account_type }: RegisterType = RegisterRequest.rules(req.body, translate);
             const passwordHash: string = await bcrypt.hash(password, 15);
+            const emailToken: string = crpyto.randomBytes(64).toString('hex');
             let medicalSpecialtyId: { id: number } = { id: 0 };
             let checkUser: Prisma.UserWhereInput;
             let user: Prisma.UserCreateInput | User[] | null;
@@ -132,6 +135,9 @@ class AuthController {
                         bio: 'Tell us a little bit about yourself',
                         picture_url: 'https://placehold.co/120x120/png'
                     }
+                },
+                token: {
+                    create: { token: emailToken }
                 }
             };
 
@@ -159,9 +165,18 @@ class AuthController {
                 data: user,
                 include: {
                     doctor: true,
-                    carer: true
+                    carer: true,
+                    token: true
                 }
             });
+
+            if(createUser) {
+                sendUserMail({
+                    userInfo: createUser,
+                    req,
+                    res
+                });
+            }
             
             return JsonMessages({
                 statusCode: 201,
@@ -281,16 +296,23 @@ class AuthController {
           name: true,
           email: true,
           password: true,
+          is_verified: true,
           role: {
             where: { id: role },
             select: { 
               id: true, 
               name: true, 
-              description: true 
+              description: true
             }
           }
         },
       })
+
+      if(!user?.is_verified) {
+        json_message.message = "Sua conta ainda não foi verificada, olhe em sua caixa de entrada o link de verificação"
+
+        return JsonMessages(json_message)
+      }
 
       if (!user || !await bcrypt.compare(password, user.password)) {
         json_message.statusCode = 400

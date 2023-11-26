@@ -11,6 +11,7 @@ class RegisterRequest {
             minLengthError,
             regexpError,
             invalidEmailFormatError,
+            invalidProviderError,
             lengthError,
             emptyFieldError,
             requiredFieldError
@@ -33,10 +34,20 @@ class RegisterRequest {
                     required_error: requiredFieldError,
                     invalid_type_error: invalidTypeError.string
                 })
-                .max(30, { message: maxLengthError.email })
+                .max(50, { message: maxLengthError.email })
                 .min(1, { message: emptyFieldError })
                 .email({ message: invalidEmailFormatError })
-                .toLowerCase(),
+                .toLowerCase()
+                .superRefine((val, ctx) => {
+                    const availableEmailProviders: string[] = ['gmail.com', 'outlook.com', 'outlook.com.br'];
+
+                    if(!availableEmailProviders.includes(val.split('@')[1])) {
+                        ctx.addIssue({
+                            code: z.ZodIssueCode.custom,
+                            message: invalidProviderError
+                        });
+                    }
+                }),
 
             password: z
                 .string({ 
@@ -276,6 +287,7 @@ class RegisterRequest {
                 speacialty_name: translate.t('error.validation.input.maxLength.speacialty_name'),
             },
             invalidEmailFormatError: translate.t('error.validation.input.invalidEmailFormat'),
+            invalidProviderError: translate.t('error.validation.input.invalidProvider'),
             minLengthError: translate.t('error.validation.input.minLength.password'),
             regexpError: {
                 name: translate.t('error.validation.input.regExp.name'),

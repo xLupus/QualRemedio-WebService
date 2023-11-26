@@ -1,7 +1,8 @@
 {
     "success": {
         "user": {
-            "created": "Usuário criado com sucesso"
+            "created": "Usuário criado com sucesso",
+            "verified": "Usuário verificado com sucesso"
         },
         "bond": {
             "created": "Vínculo criado com sucesso",
@@ -60,7 +61,7 @@
         },
         "email": {
             "notSended": "Ocorreu um erro ao enviar o e-mail",
-            "invalidProvider": "O provedor informado é inválido"
+            "linkExpired": "Seu link de verificação pode ter expirado, por favor clique em 'reenviar' para verificar o seu e-mail"
         },
         "validation": {
             "input": {
@@ -68,6 +69,7 @@
                 "invalidNumber": "O formato especificado deve ser número",
                 "invalidDate": "O formato da data não é valido",
                 "invalidEmailFormat": "O formato de e-mail é inválido",
+                "invalidProvider": "O provedor informado é inválido",
                 "integerNumber": "O formato de número deve ser integro",
                 "maxLength": {
                     "name": "O nome deve ter no máximo 40 caracteres",

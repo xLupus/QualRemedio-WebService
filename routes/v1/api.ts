@@ -4,11 +4,15 @@ import AuthController from "../../app/http/controllers/v1/AuthController";
 import BondController from "../../app/http/controllers/v1/BondController";
 import ReminderController from "../../app/http/controllers/v1/ReminderController";
 import NotificationController from "../../app/http/controllers/v1/NotificationController";
-import EmailController from "../../app/http/controllers/v1/EmailController";
+import MailController from "../../app/http/controllers/v1/MailController";
 
 const router: Router = Router();
 const apiContext: string = "api/v1";
 
+//Email
+router.get('/users/email/verify/:emailToken', MailController.verify);
+
+//Auth
 router.post('/auth/register', AuthController.register);
 router.post('/auth/login', AuthController.login)
 
@@ -48,7 +52,6 @@ router.route('/users/notifications/:id')
     .patch(NotificationController.update)
     .delete(NotificationController.destroy);
 
-//Email
-router.post('/users/email', EmailController.send);
+
 
 export { router as routerApiV1, apiContext }
