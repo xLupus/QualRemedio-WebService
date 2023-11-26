@@ -10,6 +10,8 @@ const router: Router = Router();
 const apiContext: string = "api/v1";
 
 //Email
+router.post('/users/email/send', MailController.send);
+router.post('/users/email/resend', MailController.resend);
 router.get('/users/email/verify/:emailToken', MailController.verify);
 
 //Auth

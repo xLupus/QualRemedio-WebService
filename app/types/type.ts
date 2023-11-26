@@ -48,7 +48,7 @@ interface NotificationType {
   notification_id?: number | undefined;
 }
 
-interface EmailType {
+interface MailType {
   email: string;
 }
 
@@ -134,9 +134,10 @@ interface QueryParamsErrorMessages {
   nonNegativeError: string;
 }
 
-interface EmailErrorMessages {
+interface MailErrorMessages {
   invalidTypeError: string;
   invalidEmailFormatError: string;
+  invalidProviderError: string;
   maxLengthError: string;
   emptyFieldError: string;
   requiredFieldError: string;
@@ -165,13 +166,13 @@ export {
   SendUserMail,
   RegisterErrorMessages, 
   QueryParamsErrorMessages,
-  EmailErrorMessages,
+  MailErrorMessages,
   
   ReminderType,
   BondType,
   RegisterType,
   NotificationType,
-  EmailType,
+  MailType,
   ExceptionsType,
   QueryParamsType
 }

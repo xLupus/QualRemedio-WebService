@@ -23,7 +23,8 @@
             "deleted": "User Notifications deleted successfully"
         },
         "email": {
-            "sended": "E-mail sended successfully"
+            "sended": "E-mail sended successfully",
+            "verified": "Account verified sucessfully"
         }
     },
     "error": {

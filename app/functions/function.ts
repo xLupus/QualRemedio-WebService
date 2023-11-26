@@ -1,13 +1,15 @@
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { JsonMessages, SendUserMail } from '../types/type';
 import { Prisma, PrismaClient } from '@prisma/client';
-import { i18n } from 'i18next';
+import schedule from 'node-schedule';
 
 import exceptions from '../errors/handler';
 import { transporter } from '../../config/nodemailer';
 import { DefaultArgs } from '@prisma/client/runtime/library';
+import moment from 'moment';
 
 const prisma:  PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new PrismaClient();
+let scheduleExpireLink: schedule.Job;
 
 // Application Functions 
 /**
@@ -48,29 +50,18 @@ export async function verifyToken(token: string): Promise<boolean> {
 
 //Field Validation
 //TODO: Ver como separar as validações em funções sem erro de `undefined`
-
-/**
- * 
- * @param { SendUserMail } object 
- * @returns 
- */
-export async function sendUserMail({ userInfo, req, res }: SendUserMail): Promise<Response<any, Record<string, any>> | undefined> {
+export function setExpireLinkSchedule(userId: number, req: Request, res: Response) {
     try {
-        const { email, name, token } = userInfo;
+        const date: string = moment().add(10, 'minutes').toLocaleString();
 
-        await transporter.sendMail({
-            from: '<noreply@qualremedio.com>',
-            to: `${email}`,
-            subject: "Verfique o seu e-mail",
-            text: `Olá, ${name}, verifique o seu e-mail clicando no link abaixo \n `,
-            html:
-            `
-                <span>Olá, ${name}, Verifique o seu e-mail clicando no link abaixo ...</span>
-                <br>
-                <a href="http://localhost:7000/api/v1/users/email/verify/${token.token}">Verificar e-mail</a>
-            `
+        scheduleExpireLink = schedule.scheduleJob(date, async () => {
+            await prisma.user.delete({ where: { id: userId, is_verified: false }})
         });
     } catch (err: unknown) {
         return exceptions({err, req, res});
     }
+}
+
+export function setCancelLinkSchedule(): void {
+    scheduleExpireLink.cancel();
 }

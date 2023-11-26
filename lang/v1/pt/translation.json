@@ -23,7 +23,8 @@
             "deleted": "Notificação removida com sucesso"
         },
         "email": {
-            "sended": "E-mail enviado com sucesso"
+            "sended": "E-mail enviado com sucesso",
+            "verified": "Conta verificada com sucesso"
         }
     },
     "error": {
