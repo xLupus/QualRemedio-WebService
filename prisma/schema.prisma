@@ -99,7 +99,7 @@ model User {
   employeer Employeer[]
 
   notification Notification[]
-  remider      Remider[]
+  remider      Reminder[]
   consultation Consultation[]
 
   bond_started_by Bond[] @relation("bond_started_by")
@@ -181,7 +181,7 @@ model Notification {
   updatedAt DateTime @updatedAt
 }
 
-model Remider {
+model Reminder {
   id        Int      @id @default(autoincrement())
   label     String
   date_time DateTime @db.DateTime()

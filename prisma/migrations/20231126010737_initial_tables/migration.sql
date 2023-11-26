@@ -70,6 +70,7 @@ CREATE TABLE `User` (
     `telephone` CHAR(11) NOT NULL,
     `birth_day` DATE NOT NULL,
     `password` VARCHAR(191) NOT NULL,
+    `is_verified` BOOLEAN NOT NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -153,7 +154,7 @@ CREATE TABLE `Notification` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Remider` (
+CREATE TABLE `Reminder` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `label` VARCHAR(191) NOT NULL,
     `date_time` DATETIME NOT NULL,
@@ -220,6 +221,19 @@ CREATE TABLE `Prescription` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `Token` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `token` VARCHAR(700) NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `user_id` INTEGER NULL,
+
+    UNIQUE INDEX `Token_token_key`(`token`),
+    UNIQUE INDEX `Token_user_id_key`(`user_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `_RoleToUser` (
     `A` INTEGER NOT NULL,
     `B` INTEGER NOT NULL,
@@ -256,7 +270,7 @@ ALTER TABLE `Role_Permission` ADD CONSTRAINT `Role_Permission_permission_id_fkey
 ALTER TABLE `Notification` ADD CONSTRAINT `Notification_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Remider` ADD CONSTRAINT `Remider_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `Reminder` ADD CONSTRAINT `Reminder_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Bond` ADD CONSTRAINT `Bond_from_user_role_fkey` FOREIGN KEY (`from_user_role`) REFERENCES `Role`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -293,6 +307,9 @@ ALTER TABLE `Consultation` ADD CONSTRAINT `Consultation_created_by_user_fkey` FO
 
 -- AddForeignKey
 ALTER TABLE `Prescription` ADD CONSTRAINT `Prescription_consultation_id_fkey` FOREIGN KEY (`consultation_id`) REFERENCES `Consultation`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Token` ADD CONSTRAINT `Token_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `_RoleToUser` ADD CONSTRAINT `_RoleToUser_A_fkey` FOREIGN KEY (`A`) REFERENCES `Role`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
