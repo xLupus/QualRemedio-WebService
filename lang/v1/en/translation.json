@@ -2,7 +2,10 @@
     "success": {
         "user": {
             "created": "User created successfully",
-            "verified": "User verified successfully!"
+            "verified": "User verified successfully!",
+            "password": {
+                "updated": "User password updated sucessfully!"
+            }
         },
         "bond": {
             "created": "User Bond created successfully",
@@ -72,6 +75,9 @@
                 "invalidEmailFormat": "Invalid e-mail format",
                 "invalidProvider": "Specified provider is invalid",
                 "integerNumber": "Number must be integer",
+                "notEquals": {
+                    "password": "Passwords are not equal"
+                },
                 "maxLength": {
                     "name": "Name must not have more than 40 characters",
                     "email": "E-mail must not have more than 30 characters",

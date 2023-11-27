@@ -19,13 +19,7 @@ import { JsonMessages as IRequestResponse } from "../../../types/type";
 import jwt from 'jsonwebtoken';
 
 const prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new PrismaClient();
-/*
-Todo
 
--> verificar se o is verified está false, e esta tentando inserir os mesmos dados, então muda apenas o e-mail
-
-
-*/
 class AuthController {
     async register(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {

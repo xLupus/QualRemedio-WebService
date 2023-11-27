@@ -52,6 +52,12 @@ interface MailType {
   email: string;
 }
 
+interface PasswordType {
+  email: string;
+  new_password: string;
+  confirm_password: string;
+}
+
 interface QueryParamsType {
   filter?: QueryParams
   sort?: QueryParams
@@ -143,6 +149,15 @@ interface MailErrorMessages {
   requiredFieldError: string;
 }
 
+interface PasswordErrorMessages {
+  invalidTypeError: string;
+  maxLengthError: string;
+  invalidEmailFormatError: string;
+  invalidProviderError: string;
+  emptyFieldError: string;
+  minLengthError: string;
+  requiredFieldError: string;
+}
 //Exceptions
 interface ExceptionsType {
   err: any;
@@ -167,12 +182,14 @@ export {
   RegisterErrorMessages, 
   QueryParamsErrorMessages,
   MailErrorMessages,
+  PasswordErrorMessages,
   
   ReminderType,
   BondType,
   RegisterType,
   NotificationType,
   MailType,
+  PasswordType,
   ExceptionsType,
   QueryParamsType
 }
