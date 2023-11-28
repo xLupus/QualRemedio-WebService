@@ -75,6 +75,7 @@
                 "invalidEmailFormat": "O formato de e-mail é inválido",
                 "invalidProvider": "O provedor informado é inválido",
                 "integerNumber": "O formato de número deve ser integro",
+                "invalidField": "O(s) campo(s) informado(s) não deve(m) ser especificado(s)",
                 "notEquals": {
                     "password": "As senhas não correspondem"
                 },
@@ -111,6 +112,11 @@
         },
         "server": {
             "internal": "Erro interno"
+        }
+    },
+    "data": {
+        "user": {
+            "bio": "Nos conte um pouco sobre você"
         }
     },
     "glossary": {

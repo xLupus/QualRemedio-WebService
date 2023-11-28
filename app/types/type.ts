@@ -21,7 +21,7 @@ interface RegisterType {
   cpf: string;
   telephone: string;
   birth_day: string | Date;
-  account_type: string;
+  account_type: number;
 
   crm_state?: string | undefined;
   crm?: string | undefined;
@@ -69,6 +69,7 @@ interface QueryParamsType {
 interface RegisterErrorMessages {
   invalidTypeError: {
     string: string;
+    number: string;
     date: string;
   };
   maxLengthError: {
@@ -79,6 +80,8 @@ interface RegisterErrorMessages {
   };
   invalidEmailFormatError: string;
   invalidProviderError: string;
+  integerNumberError: string;
+  InvalidFieldError: string;
   minLengthError: string;
   regexpError: {
     name: string;

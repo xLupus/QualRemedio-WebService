@@ -34,11 +34,11 @@ class AuthController {
             let data: Prisma.UserUpdateInput;
 
             const roleId: { id: number } = await prisma.role.findFirstOrThrow({
-                where: { name: account_type },
+                where: { id: account_type },
                 select: { id: true }
             });
 
-            if(account_type === 'doctor' || account_type === 'carer') {
+            if(account_type === 2 || account_type === 3) {
                 medicalSpecialtyId = await prisma.medical_Specialty.findFirstOrThrow({
                     where: { name: specialty_name },
                     select: { id: true }
@@ -56,12 +56,12 @@ class AuthController {
                 ]
             };
 
-            if(account_type === 'doctor' && (crm && crm_state)) {
+            if(account_type === 2) {
                 checkUser.OR?.push({
                     doctor: {
                         some: {
-                            crm,
-                            crm_state
+                            crm: crm ? crm : '',
+                            crm_state: crm_state ? crm_state : ''
                         }
                     }
                 });
@@ -83,7 +83,7 @@ class AuthController {
                 const checkUserWithRole: User | null = await prisma.user.findFirst({ where: checkUser });
 
                 if(!checkUserWithRole) {
-                    if(account_type === 'doctor' && (crm && crm_state)) {
+                    if(account_type === 2 && (crm && crm_state)) {
                         data.doctor = {
                             create: {
                                 crm_state,
@@ -93,7 +93,7 @@ class AuthController {
                                 }
                             }
                         }
-                    } else if(account_type === 'carer') {
+                    } else if(account_type === 3) {
                         data.carer = {
                             create: {
                                 specialty: {
@@ -104,7 +104,7 @@ class AuthController {
                     }
 
                     await prisma.user.update({
-                        where: { email },
+                        where: { email: user.email },
                         data
                     });
     
@@ -146,23 +146,23 @@ class AuthController {
                 },
                 profile: {
                     create: {
-                        bio: 'Tell us a little bit about yourself',
+                        bio: translate.t('data.user.bio'),
                         picture_url: 'https://placehold.co/120x120/png'
                     }
                 }
             };
 
-            if(account_type === 'doctor' && (crm && crm_state)) {
+            if(account_type === 2) {
                 user.doctor = {
                     create: {
-                        crm_state,
-                        crm,
+                        crm_state: crm_state ? crm_state : '',
+                        crm: crm ? crm : '',
                         specialty: {
                             connect: { id: medicalSpecialtyId!.id }
                         }
                     }
                 }
-            } else if(account_type === 'carer') {
+            } else if(account_type === 3) {
                 user.carer = {
                     create: {
                         specialty: {

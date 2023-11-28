@@ -75,6 +75,7 @@
                 "invalidEmailFormat": "Invalid e-mail format",
                 "invalidProvider": "Specified provider is invalid",
                 "integerNumber": "Number must be integer",
+                "invalidField": "Field(s) must not be specified",
                 "notEquals": {
                     "password": "Passwords are not equal"
                 },
@@ -111,6 +112,11 @@
         },
         "server": {
             "internal": "Internal Server Error"
+        }
+    },
+    "data": {
+        "user": {
+            "bio": "Tell us a little bit about yourself"
         }
     },
     "glossary": {
