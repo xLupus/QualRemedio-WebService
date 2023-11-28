@@ -6,10 +6,21 @@ import BondController from "../../app/http/controllers/v1/BondController";
 import ReminderController from "../../app/http/controllers/v1/ReminderController";
 import BondPermissionController from "../../app/http/controllers/v1/BondPermissionController";
 import NotificationController from "../../app/http/controllers/v1/NotificationController";
+import MailController from "../../app/http/controllers/v1/MailController";
+import PasswordController from "../../app/http/controllers/v1/PasswordController";
 
 const router: Router = Router();
 const apiContext: string = "api/v1";
 
+//Email
+router.post('/users/email/send', MailController.send);
+router.post('/users/email/resend', MailController.resend);
+router.get('/users/email/verify/:emailToken', MailController.verify);
+
+//Recover password
+router.post('/users/password/reset', PasswordController.reset);
+
+//Auth
 router.post('/auth/register', AuthController.register);
 router.post('/auth/login', AuthController.login)
 

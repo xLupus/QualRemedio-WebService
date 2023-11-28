@@ -59,7 +59,6 @@ class ReminderRequest {
                                     }
                                 }
                             }
-        
                     
                             if(reqMethod === 'POST' || reqMethod === 'PATCH') {
                                 if(val) {

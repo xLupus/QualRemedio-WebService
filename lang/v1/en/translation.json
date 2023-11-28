@@ -1,7 +1,11 @@
 {
     "success": {
         "user": {
-            "created": "User created successfully"
+            "created": "User created successfully",
+            "verified": "User verified successfully!",
+            "password": {
+                "updated": "User password updated sucessfully!"
+            }
         },
         "bond": {
             "created": "User Bond created successfully",
@@ -20,6 +24,10 @@
             "returned": "User Notifications(s) returned successfully",
             "updated": "User Notifications updated successfully",
             "deleted": "User Notifications deleted successfully"
+        },
+        "email": {
+            "sended": "E-mail sended successfully",
+            "verified": "Account verified sucessfully"
         }
     },
     "error": {
@@ -55,13 +63,22 @@
             "notFound": "User notification not found",
             "cannotBeChanged": "Cannot change notification after it had read"
         },
+        "email": {
+            "notSended": "An error occured when sending e-mail",
+            "linkExpired": "Your verification link may have expired. Please click on resend for verify your Email"
+        },
         "validation": {
             "input": {
                 "invalidString": "Specified format must be string",
                 "invalidNumber": "Specified format must be number",
                 "invalidDate": "Invalid date format",
                 "invalidEmailFormat": "Invalid e-mail format",
+                "invalidProvider": "Specified provider is invalid",
                 "integerNumber": "Number must be integer",
+                "invalidField": "Field(s) must not be specified",
+                "notEquals": {
+                    "password": "Passwords are not equal"
+                },
                 "maxLength": {
                     "name": "Name must not have more than 40 characters",
                     "email": "E-mail must not have more than 30 characters",
@@ -95,6 +112,11 @@
         },
         "server": {
             "internal": "Internal Server Error"
+        }
+    },
+    "data": {
+        "user": {
+            "bio": "Tell us a little bit about yourself"
         }
     },
     "glossary": {

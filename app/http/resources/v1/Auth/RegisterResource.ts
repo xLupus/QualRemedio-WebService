@@ -12,6 +12,7 @@ export class RegisterResource {
             cpf: data.cpf,
             telephone: data.telephone,
             birth_day: moment(data.birth_day.toISOString(), 'YYYY-MM-DD').format('DD-MM-YYYY'),
+            is_verified: data.is_verified,
             account_type: {
                 patient: (data.doctor.length === 0 && data.carer.length === 0) && true,
                 doctor: data.doctor.length !== 0 && true,

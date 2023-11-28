@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { Response, Request } from "express";
 import QueryString from 'qs';
 
@@ -20,7 +21,7 @@ interface RegisterType {
   cpf: string;
   telephone: string;
   birth_day: string | Date;
-  account_type: string;
+  account_type: number;
 
   crm_state?: string | undefined;
   crm?: string | undefined;
@@ -53,6 +54,15 @@ interface NotificationType {
   notification_id?: number | undefined;
 }
 
+interface MailType {
+  email: string;
+}
+
+interface PasswordType {
+  email: string;
+  new_password: string;
+  confirm_password: string;
+}
 
 interface QueryParamsType {
   filter?: QueryParams
@@ -65,6 +75,7 @@ interface QueryParamsType {
 interface RegisterErrorMessages {
   invalidTypeError: {
     string: string;
+    number: string;
     date: string;
   };
   maxLengthError: {
@@ -74,6 +85,9 @@ interface RegisterErrorMessages {
     speacialty_name: string;
   };
   invalidEmailFormatError: string;
+  invalidProviderError: string;
+  integerNumberError: string;
+  InvalidFieldError: string;
   minLengthError: string;
   regexpError: {
     name: string;
@@ -124,8 +138,6 @@ interface NotificationErrorMessages {
   regExpError: string;
 }
 
-
-
 interface QueryParamsErrorMessages {
   invalidTypeError: {
     string: string;
@@ -137,10 +149,34 @@ interface QueryParamsErrorMessages {
   nonNegativeError: string;
 }
 
+interface MailErrorMessages {
+  invalidTypeError: string;
+  invalidEmailFormatError: string;
+  invalidProviderError: string;
+  maxLengthError: string;
+  emptyFieldError: string;
+  requiredFieldError: string;
+}
+
+interface PasswordErrorMessages {
+  invalidTypeError: string;
+  maxLengthError: string;
+  invalidEmailFormatError: string;
+  invalidProviderError: string;
+  emptyFieldError: string;
+  minLengthError: string;
+  requiredFieldError: string;
+}
 //Exceptions
 interface ExceptionsType {
   err: any;
   req?: Request;
+  res: Response;
+}
+
+interface SendUserMail {
+  userInfo: any;
+  req: Request;
   res: Response;
 }
 
@@ -151,14 +187,19 @@ export {
   ReminderErrorMessages,
   NotificationErrorMessages,
   JsonMessages,
+  SendUserMail,
   RegisterErrorMessages, 
   QueryParamsErrorMessages,
+  MailErrorMessages,
+  PasswordErrorMessages,
   
   ReminderType,
   BondType,
   BondPermissionType,
   RegisterType,
   NotificationType,
+  MailType,
+  PasswordType,
   ExceptionsType,
   QueryParamsType
 }

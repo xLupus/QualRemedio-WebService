@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, Remider } from '@prisma/client';
+import { Prisma, PrismaClient, Reminder } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import { Request, Response } from 'express';
 import { JsonMessages } from '../../../functions/function';
@@ -43,10 +43,10 @@ class ReminderController {
                 });
             }
 
-            const findManyArgs: Prisma.RemiderFindManyArgs = { where: { user_id: user.id } };
+            const findManyArgs: Prisma.ReminderFindManyArgs = { where: { user_id: user.id } };
            
             if(filter) {
-                const availableFilterFields: string[] = ['label', 'date_time', 'createdAt'];
+                const availableFilterFields: string[] = ['label'];
         
                 filter.toString().split(',').map(filterParam => {
                     const [filterColumn, filterValue]: string[] = filterParam.split(':');
@@ -60,30 +60,14 @@ class ReminderController {
                                 }
                             }
                         }
-
-                        //TODO: rever
-
-                      /*   if (filterColumn === 'date_time') {
-                            findManyArgs.where = {
-                                ...findManyArgs.where,
-                                date_time: {}
-                            }
-                        }
-
-                        if (filterColumn === 'createdAt') {
-                            findManyArgs.where = {
-                                ...findManyArgs.where,
-                                createdAt: filterValue
-                            }
-                        } */
                     }
                 })
             }
         
             if(sort) {
-                const availableSortFields: string[] = ['id', 'label', 'date_time', 'createdAt'];
+                const availableSortFields: string[] = ['id', 'label'];
                 const sortParam: string = sort.toString();
-                const param: string = sortParam.slice(1);
+                const param: string = sortParam[0] === '-' ? sortParam.slice(1) : sortParam.slice(0);
         
                 if (availableSortFields.includes(param)) {
                     const orderOperator: 'desc' | 'asc' = sortParam[0] === '-' ? 'desc' : 'asc';
@@ -91,11 +75,6 @@ class ReminderController {
                     if (param === 'id') findManyArgs.orderBy = { id: orderOperator };
 
                     if (param === 'label') findManyArgs.orderBy = { label: orderOperator };
-
-                    //TODO: rever
-                    /* if (param === 'date_time') findManyArgs.orderBy = { date_time: orderOperator };
-
-                    if (param === 'createdAt') findManyArgs.orderBy = { createdAt: orderOperator }; */
                 }
             }
 
@@ -104,7 +83,7 @@ class ReminderController {
                 findManyArgs.skip = skip;
             }
 
-            const reminders: Remider[] | null = await prisma.remider.findMany(findManyArgs);
+            const reminders: Reminder[] | null = await prisma.reminder.findMany(findManyArgs);
 
             if(reminders.length === 0) {
                 return JsonMessages({
@@ -149,7 +128,7 @@ class ReminderController {
                 });
             }
 
-            const reminder: Remider | null = await prisma.remider.findUnique({
+            const reminder: Reminder | null = await prisma.reminder.findUnique({
                 where: { 
                     id: reminder_id,
                     user_id: user.id
@@ -198,7 +177,7 @@ class ReminderController {
                 });
             }
 
-            const findReminder = await prisma.remider.findFirst({ where: { label, date_time } });
+            const findReminder = await prisma.reminder.findFirst({ where: { label, date_time } });
 
             if(findReminder) {
                 return JsonMessages({
@@ -207,7 +186,7 @@ class ReminderController {
                 });
             }
 
-            const createReminder = await prisma.remider.create({
+            const createReminder = await prisma.reminder.create({
                 data: { 
                     label: label ? label : '', 
                     date_time: date_time ? date_time : '',
@@ -268,7 +247,7 @@ class ReminderController {
                 });
             }
 
-            const reminder: Remider | null = await prisma.remider.findUnique({
+            const reminder: Reminder | null = await prisma.reminder.findUnique({
                 where: { 
                     id: reminder_id,
                     user_id: user.id
@@ -282,7 +261,7 @@ class ReminderController {
                 });
             }
 
-            const updateReminder = await prisma.remider.update({
+            const updateReminder = await prisma.reminder.update({
                 where: { id: reminder_id },
                 data: {
                     label,
@@ -325,7 +304,7 @@ class ReminderController {
                 });
             }
 
-            const reminder: Remider | null = await prisma.remider.findUnique({
+            const reminder: Reminder | null = await prisma.reminder.findUnique({
                 where: { 
                     id: reminder_id,
                     user_id: user.id
@@ -339,7 +318,7 @@ class ReminderController {
                 });
             }
 
-            const removerReminder = await prisma.remider.delete({ where: { id: reminder_id }});
+            const removerReminder = await prisma.reminder.delete({ where: { id: reminder_id }});
 
             return JsonMessages({
                 message: translate.t('success.reminder.deleted'),

@@ -1,7 +1,11 @@
 {
     "success": {
         "user": {
-            "created": "Usuário criado com sucesso"
+            "created": "Usuário criado com sucesso",
+            "verified": "Usuário verificado com sucesso",
+            "password": {
+                "updated": "Senha alterada com sucesso!"
+            }
         },
         "bond": {
             "created": "Vínculo criado com sucesso",
@@ -20,6 +24,10 @@
             "returned": "Notificação(ões) do usuário retornada(s) com sucesso",
             "updated": "Notificação atualizada com sucesso",
             "deleted": "Notificação removida com sucesso"
+        },
+        "email": {
+            "sended": "E-mail enviado com sucesso",
+            "verified": "Conta verificada com sucesso"
         }
     },
     "error": {
@@ -55,13 +63,22 @@
             "notFound": "Nenhuma notificação foi encontrada",
             "cannotBeChanged": "A notificação não pode ser alterada depois de lida"
         },
+        "email": {
+            "notSended": "Ocorreu um erro ao enviar o e-mail",
+            "linkExpired": "Seu link de verificação pode ter expirado, por favor clique em 'reenviar' para verificar o seu e-mail"
+        },
         "validation": {
             "input": {
                 "invalidString": "O formato especificado deve ser string",
                 "invalidNumber": "O formato especificado deve ser número",
                 "invalidDate": "O formato da data não é valido",
                 "invalidEmailFormat": "O formato de e-mail é inválido",
+                "invalidProvider": "O provedor informado é inválido",
                 "integerNumber": "O formato de número deve ser integro",
+                "invalidField": "O(s) campo(s) informado(s) não deve(m) ser especificado(s)",
+                "notEquals": {
+                    "password": "As senhas não correspondem"
+                },
                 "maxLength": {
                     "name": "O nome deve ter no máximo 40 caracteres",
                     "email": "O e-mail deve ter no máximo 30 caracteres",
@@ -95,6 +112,11 @@
         },
         "server": {
             "internal": "Erro interno"
+        }
+    },
+    "data": {
+        "user": {
+            "bio": "Nos conte um pouco sobre você"
         }
     },
     "glossary": {

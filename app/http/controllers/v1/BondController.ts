@@ -109,7 +109,7 @@ class BondController {
             if(sort) {
                 const availableSortFields: string[] = ['id'];
                 const sortParam: string = sort.toString();
-                const param: string = sortParam.slice(1);
+                const param: string = sortParam[0] === '-' ? sortParam.slice(1) : sortParam.slice(0);
         
                 if (availableSortFields.includes(param)) {
                     const orderOperator: 'desc' | 'asc' = sortParam[0] === '-' ? 'desc' : 'asc';

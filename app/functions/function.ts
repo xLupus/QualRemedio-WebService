@@ -1,8 +1,15 @@
-import { Response } from 'express';
-import { JsonMessages } from '../types/type';
-import { PrismaClient } from '@prisma/client';
+import { Response, Request } from 'express';
+import { JsonMessages, SendUserMail } from '../types/type';
+import { Prisma, PrismaClient } from '@prisma/client';
+import schedule from 'node-schedule';
 
-const prisma = new PrismaClient();
+import exceptions from '../errors/handler';
+import { transporter } from '../../config/nodemailer';
+import { DefaultArgs } from '@prisma/client/runtime/library';
+import moment from 'moment';
+
+const prisma:  PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new PrismaClient();
+let scheduleExpireLink: schedule.Job;
 
 // Application Functions 
 /**
@@ -43,3 +50,18 @@ export async function verifyToken(token: string): Promise<boolean> {
 
 //Field Validation
 //TODO: Ver como separar as validações em funções sem erro de `undefined`
+export function setExpireLinkSchedule(userId: number, req: Request, res: Response) {
+    try {
+        const date: string = moment().add(10, 'minutes').toLocaleString();
+
+        scheduleExpireLink = schedule.scheduleJob(date, async () => {
+            await prisma.user.delete({ where: { id: userId, is_verified: false }})
+        });
+    } catch (err: unknown) {
+        return exceptions({err, req, res});
+    }
+}
+
+export function setCancelLinkSchedule(): void {
+    scheduleExpireLink.cancel();
+}
