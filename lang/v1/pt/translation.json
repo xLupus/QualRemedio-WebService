@@ -25,6 +25,12 @@
             "updated": "Notificação atualizada com sucesso",
             "deleted": "Notificação removida com sucesso"
         },
+        "bondPermission": {
+            "created": "Permissão de vínculo criada com sucesso",
+            "returned": "Permissão(ões) de vínculo(s) do usuário retornada(s) com sucesso",
+            "updated": "Permissão de vínculo atualizada com sucesso",
+            "deleted": "Permissão de vínculo removida com sucesso"
+        },
         "email": {
             "sended": "E-mail enviado com sucesso",
             "verified": "Conta verificada com sucesso"

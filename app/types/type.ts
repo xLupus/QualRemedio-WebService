@@ -36,9 +36,8 @@ interface BondType {
 }
 
 interface BondPermissionType {
-  label?: string | undefined;
-  date_time?: string | Date | undefined;
-  reminder_id?: number | undefined;
+  bond_id: number;
+  permission_id: number;
 }
 
 interface ReminderType {
@@ -108,6 +107,12 @@ interface BondErrorMessages {
   invalidTypeError: string;
   integerNumberError: string;
   emptyFieldError: string;
+  requiredFieldError: string;
+}
+
+interface BondPermissionErrorMessages {
+  invalidTypeError: string;
+  integerNumberError: string;
   requiredFieldError: string;
 }
 
@@ -192,6 +197,7 @@ export {
   QueryParamsErrorMessages,
   MailErrorMessages,
   PasswordErrorMessages,
+  BondPermissionErrorMessages,
   
   ReminderType,
   BondType,

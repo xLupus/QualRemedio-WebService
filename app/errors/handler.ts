@@ -49,6 +49,8 @@ export default function exceptions({ err, req, res }: ExceptionsType): Response<
                     err.message = translate?.t('error.bond.notFound')
                 } else if(err.message === 'No Notification found') {
                     err.message = translate?.t('error.notification.notFound')
+                } else if(err.message === 'No Permission found') {
+                    err.message = translate?.t('error.notification.notFound')
                 }
 
                statusCode = 200;
