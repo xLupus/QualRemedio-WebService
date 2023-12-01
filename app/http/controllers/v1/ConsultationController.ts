@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import { Prisma, PrismaClient } from "@prisma/client"
 import exceptions from '../../../errors/handler'
 import { JsonMessages } from "../../../functions/function";
+import { JsonMessages as IResponseMessage } from "../../../types/type";
 import StoreConsultationRequest from "../../requests/v1/consultation/StoreConsultationRequest";
 import { id_parameter_schema, paginate_schema } from "../../schemas";
-import { JsonMessages as IResponseMessage } from "../../../types/type";
 import UpdateConsultationRequest from "../../requests/v1/consultation/UpdateConsultationRequest";
 
 const prisma = new PrismaClient()
