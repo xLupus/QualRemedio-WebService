@@ -388,6 +388,11 @@ class UserController {
       res
     })
   }
+
+  async consultations(req: Request, res: Response) { 
+    
+  }
+
 }
 
 export default new UserController()
