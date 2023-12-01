@@ -1,19 +1,84 @@
 {
     "success": {
         "user": {
-            "created": "User created successfully"
+            "created": "User created successfully",
+            "verified": "User verified successfully!",
+            "password": {
+                "updated": "User password updated sucessfully!"
+            }
+        },
+        "bond": {
+            "created": "User Bond created successfully",
+            "returned": "User Bond(s) returned successfully",
+            "updated": "User Bond updated successfully",
+            "deleted": "User Bond deleted successfully"
+        },
+        "reminder": {
+            "created": "User Reminder created successfully",
+            "returned": "User Reminder(s) returned successfully",
+            "updated": "User Reminder updated successfully",
+            "deleted": "User Reminder deleted successfully"
+        },
+        "notification": {
+            "created": "User Notifications created successfully",
+            "returned": "User Notifications(s) returned successfully",
+            "updated": "User Notifications updated successfully",
+            "deleted": "User Notifications deleted successfully"
+        },
+        "email": {
+            "sended": "E-mail sended successfully",
+            "verified": "Account verified sucessfully"
         }
     },
     "error": {
         "user": {
             "exists": "User already exists",
-            "notFound": "User not found"
+            "notFound": "User not found",
+            "role": {
+                "notFound": "No User bond found for that user"
+            }
+        },
+        "bond": {
+            "exists": "User Bond already exists",
+            "notFound": "User Bond not found",
+            "status": {
+                "notFound": "Bond status not found",
+                "cannotBeChanged": "Cannot change bond status after it has accepted, or from recused to accepted"
+            },
+            "user": {
+                "equals": "Cannot stabilish bond with yourself",
+                "roleEquals": "Cannot stabilish bond with a person that has the same role as you",
+                "onlyPatient": "Only patient can be bind"
+            }
+        },
+        "role": {
+            "notFound": "Role not found"
+        },
+        "reminder": {
+            "exists": "User reminder already exists",
+            "notFound": "User reminder not found"
+        },
+        "notification": {
+            "exists": "User notification already exists",
+            "notFound": "User notification not found",
+            "cannotBeChanged": "Cannot change notification after it had read"
+        },
+        "email": {
+            "notSended": "An error occured when sending e-mail",
+            "linkExpired": "Your verification link may have expired. Please click on resend for verify your Email"
         },
         "validation": {
             "input": {
                 "invalidString": "Specified format must be string",
+                "invalidNumber": "Specified format must be number",
                 "invalidDate": "Invalid date format",
                 "invalidEmailFormat": "Invalid e-mail format",
+                "invalidProvider": "Specified provider is invalid",
+                "integerNumber": "Number must be integer",
+                "invalidField": "Field(s) must not be specified",
+                "notEquals": {
+                    "password": "Passwords are not equal"
+                },
                 "maxLength": {
                     "name": "Name must not have more than 40 characters",
                     "email": "E-mail must not have more than 30 characters",
@@ -26,7 +91,8 @@
                 "regExp": {
                     "name": "Field does not accept numbers, simbols or speacial characters",
                     "crm": "Field only accepts number",
-                    "crm_state": "Field only accepts letters"
+                    "crm_state": "Field only accepts letters",
+                    "label": "Filed only accepts letters"
                 },
                 "length": {
                     "telephone": "Field must have 11 characters",
@@ -35,7 +101,9 @@
                     "crm": "Field must have 6 characters"
                 },
                 "empty": "Field must not be empty",
-                "required": "Field must be specified"
+                "required": "Field must be specified",
+                "nonNegative": "Field must not have values less then 0",
+                "atLeastOne": "At least one field must be specified"
             }
         },
         "data": {
@@ -44,6 +112,11 @@
         },
         "server": {
             "internal": "Internal Server Error"
+        }
+    },
+    "data": {
+        "user": {
+            "bio": "Tell us a little bit about yourself"
         }
     },
     "glossary": {

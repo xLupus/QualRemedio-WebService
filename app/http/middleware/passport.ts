@@ -15,7 +15,14 @@ const options: StrategyOptions = {
 
 passport.use(new Strategy(options, async function (payload, done): Promise<void> {
     try {
-        const user: User | null = await prisma.user.findUnique({ where: { id: payload.id } });
+        const user: User | null = await prisma.user.findUnique({
+            where: { id: payload.id },
+            include: {
+                role: {
+                    where: { id: payload.role.id }
+                }
+            }
+        });
 
         return !user ? done(null, false) : done(null, user);
     } catch (error: unknown) {

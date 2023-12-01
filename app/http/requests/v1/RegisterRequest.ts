@@ -11,12 +11,13 @@ class RegisterRequest {
             minLengthError,
             regexpError,
             invalidEmailFormatError,
+            invalidProviderError,
             lengthError,
             emptyFieldError,
-            requiredFieldError
+            requiredFieldError,
+            integerNumberError,
+            InvalidFieldError
         } = this.messages(translate);
-
-        birth_day = moment(birth_day, 'DD-MM-YYYY').format('YYYY-MM-DD');
 
         let validator = z.object({
             name: z
@@ -33,10 +34,20 @@ class RegisterRequest {
                     required_error: requiredFieldError,
                     invalid_type_error: invalidTypeError.string
                 })
-                .max(30, { message: maxLengthError.email })
+                .max(50, { message: maxLengthError.email })
                 .min(1, { message: emptyFieldError })
                 .email({ message: invalidEmailFormatError })
-                .toLowerCase(),
+                .toLowerCase()
+                .superRefine((val, ctx) => {
+                    const availableEmailProviders: string[] = ['gmail.com', 'outlook.com', 'outlook.com.br'];
+
+                    if(!availableEmailProviders.includes(val.split('@')[1])) {
+                        ctx.addIssue({
+                            code: z.ZodIssueCode.custom,
+                            message: invalidProviderError
+                        });
+                    }
+                }),
 
             password: z
                 .string({ 
@@ -66,19 +77,59 @@ class RegisterRequest {
                 .trim(),
 
             birth_day: z
-                .coerce
-                .date({
-                    invalid_type_error: invalidTypeError.date, 
-                    required_error: requiredFieldError
-                })
-                .min(new Date('1900-01-01'), { message: emptyFieldError }),
+                .preprocess(
+                    (el: any, ctx: z.RefinementCtx) => {
+                        if(el === undefined) {
+                            ctx.addIssue({
+                                code: z.ZodIssueCode.invalid_type,
+                                received: 'undefined',
+                                expected: 'string',
+                                message: requiredFieldError,
+                                fatal: true
+                            });
+                    
+                            return z.NEVER;
+                        } else if(el.length < 1) {
+                            ctx.addIssue({
+                                code: z.ZodIssueCode.too_small,
+                                minimum: 1,
+                                inclusive: true,
+                                type: 'number',
+                                message: emptyFieldError,
+                                fatal: true
+                            });
+
+                            return z.NEVER;
+                        }
+
+                        const date = new Date(moment(el, 'DD-MM-YYYY').format('YYYY-MM-DD'));
+
+                        if(date.toDateString() === 'Invalid Date') {
+                            ctx.addIssue({
+                                    code: z.ZodIssueCode.invalid_date,
+                                    message: invalidTypeError.date,
+                                    fatal: true
+                                });
+
+                                return z.NEVER;
+                            }
+                            
+                            return date;  
+                        },
+         
+                    z
+                        .date({
+                            required_error: requiredFieldError,
+                            invalid_type_error: invalidTypeError.date,
+                        })
+            ),
 
             crm_state: z
                 .string({ invalid_type_error: invalidTypeError.string })
                 .optional()
                 .superRefine((val, ctx) => {
                     if(val === undefined) {
-                        if(account_type === 'patient' || account_type === 'carer') return z.NEVER;
+                        if(account_type === 1 || account_type === 3) return z.NEVER;
                         
                         ctx.addIssue({
                             code: z.ZodIssueCode.invalid_type,
@@ -90,14 +141,7 @@ class RegisterRequest {
                         return z.NEVER;
                     }
 
-                    if(account_type === 'patient' || account_type === 'carer') {
-                        if(val === '') return z.NEVER;
-
-                        ctx.addIssue({
-                            code: z.ZodIssueCode.custom,
-                            message: `O campo informado não deve ser especificado para o cargo de '${account_type}'`,
-                        });
-                    } else {
+                    if(account_type === 2) {
                         if(val.length < 1) {
                             ctx.addIssue({
                                 code: z.ZodIssueCode.too_small,
@@ -134,7 +178,7 @@ class RegisterRequest {
                 .optional()
                 .superRefine((val, ctx) => {
                     if(val === undefined) {
-                        if(account_type === 'patient' || account_type === 'carer') return z.NEVER;
+                        if(account_type === 1 || account_type === 3) return z.NEVER;
                         
                         ctx.addIssue({
                             code: z.ZodIssueCode.invalid_type,
@@ -146,14 +190,7 @@ class RegisterRequest {
                         return z.NEVER;
                     }
 
-                    if(account_type === 'patient' || account_type === 'carer') {
-                        if(val === '') return z.NEVER;
-
-                        ctx.addIssue({
-                            code: z.ZodIssueCode.custom,
-                            message: `O campo informado não deve ser especificado para o cargo de '${account_type}'`,
-                        });
-                    } else {
+                    if(account_type === 2) {
                         if(val.length < 1) {
                             ctx.addIssue({
                                 code: z.ZodIssueCode.too_small,
@@ -163,7 +200,7 @@ class RegisterRequest {
                                 message: emptyFieldError,
                             });
                         }
-
+    
                         if(val.length > 6) {
                             ctx.addIssue({
                                 code: z.ZodIssueCode.too_big,
@@ -174,15 +211,15 @@ class RegisterRequest {
                                 message: lengthError.crm,
                             });
                         };
-                        
+                            
                         if(/[a-zA-Z]/.test(val)) {
-                            ctx.addIssue({
+                                ctx.addIssue({
                                 code: z.ZodIssueCode.invalid_string,
                                 validation: 'regex',
                                 message: regexpError.crm,
                             });  
                         }
-                    }    
+                    }
                 }),
                 
                           
@@ -191,7 +228,7 @@ class RegisterRequest {
                 .optional()
                 .superRefine((val, ctx) => {                  
                     if(val === undefined) {
-                        if(account_type === 'patient') return z.NEVER;
+                        if(account_type === 1) return z.NEVER;
                 
                         ctx.addIssue({
                             code: z.ZodIssueCode.invalid_type,
@@ -202,15 +239,8 @@ class RegisterRequest {
                 
                         return z.NEVER;
                     }
-
-                    if(account_type === 'patient') {
-                        if(val === '') return z.NEVER;
-
-                        ctx.addIssue({
-                            code: z.ZodIssueCode.custom,
-                            message: `O campo informado não deve ser especificado para o cargo de '${account_type} teste'`,
-                        });
-                    } else {
+                    
+                    if(account_type === 2 || account_type === 3) {
                         if(val.length < 1) {
                             ctx.addIssue({
                                 code: z.ZodIssueCode.too_small,
@@ -230,43 +260,49 @@ class RegisterRequest {
                                 message: maxLengthError.speacialty_name,
                             });
                         };
-                        
-                        if(!/[a-zA-Z\s\u00C0-\u00C5\u00C7-\u00CF\u00D1-\u00D6\u00D9-\u00DB\u00E0-\u00E3\u00E5\u00E7-\u00F5\u00F9-\u00FB]/.test(val)) {
+                            
+                        if(/[^a-zA-Z\s\u00C0-\u00C5\u00C7-\u00CF\u00D1-\u00D6\u00D9-\u00DB\u00E0-\u00E3\u00E5\u00E7-\u00F5\u00F9-\u00FB]/g.test(val)) {
                             ctx.addIssue({
                                 code: z.ZodIssueCode.invalid_string,
                                 validation: 'regex',
                                 message: regexpError.name,
                             });  
                         }
-                    }    
+                    }
                 }),
             
-            account_type:
-                z.string({ 
-                    invalid_type_error: invalidTypeError.string,
+            account_type: z
+                .number({ 
+                    invalid_type_error: invalidTypeError.number,
                     required_error: requiredFieldError
                 })
+                .int({ message: integerNumberError })
+                .positive()
                 .min(1, { message: emptyFieldError })
+
+        }).superRefine((val: unknown, ctx: z.RefinementCtx ) => {
+            if(((crm || crm_state || specialty_name) && account_type === 1) || ((crm || crm_state) && (account_type === 1 || account_type === 3))) {
+                if(val === '') return z.NEVER;
+
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: InvalidFieldError,
+                    path: account_type === 1 ? ['crm', 'crm_state', 'specialty_name'] : ['crm', 'crm_state'],
+                    fatal: true
+                });
+
+                return z.NEVER;
+            }
         });
         
-        return validator.parse({
-            name, 
-            email,
-            password, 
-            cpf, 
-            telephone, 
-            birth_day,
-            account_type,
-            crm,
-            crm_state,
-            specialty_name
-        });
+        return validator.parse({ name, email, password, cpf, telephone, birth_day, account_type, crm, crm_state, specialty_name });
     }
 
     messages(translate: i18n): RegisterErrorMessages {
         return {
             invalidTypeError: {
                 string: translate.t('error.validation.input.invalidString'),
+                number: translate.t('error.validation.input.invalidNumber'),
                 date: translate.t('error.validation.input.invalidDate')
             },
             maxLengthError: {
@@ -275,7 +311,10 @@ class RegisterRequest {
                 password: translate.t('error.validation.input.maxLength.password'),
                 speacialty_name: translate.t('error.validation.input.maxLength.speacialty_name'),
             },
+            integerNumberError: translate.t('error.validation.input.integerNumber'),
             invalidEmailFormatError: translate.t('error.validation.input.invalidEmailFormat'),
+            invalidProviderError: translate.t('error.validation.input.invalidProvider'),
+            InvalidFieldError: translate.t('error.validation.input.invalidField'),
             minLengthError: translate.t('error.validation.input.minLength.password'),
             regexpError: {
                 name: translate.t('error.validation.input.regExp.name'),

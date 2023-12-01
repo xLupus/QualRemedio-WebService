@@ -1,9 +1,10 @@
-import { Prisma, PrismaClient, User, Token_Blacklist } from '@prisma/client';
+import { Prisma, PrismaClient, User } from '@prisma/client';
 import { DefaultArgs } from '@prisma/client/runtime/library';
 import { Request, Response } from 'express';
 import { RegisterType } from '../../../types/type';
 import { JsonMessages, invalidateToken } from '../../../functions/function';
 import { RegisterResource } from '../../resources/v1/Auth/RegisterResource';
+
 import { i18n } from 'i18next';
 
 import RegisterRequest from '../../requests/v1/RegisterRequest';
@@ -11,6 +12,7 @@ import RegisterLinks from '../../resources/v1/hateoas/Auth/RegisterLinks';
 import LoginRequest from "../../requests/v1/LoginRequest";
 import exceptions from '../../../errors/handler';
 import bcrypt from 'bcrypt';
+
 import 'dotenv/config';
 
 import { JsonMessages as IRequestResponse } from "../../../types/type";
@@ -23,18 +25,20 @@ class AuthController {
         try {
             const translate: i18n = req.i18n;
             const { name, email, password, cpf, telephone, birth_day, crm, crm_state, specialty_name, account_type }: RegisterType = RegisterRequest.rules(req.body, translate);
+
             const passwordHash: string = await bcrypt.hash(password, 15);
+
             let medicalSpecialtyId: { id: number } = { id: 0 };
             let checkUser: Prisma.UserWhereInput;
             let user: Prisma.UserCreateInput | User[] | null;
             let data: Prisma.UserUpdateInput;
 
             const roleId: { id: number } = await prisma.role.findFirstOrThrow({
-                where: { name: account_type },
+                where: { id: account_type },
                 select: { id: true }
             });
 
-            if (account_type === 'doctor' || account_type === 'carer') {
+            if (account_type === 2 || account_type === 3) {
                 medicalSpecialtyId = await prisma.medical_Specialty.findFirstOrThrow({
                     where: { name: specialty_name },
                     select: { id: true }
@@ -52,12 +56,12 @@ class AuthController {
                 ]
             };
 
-            if(account_type === 'doctor' && (crm && crm_state)) {
+            if (account_type === 2) {
                 checkUser.OR?.push({
                     doctor: {
                         some: {
-                            crm,
-                            crm_state
+                            crm: crm ? crm : '',
+                            crm_state: crm_state ? crm_state : ''
                         }
                     }
                 });
@@ -65,7 +69,7 @@ class AuthController {
 
             user = await prisma.user.findFirst({ where: checkUser });
 
-            if(user) {
+            if (user) {
                 checkUser.role = { some: { id: roleId!.id } } //role
 
                 data = { //data
@@ -76,10 +80,10 @@ class AuthController {
                     }
                 }
 
-                const checkUserRole: User | null = await prisma.user.findFirst({ where: checkUser });
+                const checkUserWithRole: User | null = await prisma.user.findFirst({ where: checkUser });
 
-                if(!checkUserRole) {
-                    if(account_type === 'doctor' && (crm && crm_state)) {
+                if (!checkUserWithRole) {
+                    if (account_type === 2 && (crm && crm_state)) {
                         data.doctor = {
                             create: {
                                 crm_state,
@@ -89,7 +93,7 @@ class AuthController {
                                 }
                             }
                         }
-                    } else if (account_type === 'carer') {
+                    } else if (account_type === 3) {
                         data.carer = {
                             create: {
                                 specialty: {
@@ -100,8 +104,21 @@ class AuthController {
                     }
 
                     await prisma.user.update({
-                        where: { email },
+                        where: { email: user.email },
                         data
+                    });
+
+                    return JsonMessages({
+                        statusCode: 201,
+                        message: translate.t('success.user.created'),
+                        res
+                    });
+                }
+
+                if (!user?.is_verified) {
+                    await prisma.user.update({
+                        where: { id: checkUserWithRole.id },
+                        data: { email }
                     });
 
                     return JsonMessages({
@@ -129,23 +146,23 @@ class AuthController {
                 },
                 profile: {
                     create: {
-                        bio: 'Tell us a little bit about yourself',
+                        bio: translate.t('data.user.bio'),
                         picture_url: 'https://placehold.co/120x120/png'
                     }
                 }
             };
 
-            if (account_type === 'doctor' && (crm && crm_state)) {
+            if (account_type === 2) {
                 user.doctor = {
                     create: {
-                        crm_state,
-                        crm,
+                        crm_state: crm_state ? crm_state : '',
+                        crm: crm ? crm : '',
                         specialty: {
                             connect: { id: medicalSpecialtyId!.id }
                         }
                     }
                 }
-            } else if (account_type === 'carer') {
+            } else if (account_type === 3) {
                 user.carer = {
                     create: {
                         specialty: {
@@ -288,6 +305,12 @@ class AuthController {
                 },
             })
 
+            if (!user?.is_verified) {
+                json_message.message = "Sua conta ainda não foi verificada, olhe em sua caixa de entrada o link de verificação"
+
+                return JsonMessages(json_message)
+            }
+
             if (!user || !await bcrypt.compare(password, user.password)) {
                 json_message.statusCode = 400
                 json_message.message = "Credenciais Invalidas"
@@ -330,7 +353,6 @@ class AuthController {
             return exceptions({ err, res })
         }
 
-        return JsonMessages(json_message)
     }
 
     /**

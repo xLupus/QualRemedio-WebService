@@ -78,17 +78,19 @@ model Role {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  cpf       String   @db.Char(11)
-  telephone String   @db.Char(11)
-  birth_day DateTime @db.Date
-  password  String
+  id          Int      @id @default(autoincrement())
+  name        String
+  email       String   @unique
+  cpf         String   @db.Char(11)
+  telephone   String   @db.Char(11)
+  birth_day   DateTime @db.Date
+  password    String
+  is_verified Boolean  @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  token   Token?
   role    Role[]
   profile Profile?
 
@@ -97,7 +99,7 @@ model User {
   employeer Employeer[]
 
   notification Notification[]
-  remider      Remider[]
+  remider      Reminder[]
   consultation Consultation[]
 
   bond_started_by Bond[] @relation("bond_started_by")
@@ -179,7 +181,7 @@ model Notification {
   updatedAt DateTime @updatedAt
 }
 
-model Remider {
+model Reminder {
   id        Int      @id @default(autoincrement())
   label     String
   date_time DateTime @db.DateTime()
@@ -202,13 +204,13 @@ model Bond {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  from_role Role        @relation("bond_started_by_role", fields: [from_user_role], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  to_role   Role        @relation("bond_invited_to_role", fields: [to_user_role], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  from_role Role @relation("bond_started_by_role", fields: [from_user_role], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  to_role   Role @relation("bond_invited_to_role", fields: [to_user_role], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
-  from      User        @relation("bond_started_by", fields: [from_user], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  to        User        @relation("bond_invited_to", fields: [to_user], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  
-  status    Bond_Status @relation(fields: [status_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  from User @relation("bond_started_by", fields: [from_user], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  to   User @relation("bond_invited_to", fields: [to_user], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  status Bond_Status @relation(fields: [status_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   bond_permission Bond_Permission[]
   consultation    Consultation[]
@@ -259,4 +261,15 @@ model Prescription {
   updatedAt DateTime @updatedAt
 
   consultation Consultation @relation(fields: [consultation_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+}
+
+model Token {
+  id    Int    @id @default(autoincrement())
+  token String @unique @db.VarChar(700)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user_id Int?  @unique
+  user    User? @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 }
