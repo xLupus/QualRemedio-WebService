@@ -305,18 +305,20 @@ class AuthController {
                 },
             })
 
-            if (!user?.is_verified) {
-                json_message.message = "Sua conta ainda não foi verificada, olhe em sua caixa de entrada o link de verificação"
-
-                return JsonMessages(json_message)
-            }
-
             if (!user || !await bcrypt.compare(password, user.password)) {
                 json_message.statusCode = 400
                 json_message.message = "Credenciais Invalidas"
 
                 return JsonMessages(json_message)
             }
+
+            /*
+            if (!user?.is_verified) {
+                json_message.message = "Sua conta ainda não foi verificada, olhe em sua caixa de entrada o link de verificação"
+
+                return JsonMessages(json_message)
+            }
+            */
 
             const token_expires_in = '72h'
 

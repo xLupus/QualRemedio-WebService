@@ -55,7 +55,7 @@ class ConsultationController {
     }
 
     if (sort) {
-      const available_sort_fields = ['created_by']  //TODO - Mudar 
+      const available_sort_fields = ['created_at',]  //TODO - Mudar 
 
       const sortParam = sort.toString();
       const param = sortParam.slice(1);
@@ -90,6 +90,21 @@ class ConsultationController {
           }
         }
       }
+      //!
+      findmany_args.include = {
+        status: true,
+        specialty: true,
+        bond: {
+          select: {
+            to: {
+              select: {
+                name: true,
+                id: true
+              }
+            },
+          }
+        }
+      }
 
       try {
         const consultations = await prisma.consultation.findMany(findmany_args)
@@ -116,7 +131,7 @@ class ConsultationController {
 
     if (!consultation_id_validation.success)
       return JsonMessages({
-        statusCode: 200,
+        statusCode: 400,
         data: {
           errors: consultation_id_validation.error.formErrors.formErrors
         },
@@ -131,6 +146,17 @@ class ConsultationController {
           created_by: true,
           specialty: true,
           status: true,
+          bond: {
+            select: {
+              to: {
+                select: {
+                  name: true,
+                  id: true
+                }
+              }
+            }
+          },
+          prescription: true
         }
       })
 
@@ -316,6 +342,9 @@ class ConsultationController {
         return JsonMessages({
           statusCode: 200,
           message: 'Consulta não encontrada',
+          data: {
+            success: false
+          },
           res
         })
 
@@ -327,6 +356,9 @@ class ConsultationController {
         return JsonMessages({
           statusCode: 200,
           message: 'Consulta apagada com sucesso',
+          data: {
+            success: true
+          },
           res
         })
 

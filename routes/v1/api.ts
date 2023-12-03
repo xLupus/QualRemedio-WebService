@@ -3,17 +3,15 @@ import { passportJWT } from "../../app/http/middleware/passport";
 import AuthController from "../../app/http/controllers/v1/AuthController";
 import UserController from "../../app/http/controllers/v1/UserController";
 import ConsultationController from "../../app/http/controllers/v1/ConsultationController";
-<<<<<<< HEAD
 import BondController from "../../app/http/controllers/v1/BondController";
 import ReminderController from "../../app/http/controllers/v1/ReminderController";
 import NotificationController from "../../app/http/controllers/v1/NotificationController";
 import MailController from "../../app/http/controllers/v1/MailController";
 import PasswordController from "../../app/http/controllers/v1/PasswordController";
-=======
 import PrescriptionController from "../../app/http/controllers/v1/PrescriptionController";
 import { prescription_upload } from "../../app/http/middleware/multer";
 import SpecialtyController from "../../app/http/controllers/v1/SpecialtyController";
->>>>>>> feature/prescriptions
+import ConsultationStatusController from "../../app/http/controllers/v1/ConsultationStatusController";
 
 const router: Router = Router();
 const apiContext: string = "api/v1";
@@ -79,7 +77,11 @@ router.get(
   '/specialties',
   SpecialtyController.index
 )
-
+//COonsultation Status
+router.get(
+  '/consultation_status',
+  ConsultationStatusController.index
+)
 
 //Consultation
 
@@ -120,41 +122,39 @@ router.delete(
   ConsultationController.destroy
 )
 
-<<<<<<< HEAD
 //Bond
 router.route('/user/bond')
-    .get(BondController.index)
-    .post(BondController.store)
+  .get(BondController.index)
+  .post(BondController.store)
 
 router.route('/user/bond/:id')
-    .get(BondController.show)
-    .patch(BondController.update)
-    .delete(BondController.destroy);
+  .get(BondController.show)
+  .patch(BondController.update)
+  .delete(BondController.destroy);
 
 //Reminder
 router.route('/user/reminder')
-    .get(ReminderController.index)
-    .post(ReminderController.store)
+  .get(ReminderController.index)
+  .post(ReminderController.store)
 
 router.route('/user/reminder/:id')
-    .get(ReminderController.show)
-    .patch(ReminderController.update)
-    .delete(ReminderController.destroy);
+  .get(ReminderController.show)
+  .patch(ReminderController.update)
+  .delete(ReminderController.destroy);
 
 //Notification
 router.route('/users/notifications')
-    .get(NotificationController.index)
-    .post(NotificationController.store)
+  .get(NotificationController.index)
+  .post(NotificationController.store)
 
 router.route('/users/notifications/:id')
-    .get(NotificationController.show)
-    .patch(NotificationController.update)
-    .delete(NotificationController.destroy);
-=======
+  .get(NotificationController.show)
+  .patch(NotificationController.update)
+  .delete(NotificationController.destroy);
 
 //PRESCRIPTIONS
 router.get(
-  '/consultations/:consultation_id', //TODO mudar
+  '/consultations/:consultation_id/prescriptions/:prescription_id', //TODO mudar
   PrescriptionController.show
 )
 
@@ -165,16 +165,14 @@ router.post(
 )
 
 router.patch(
-  '/consultations/:consultation_id/prescriptions/prescription_id',
+  '/consultations/:consultation_id/prescriptions/:prescription_id',
   prescription_upload,
   PrescriptionController.update
 )
 
 router.delete(
   '/consultations/:consultation_id/prescriptions/:prescription_id',
-  prescription_upload,
-  PrescriptionController.update
+  PrescriptionController.delete
 )
->>>>>>> feature/prescriptions
 
 export { router as routerApiV1, apiContext }

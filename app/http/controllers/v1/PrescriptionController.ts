@@ -93,22 +93,44 @@ class PrescriptionController {
 
   async show(req: Request, res: Response) {
     const prescription_id_validation = id_parameter_schema.safeParse(req.params.prescription_id)
+    const consultation_id_validation = id_parameter_schema.safeParse(req.params.consultation_id)
+    const json_message: IResponseMessage = {
+      statusCode: 200,
+      message: '',
+      res
+    }
 
     if (!prescription_id_validation.success)
       return JsonMessages({
         statusCode: 200,
         data: {
-          errors: prescription_id_validation.error.formErrors.formErrors
+          errors: {
+            prescription_id: prescription_id_validation.error.formErrors.formErrors
+          }
+        },
+        message: '',
+        res
+      })
+
+
+    if (!consultation_id_validation.success)
+      return JsonMessages({
+        statusCode: 200,
+        data: {
+          errors: {
+            consultation_id: consultation_id_validation.error.formErrors.formErrors
+          }
         },
         message: '',
         res
       })
 
     const prescription_id = prescription_id_validation.data
+    const consultation_id = consultation_id_validation.data
 
     try {
       const prescription = await prisma.prescription.findUnique({
-        where: { id: prescription_id }
+        where: { id: prescription_id, consultation_id }
       })
 
       if (!prescription)
@@ -118,12 +140,25 @@ class PrescriptionController {
           res
         })
 
-      return JsonMessages({
-        statusCode: 200,
-        message: '',
-        data: prescription,
-        res
-      })
+      if (prescription.digital) {
+        try {
+          const res = await dbx.filesGetTemporaryLink({ path: prescription.digital })
+
+          json_message.data = {
+            ...json_message.data as object,
+            digital_link: res.result.link
+          }
+        } catch (err: unknown) {
+          return exceptions({ res, err })
+        }
+      }
+
+      json_message.data = {
+        ...json_message.data as object,
+        prescription
+      }
+
+      return JsonMessages(json_message)
 
     } catch (err: any) {
       return exceptions({ err, res })
@@ -293,8 +328,15 @@ class PrescriptionController {
               contents: file
             })
 
-            //TODO - Apagar ou mover o arquivo antigo 
-            //TODO - Atualizar no Banco
+            if (prescription.digital) {
+              try {
+                const dbx_delete_response = await dbx.filesDeleteV2({
+                  path: `/prescriptions/${prescription.digital}`
+                })
+              } catch (err: any) {
+                console.log(err);
+              }
+            }
 
             if (dbx_response.status == 200)
               prescription_updated_input.digital = dbx_response.result.id
@@ -306,6 +348,24 @@ class PrescriptionController {
           return exceptions({ err, res })
         }
       }
+
+      try {
+        const updated_prescription = await prisma.prescription.update({
+          where: { id: prescription_id },
+          data: prescription_updated_input
+        })
+
+        return JsonMessages({
+          statusCode: 200,
+          message: 'Prescrição atualizada com sucesso',
+          data: {
+            success: true
+          },
+          res
+        })
+      } catch (err: any) {
+        return exceptions({ err, res })
+      }
     } catch (err: any) {
       return exceptions({ err, res })
     }
@@ -313,6 +373,7 @@ class PrescriptionController {
 
   async delete(req: Request, res: Response) {
     const prescription_id_validation = id_parameter_schema.safeParse(req.params.prescription_id)
+    const consultation_id_validation = id_parameter_schema.safeParse(req.params.consultation_id)
 
     if (!prescription_id_validation.success)
       return JsonMessages({
@@ -324,17 +385,31 @@ class PrescriptionController {
         res
       })
 
+    if (!consultation_id_validation.success)
+      return JsonMessages({
+        statusCode: 200,
+        data: {
+          errors: {
+            consultation_id: consultation_id_validation.error.formErrors.formErrors
+          }
+        },
+        message: '',
+        res
+      })
+
     const prescription_id = prescription_id_validation.data
+    const consultation_id = consultation_id_validation.data
 
     try {
       const prescription = await prisma.prescription.findUnique({
-        where: { id: prescription_id }
+        where: { id: prescription_id, consultation_id }
       })
 
       if (!prescription)
         return JsonMessages({
           statusCode: 200,
           message: 'Preescrição não encontrada',
+          data: { success: false },
           res
         })
 
@@ -346,6 +421,7 @@ class PrescriptionController {
         return JsonMessages({
           statusCode: 200,
           message: 'Preescrição apagada com sucesso',
+          data: { success: true },
           res
         })
       } catch (err: any) {
