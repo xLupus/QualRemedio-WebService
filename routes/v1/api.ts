@@ -63,6 +63,11 @@ router.get(
 )
 
 router.patch(
+  '/users/:user_id',
+  UserController.update
+)
+
+router.patch(
   '/users/:user_id/password',
   UserController.change_password
 )

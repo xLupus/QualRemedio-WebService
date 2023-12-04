@@ -5,6 +5,7 @@ import exceptions from "../../../errors/handler"
 import bcrypt from "bcrypt"
 import { change_password_schema, id_parameter_schema, paginate_schema } from "../../schemas";
 import { JsonMessages as IResponseMessage } from "../../../types/type"
+import UpdateUserRequest from "../../requests/v1/User/UpdateUserRequest"
 
 const prisma = new PrismaClient();
 
@@ -209,6 +210,88 @@ class UserController {
    */
   async update(req: Request, res: Response) {
 
+    console.log(req.params.user_id);
+    const user_update_input: Prisma.UserUpdateInput = {}
+
+    const user_id_validation = id_parameter_schema.safeParse(req.params.user_id)
+
+    if (!user_id_validation.success) {
+      return JsonMessages({
+        statusCode: 200,
+        message: '',
+        data: {
+          errors: user_id_validation.error.formErrors.formErrors
+        },
+        res
+      })
+    }
+
+    const user_data_validation = await UpdateUserRequest.rules(req.body)
+
+    if (!user_data_validation.success)
+      return JsonMessages({
+        statusCode: 200,
+        message: '',
+        data: {
+          success: false,
+          errors: user_data_validation.error.formErrors.fieldErrors
+        },
+        res
+      })
+
+    const user_id = user_id_validation.data
+    const user_data = user_data_validation.data
+
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: user_id }
+      })
+
+      if (!user)
+        return JsonMessages({
+          statusCode: 200,
+          message: 'Usuario não encontrado',
+          data: {
+            success: false
+          },
+          res
+        })
+
+      user_update_input.name = user_data.name ?? undefined
+      user_update_input.telephone = user_data.telephone?.toString() ?? undefined
+      user_update_input.birth_day = user_data.birth_day ?? undefined
+      user_update_input.profile = user_data.profile?.bio
+        ? {
+          update: {
+            bio: {
+              set: user_data.profile.bio
+            }
+          }
+        }
+        : undefined
+
+      try {
+        await prisma.user.update({
+          where: { id: user_id },
+          data: user_update_input
+        })
+      } catch (err: any) {
+        return exceptions({ err, res })
+      }
+
+    } catch (err: any) {
+      return exceptions({ err, res })
+    }
+
+    return JsonMessages({
+      statusCode: 200,
+      message: 'Usuario Atualizado com Sucesso',
+      data: {
+        success: true
+      },
+      res
+    })
+
   }
 
   /**
@@ -334,7 +417,12 @@ class UserController {
       return JsonMessages({
         statusCode: 200,
         message: '',
-        data: { errors: user_id_validation.error.formErrors.formErrors },
+        data: {
+          success: false,
+          errors: {
+            user_id: user_id_validation.error.formErrors.formErrors
+          }
+        },
         res
       })
 
@@ -343,7 +431,10 @@ class UserController {
       return JsonMessages({
         statusCode: 200,
         message: '',
-        data: { errors: new_password_validation.error.formErrors.fieldErrors },
+        data: {
+          success: false,
+          errors: new_password_validation.error.formErrors.fieldErrors
+        },
         res
       })
 
@@ -357,6 +448,12 @@ class UserController {
         return JsonMessages({
           statusCode: 200,
           message: 'Usuario não encontrado',
+          data: {
+            success: false,
+            errors: {
+              user_id: 'Usuario não encontrado',
+            }
+          },
           res
         })
 
@@ -364,6 +461,12 @@ class UserController {
         return JsonMessages({
           statusCode: 200,
           message: 'Senhas não conhecidem',
+          data: {
+            success: false,
+            errors: {
+              change_password: 'Senhas não conhecidem',
+            }
+          },
           res
         })
 
@@ -385,12 +488,15 @@ class UserController {
     return JsonMessages({
       statusCode: 200,
       message: 'Senha alterada com sucesso',
+      data: {
+        success: true,
+      },
       res
     })
   }
 
-  async consultations(req: Request, res: Response) { 
-    
+  async consultations(req: Request, res: Response) {
+
   }
 
 }
