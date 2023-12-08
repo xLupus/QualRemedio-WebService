@@ -6,12 +6,14 @@ import { routerApiV1 } from "../routes/v1/api";
 import { i18NextInstanceV1 } from '../app/http/middleware/intl';
 import { swaggerSpec } from "./swagger/v1";
 import swaggerUi from 'swagger-ui-express';
+import cors from 'cors';
 
 const app: Express = express();
 export const port: string | number = process.env.SERVER_PORT || 8000;
 
 app.use(passport.initialize());
 app.use(express.json());
+app.use(cors());
 
 //api v1
 app.use('/api/v1/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
