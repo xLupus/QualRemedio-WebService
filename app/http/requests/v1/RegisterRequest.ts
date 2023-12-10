@@ -30,7 +30,7 @@ class RegisterRequest {
                 .regex(/[a-zA-Z]/, { message: regexpError.name }),
 
             email: z
-                .string({ 
+                .string({
                     required_error: requiredFieldError,
                     invalid_type_error: invalidTypeError.string
                 })
@@ -39,7 +39,7 @@ class RegisterRequest {
                 .email({ message: invalidEmailFormatError })
                 .toLowerCase()
                 .superRefine((val, ctx) => {
-                    const availableEmailProviders: string[] = ['gmail.com', 'outlook.com', 'outlook.com.br'];
+                    const availableEmailProviders: string[] = ['gmail.com', 'outlook.com', 'outlook.com.br', 'hotmail.com', 'hotmail.com.br'];
 
                     if(!availableEmailProviders.includes(val.split('@')[1])) {
                         ctx.addIssue({
