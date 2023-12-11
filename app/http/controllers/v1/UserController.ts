@@ -3,7 +3,7 @@ import { Request, Response } from "express"
 import { JsonMessages } from "../../../functions/function"
 import exceptions from "../../../errors/handler"
 import bcrypt from "bcrypt"
-import { change_password_schema, id_parameter_schema, paginate_schema, email_schema } from "../../schemas";
+import { change_password_schema, id_parameter_schema, paginate_schema, email_schema, role_schema } from "../../schemas";
 import { JsonMessages as IResponseMessage } from "../../../types/type"
 import UpdateUserRequest from "../../requests/v1/User/UpdateUserRequest"
 
@@ -162,9 +162,10 @@ class UserController {
    *    
    */
   async show(req: Request, res: Response) {
-    const { email } = req.body;
+    const { email, role } = req.body;
 
     const email_validation = email_schema.safeParse(email);
+    const role_validation = role_schema.safeParse(role);
 
 
     if (!email_validation.success) {
@@ -178,11 +179,27 @@ class UserController {
       })
     }
 
+    if (!role_validation.success) {
+      return JsonMessages({
+        statusCode: 200,
+        message: '',
+        data: {
+          errors: role_validation.error.formErrors.formErrors
+        },
+        res
+      })
+    }
+
     try {
       const user = await prisma.user.findUnique({
         where: { 
             
-              email: email_validation.data
+            email: email_validation.data,
+            role: {
+              some: {
+                  id: role_validation.data
+              }
+            }
             
         },
         include: {

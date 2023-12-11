@@ -12,6 +12,13 @@ export const id_parameter_schema = z.preprocess(
     .positive('O valor deve ser maior do que 0')
 )
 
+export const role_schema = z.preprocess(
+  (el) => el,
+
+   z
+   .number({ required_error: "Este campo deve ser especificado" })
+   .min(1, { message: 'Preencha este campo' })
+)
 
 export const email_schema = z.preprocess(
   (el) => el,
