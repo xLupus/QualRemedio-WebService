@@ -50,6 +50,7 @@ interface NotificationType {
 
 interface MailType {
   email: string;
+  urlContext: string;
 }
 
 interface PasswordType {

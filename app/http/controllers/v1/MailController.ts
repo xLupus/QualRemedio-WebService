@@ -9,6 +9,7 @@ import exceptions from '../../../errors/handler';
 import crypto from 'crypto';
 import { MailType } from '../../../types/type';
 import MailRequest from '../../requests/v1/MailRequest';
+import { port } from '../../../../config/server';
 
 const prisma: PrismaClient<Prisma.PrismaClientOptions, never, DefaultArgs> = new PrismaClient();
 
@@ -24,8 +25,8 @@ class MailController {
     async send(req: Request, res: Response): Promise<Response<any, Record<string, any>> | undefined> {
         try {
             const translate: i18n = req.i18n;
-            const { email }: MailType = MailRequest.rules(req.body, translate);
-
+            const { email, urlContext = `http://localhost:${port}/api/v1` }: MailType = MailRequest.rules(req.body, translate);
+            
             const user: User | null = await prisma.user.findFirst({ where: { email } });
 
             if(!user) {
@@ -57,7 +58,7 @@ class MailController {
 
             if(createUserEmailToken) {
                 await transporter.sendMail({
-                    from: '<noreply@qualremedio.com>',
+                    from: '<noreply@medsync.com>',
                     to: `${email}`,
                     subject: "Verfique o seu e-mail",
                     text: `Olá, ${user.name}, verifique o seu e-mail clicando no link abaixo \n `,
@@ -65,10 +66,10 @@ class MailController {
                     `
                         <span>Olá, ${user.name} 👋!</span><br>
                         <span>Por favor, clique no link abaixo para completar o seu registro:</span><br><br>
-                        <a href="http://localhost:7000/api/v1/users/email/verify/${createUserEmailToken.token}">Verificar sua conta</a><br>
+                        <a href="${urlContext}/users/mail/verify/${createUserEmailToken.token}">Verificar sua conta</a><br>
                         <span style='font-size: 0.8rem'>Este link expira em 10 minutos</span><br><br>
                         <span>Atenciosamente,</span><br>
-                        <span>Time - Qual Remédio</span><br>
+                        <span>Time - MedSync</span><br>
                     `
                 });
 
@@ -77,6 +78,7 @@ class MailController {
 
             return JsonMessages({
                 message: translate.t('success.email.sended'),
+                data: createUserEmailToken,
                 res
             });
         } catch (err: unknown) {
@@ -94,7 +96,7 @@ class MailController {
     async resend(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
         try {
             const translate: i18n = req.i18n;
-            const { email }: MailType = MailRequest.rules(req.body, translate);
+            const { email, urlContext = `http://localhost:${port}/api/v1` }: MailType = MailRequest.rules(req.body, translate);
 
             const user: User | null = await prisma.user.findFirst({ where: { email } });
 
@@ -125,7 +127,7 @@ class MailController {
 
             if(createUserEmailToken) {
                 await transporter.sendMail({
-                    from: '<noreply@qualremedio.com>',
+                    from: '<noreply@medsync.com>',
                     to: `${email}`,
                     subject: "Verfique o seu e-mail",
                     text: `Olá, ${user.name}, verifique o seu e-mail clicando no link abaixo \n `,
@@ -133,10 +135,10 @@ class MailController {
                     `
                         <span>Olá, ${user.name} 👋!</span><br>
                         <span>Por favor, clique no link abaixo para completar o seu registro:</span><br><br>
-                        <a href="http://localhost:7000/api/v1/users/email/verify/${createUserEmailToken.token}">Verificar sua conta</a><br>
+                        <a href="${urlContext}/users/mail/verify/${createUserEmailToken.token}">Verificar sua conta</a><br>
                         <span style='font-size: 0.8rem'>Este link expira em 10 minutos</span><br><br>
                         <span>Atenciosamente,</span><br>
-                        <span>Time - Qual Remédio</span><br>
+                        <span>Time - MedSync</span><br>
                     `
                 });
                 
@@ -146,6 +148,7 @@ class MailController {
 
             return JsonMessages({
                 message: translate.t('success.email.sended'),
+                data: createUserEmailToken,
                 res
             });
         } catch (err: unknown) {

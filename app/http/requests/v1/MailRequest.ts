@@ -3,7 +3,7 @@ import { MailType, MailErrorMessages } from "../../../types/type";
 import { i18n } from "i18next";
 
 class MailRequest {
-    rules({ email }: MailType, translate: i18n) {
+    rules({ email, urlContext }: MailType, translate: i18n) {
         const {
             invalidTypeError,
             maxLengthError,
@@ -32,10 +32,17 @@ class MailRequest {
                             message: invalidProviderError
                         });
                     }
+                }),
+
+            urlContext: z
+                .string({ 
+                    required_error: requiredFieldError,
+                    invalid_type_error: invalidTypeError
                 })
+                .min(1, { message: emptyFieldError })
         });
         
-        return validator.parse({ email });
+        return validator.parse({ email, urlContext });
     }
 
     messages(translate: i18n): MailErrorMessages {

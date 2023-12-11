@@ -10,7 +10,7 @@ import swaggerUi from 'swagger-ui-express';
 const app: Express = express();
 export const port: string | number = process.env.SERVER_PORT || 8000;
 
-app.use(cors())
+app.use(cors());
 app.use(passport.initialize());
 app.use(express.json());
 
