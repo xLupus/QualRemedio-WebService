@@ -307,6 +307,7 @@ class AuthController {
             })
 
             if (!user?.is_verified) {
+                json_message.statusCode = 400;
                 json_message.message = "Sua conta ainda não foi verificada, olhe em sua caixa de entrada o link de verificação"
 
                 return JsonMessages(json_message)
