@@ -16,25 +16,10 @@ import ConsultationStatusController from "../../app/http/controllers/v1/Consulta
 const router: Router = Router();
 const apiContext: string = "api/v1";
 
-router.post(
-  '/auth/login',
-  AuthController.login
-)
-
-router.delete(
-  '/auth/logout',
-  AuthController.logout
-)
-
-router.all(
-  "*",
-  passportJWT
-);
-
 //Email
-router.post('/users/email/send', MailController.send);
-router.post('/users/email/resend', MailController.resend);
-router.get('/users/email/verify/:emailToken', MailController.verify);
+router.post('/users/mail/send', MailController.send);
+router.post('/users/mail/resend', MailController.resend);
+router.get('/users/mail/verify/:emailToken', MailController.verify);
 
 //Recover password
 router.post('/users/password/reset', PasswordController.reset);
