@@ -3,7 +3,7 @@ import { Request, Response } from "express"
 import { JsonMessages } from "../../../functions/function"
 import exceptions from "../../../errors/handler"
 import bcrypt from "bcrypt"
-import { change_password_schema, id_parameter_schema, paginate_schema } from "../../schemas";
+import { change_password_schema, id_parameter_schema, paginate_schema, email_schema } from "../../schemas";
 import { JsonMessages as IResponseMessage } from "../../../types/type"
 import UpdateUserRequest from "../../requests/v1/User/UpdateUserRequest"
 
@@ -162,16 +162,17 @@ class UserController {
    *    
    */
   async show(req: Request, res: Response) {
-    const { user_id } = req.params
+    const { email } = req.body;
 
-    const user_id_validation = id_parameter_schema.safeParse(user_id)
+    const email_validation = email_schema.safeParse(email);
 
-    if (!user_id_validation.success) {
+
+    if (!email_validation.success) {
       return JsonMessages({
         statusCode: 200,
         message: '',
         data: {
-          errors: user_id_validation.error.formErrors.formErrors
+          errors: email_validation.error.formErrors.formErrors
         },
         res
       })
@@ -179,7 +180,11 @@ class UserController {
 
     try {
       const user = await prisma.user.findUnique({
-        where: { id: user_id_validation.data },
+        where: { 
+            
+              email: email_validation.data
+            
+        },
         include: {
           profile: true,
           role: true,
@@ -195,7 +200,7 @@ class UserController {
 
       return JsonMessages({
         statusCode: 200,
-        message: `Dados do Usuario de ID: ${user_id_validation.data}`,
+        message: 'Usuário retornado com sucesso!',
         data: user,
         res
       })

@@ -36,15 +36,16 @@ router.delete(
   AuthController.logout
 )
 
+
 //User
 router.get(
   '/users',
   UserController.index
-)
-
+  )
+  
 router.get(
-  '/users/:user_id',
-  UserController.show
+    '/users/details',
+    UserController.show
 )
 
 router.patch(

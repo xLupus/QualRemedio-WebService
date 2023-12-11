@@ -12,6 +12,30 @@ export const id_parameter_schema = z.preprocess(
     .positive('O valor deve ser maior do que 0')
 )
 
+
+export const email_schema = z.preprocess(
+  (el) => el,
+
+   z
+  .string({ 
+      required_error: 'Este campo deve ser especificado',
+      invalid_type_error: 'O campo informado deve ser texto'
+  })
+  .max(50, { message: 'Este campo excedeu o limite de 50 caracteres' })
+  .min(1, { message: 'Preencha este campo' })
+  .email({ message: 'O formato de e-mail é inválido' })
+  .toLowerCase()
+  .superRefine((val, ctx) => {
+      const availableEmailProviders: string[] = ['gmail.com', 'outlook.com', 'outlook.com.br'];
+
+      if(!availableEmailProviders.includes(val.split('@')[1])) {
+          ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: 'O provedor informado é inválido'
+          });
+      }
+  })
+)
 /**
  * 
  */
