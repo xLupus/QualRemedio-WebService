@@ -162,11 +162,22 @@ class UserController {
    *    
    */
   async show(req: Request, res: Response) {
-    const { email, role } = req.body;
-
+    const { id, email, role } = req.body;
+console.log(id)
     const email_validation = email_schema.safeParse(email);
+    const id_validation = id_parameter_schema.safeParse(Number(id));
     const role_validation = role_schema.safeParse(role);
 
+    if (!id_validation.success) {
+      return JsonMessages({
+        statusCode: 200,
+        message: '',
+        data: {
+          errors: id_validation.error.formErrors.formErrors
+        },
+        res
+      })
+    }
 
     if (!email_validation.success) {
       return JsonMessages({
@@ -182,31 +193,55 @@ class UserController {
     if (!role_validation.success) {
       return JsonMessages({
         statusCode: 200,
-        message: '',
+        message: 'number',
         data: {
           errors: role_validation.error.formErrors.formErrors
         },
         res
       })
     }
-
+    
     try {
-      const user = await prisma.user.findUnique({
-        where: { 
-            
-            email: email_validation.data,
+      let findFirstArgs: Prisma.UserFindFirstArgs = {};
+
+      if(id) {
+        findFirstArgs = {
+            where: {  
+              id: id_validation.data,
+            }
+        }
+        console.log('aqui')
+      } else {
+        findFirstArgs = {
+          where: {  
+            email:  email_validation.data,
             role: {
               some: {
                   id: role_validation.data
               }
             }
-            
-        },
-        include: {
-          profile: true,
-          role: true,
+          }
         }
-      })
+      }
+ 
+      const user = await prisma.user.findFirst({
+          where: findFirstArgs.where,
+          include: {
+            profile: true,
+            role: true,
+            carer: {
+              include: {
+                specialty: true
+              }
+            },
+            doctor: {
+              include: {
+                specialty: true
+              }
+            }
+          }
+        })
+  
 
       if (!user)
         return JsonMessages({

@@ -57,6 +57,8 @@ export class BondResource {
                                 }
                             }
                         } : {},
+                        createdAt: el.createdAt,
+                        to_role: el.to_role,
                         status_id: el.status_id
                     });
                 });

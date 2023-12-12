@@ -32,7 +32,7 @@ class ConsultationController {
 
         if (available_filter_fields.includes(filterColumn)) {
           if (filterColumn == 'created_by') {
-            const created_by_validation = id_parameter_schema.safeParse(filterValue)
+            const created_by_validation = id_parameter_schema.safeParse(Number(filterValue))
 
             if (created_by_validation.success)
               findmany_args.where = {
@@ -42,7 +42,7 @@ class ConsultationController {
           }
 
           if (filterColumn == 'bond') {
-            const bond_validation = id_parameter_schema.safeParse(filterValue)
+            const bond_validation = id_parameter_schema.safeParse(Number(filterValue))
 
             if (bond_validation.success)
               findmany_args.where = {
@@ -127,7 +127,7 @@ class ConsultationController {
    * 
    */
   async show(req: Request, res: Response) {
-    const consultation_id_validation = id_parameter_schema.safeParse(req.params.consultation_id)
+    const consultation_id_validation = id_parameter_schema.safeParse(Number(req.params.consultation_id))
 
     if (!consultation_id_validation.success)
       return JsonMessages({
@@ -182,8 +182,10 @@ class ConsultationController {
    * 
    */
   async store(req: Request, res: Response) {
-    const bond_id_validation = id_parameter_schema.safeParse(req.params.bond_id)
+    const bond_id_validation = id_parameter_schema.safeParse(Number(req.params.bond_id))
     const consultation_validation = await StoreConsultationRequest.rules(req.body)
+
+
 
     if (!bond_id_validation.success)
       return JsonMessages({
@@ -220,24 +222,29 @@ class ConsultationController {
       try {
         const { reason, consultation_status, created_by_user, date, department_id, observation } = consultation_validation.data
 
-        await prisma.consultation.create({
-          data: {
-            bond_id: bond_id_validation.data,
-            department_id,
-            reason,
-            observation,
-            consultation_status,
-            created_by_user,
-            date_of_consultation: date,
-          }
-        })
 
-        return JsonMessages({
-          statusCode: 200,
-          message: 'Consulta Criada com sucesso',
-          res
-        })
+        if(bond_id_validation.data) {
+          await prisma.consultation.create({
+            data: {
+              bond_id: bond_id_validation.data,
+              department_id,
+              reason,
+              observation,
+              consultation_status,
+              created_by_user,
+              date_of_consultation: date,
+            }
+          })
 
+          return JsonMessages({
+            statusCode: 200,
+            message: 'Consulta Criada com sucesso',
+            res
+          })
+  
+        }
+
+        
       } catch (err: any) {
         return exceptions({ err, res })
       }
@@ -252,7 +259,7 @@ class ConsultationController {
    */
   async update(req: Request, res: Response) {
     const consultation_update_input: Prisma.ConsultationUpdateInput = {}
-    const consultation_id_validation = id_parameter_schema.safeParse(req.params.consultation_id)
+    const consultation_id_validation = id_parameter_schema.safeParse(Number(req.params.consultation_id))
     const consultation_update_validation = await UpdateConsultationRequest.rules(req.body)
 
     if (!consultation_id_validation.success)
@@ -321,7 +328,7 @@ class ConsultationController {
    * 
    */
   async destroy(req: Request, res: Response) {
-    const consultation_id_validation = id_parameter_schema.safeParse(req.params.consultation_id)
+    const consultation_id_validation = id_parameter_schema.safeParse(Number(req.params.consultation_id))
 
     if (!consultation_id_validation.success)
       return JsonMessages({
