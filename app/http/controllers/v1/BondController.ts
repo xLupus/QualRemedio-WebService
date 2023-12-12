@@ -408,12 +408,13 @@ class BondController {
      *        security: 
      *            - bearerAuth: []
      */
-    async update(req: Request, res: Response): Promise<Response<any, Record<string, any>>> {
+    async update(req: Request, res: Response) {
         try {
             const translate: i18n = req.i18n;
             const { bond_id, status_id }: BondType = BondRequest.rules({ bond_id: Number(req.params.id), status_id: req.body.status_id }, translate, req.method);
 
             const user = req.user as any;
+            const userRoleId: number = user.role[0].id;
 
             if(!user) {
                 return JsonMessages({
@@ -426,7 +427,15 @@ class BondController {
             await prisma.bond.findUniqueOrThrow({ //find an toUser - bond
                 where: { 
                     id: bond_id,
-                    to: { id: user.id }
+                    OR: [
+                        {
+                            to: { id: user.id }
+                        },
+                        {
+                            from: { id: user.id },
+                            status_id: 2
+                        }
+                    ]
                 }
             });
 
@@ -434,20 +443,48 @@ class BondController {
 
             const currentBond: Bond | null = await prisma.bond.findUniqueOrThrow({ where: { id: bond_id } });
 
-            if(currentBond.status_id === 2 || currentBond.status_id === 3 && status_id === 2) {
+            if(currentBond.status_id === 2 && status_id === 1 || currentBond.status_id === 3 && status_id === 2) {
                 return JsonMessages({
                     message: translate.t('error.bond.status.cannotBeChanged'),
                     res
                 });
             }
 
-            const updateBondStatus = await prisma.bond.update({
-                data: {
-                    status: {
-                        connect: { id: bondStatusId.id }
+            let data: any = {};
+
+            if(currentBond.status_id === 4) {
+                data = {
+                    from: {
+                        connect: {
+                            id: user.id
+                        }
+                    },
+                    to: {
+                        connect: {
+                            id: currentBond.from_user
+                        }
+                    },
+                    
+                    from_role: {
+                        connect: {
+                            id: currentBond.to_user_role
+                        }
+                    },
+                    to_role: {
+                        connect: {
+                            id: userRoleId
+                        }
                     }
-                },
-                where: { id: bond_id },
+                }
+            }
+
+            data.status = {
+                connect: { id: bondStatusId.id }
+            }
+
+            const updateBondStatus = await prisma.bond.update({
+                data,
+                where: { id: bond_id }
             });
 
             return JsonMessages({
