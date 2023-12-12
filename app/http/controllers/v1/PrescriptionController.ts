@@ -92,8 +92,9 @@ class PrescriptionController {
   }
 
   async show(req: Request, res: Response) {
-    const prescription_id_validation = id_parameter_schema.safeParse(req.params.prescription_id)
-    const consultation_id_validation = id_parameter_schema.safeParse(req.params.consultation_id)
+    const prescription_id_validation = id_parameter_schema.safeParse(Number(req.params.prescription_id))
+    const consultation_id_validation = id_parameter_schema.safeParse(Number(req.params.consultation_id))
+
     const json_message: IResponseMessage = {
       statusCode: 200,
       message: '',
@@ -167,7 +168,7 @@ class PrescriptionController {
 
   async store(req: Request, res: Response) {
     const prescription_validation = PrescriptionStoreRequest.rules(req.body)
-    const consultation_id_validation = id_parameter_schema.safeParse(req.params.consultation_id)
+    const consultation_id_validation = id_parameter_schema.safeParse(Number(req.params.consultation_id))
     const digital_prescription = req.file
 
     const json_message: IResponseMessage = {
@@ -265,7 +266,7 @@ class PrescriptionController {
   }
 
   async update(req: Request, res: Response) {
-    const prescription_id_validation = id_parameter_schema.safeParse(req.params.prescription_id)
+    const prescription_id_validation = id_parameter_schema.safeParse(Number(req.params.prescription_id))
     const prescription_body_request_validation = PrescriptionUpdateRequest.rules(req.body)
     const prescription_updated_input: Prisma.PrescriptionUpdateInput = {}
     const digital_prescription = req.file
@@ -372,8 +373,8 @@ class PrescriptionController {
   }
 
   async delete(req: Request, res: Response) {
-    const prescription_id_validation = id_parameter_schema.safeParse(req.params.prescription_id)
-    const consultation_id_validation = id_parameter_schema.safeParse(req.params.consultation_id)
+    const prescription_id_validation = id_parameter_schema.safeParse(Number(req.params.prescription_id))
+    const consultation_id_validation = id_parameter_schema.safeParse(Number(req.params.consultation_id))
 
     if (!prescription_id_validation.success)
       return JsonMessages({

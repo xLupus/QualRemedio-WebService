@@ -73,6 +73,8 @@ class BondController {
                     to_user_role: true,
                     from_user: true,
                     to_user: true,
+                    createdAt: true,
+                    to_role: true,
                     from: {
                         include: {
                             doctor: true,

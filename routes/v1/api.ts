@@ -43,8 +43,8 @@ router.get(
   UserController.index
   )
   
-router.get(
-    '/users/details',
+router.post(
+    '/users',
     UserController.show
 )
 

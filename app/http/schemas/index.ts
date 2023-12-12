@@ -4,14 +4,56 @@ import { z } from "zod";
  * 
  */
 export const id_parameter_schema = z.preprocess(
-  (el) => parseInt(el as string, 10),
+  (el) => el,
 
   z.number({ invalid_type_error: "O id deve ser do tipo Number" })
-    .min(1, 'Campo Obrigatorio')
-    .int('O valor deve ser um Numero Inteiro')
-    .positive('O valor deve ser maior do que 0')
-)
+    .optional()
+    .superRefine((val, ctx) => {
+      if(val) {
+        if(val.toString().length < 1) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.too_small,
+            message: 'Campo Obrigatorio',
+            inclusive: true,
+            minimum: 1,
+            type: 'number',
+            fatal: true
+          });
 
+      
+        }
+      }
+  })
+)
+/* 
+
+
+    //.min(1, 'Campo Obrigatorio')
+    //.int('O valor deve ser um Numero Inteiro')
+    //.positive('O valor deve ser maior do que 0')
+   */
+export const role_schema = z.preprocess(
+  (el) => el,
+
+   z.number({ required_error: "Este campo deve ser especificado" })
+   .optional()
+   .superRefine((val, ctx) => {
+    if(val) {
+      if(val.toString().length < 1) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.too_small,
+          message: 'Campo Obrigatorio',
+          inclusive: true,
+          minimum: 1,
+          type: 'number',
+          fatal: true
+        });
+
+   
+      }
+    }
+})
+)
 
 export const email_schema = z.preprocess(
   (el) => el,
@@ -25,14 +67,17 @@ export const email_schema = z.preprocess(
   .min(1, { message: 'Preencha este campo' })
   .email({ message: 'O formato de e-mail é inválido' })
   .toLowerCase()
+  .optional()
   .superRefine((val, ctx) => {
-      const availableEmailProviders: string[] = ['gmail.com', 'outlook.com', 'outlook.com.br'];
+      if(val) {
+        const availableEmailProviders: string[] = ['gmail.com', 'outlook.com', 'outlook.com.br'];
 
-      if(!availableEmailProviders.includes(val.split('@')[1])) {
-          ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              message: 'O provedor informado é inválido'
-          });
+        if(!availableEmailProviders.includes(val.split('@')[1])) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'O provedor informado é inválido'
+            });
+        }
       }
   })
 )

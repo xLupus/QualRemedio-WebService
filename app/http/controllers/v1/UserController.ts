@@ -3,7 +3,7 @@ import { Request, Response } from "express"
 import { JsonMessages } from "../../../functions/function"
 import exceptions from "../../../errors/handler"
 import bcrypt from "bcrypt"
-import { change_password_schema, id_parameter_schema, paginate_schema, email_schema } from "../../schemas";
+import { change_password_schema, id_parameter_schema, paginate_schema, email_schema, role_schema } from "../../schemas";
 import { JsonMessages as IResponseMessage } from "../../../types/type"
 import UpdateUserRequest from "../../requests/v1/User/UpdateUserRequest"
 
@@ -162,10 +162,22 @@ class UserController {
    *    
    */
   async show(req: Request, res: Response) {
-    const { email } = req.body;
-
+    const { id, email, role } = req.body;
+console.log(id)
     const email_validation = email_schema.safeParse(email);
+    const id_validation = id_parameter_schema.safeParse(Number(id));
+    const role_validation = role_schema.safeParse(role);
 
+    if (!id_validation.success) {
+      return JsonMessages({
+        statusCode: 200,
+        message: '',
+        data: {
+          errors: id_validation.error.formErrors.formErrors
+        },
+        res
+      })
+    }
 
     if (!email_validation.success) {
       return JsonMessages({
@@ -178,18 +190,58 @@ class UserController {
       })
     }
 
-    try {
-      const user = await prisma.user.findUnique({
-        where: { 
-            
-              email: email_validation.data
-            
+    if (!role_validation.success) {
+      return JsonMessages({
+        statusCode: 200,
+        message: 'number',
+        data: {
+          errors: role_validation.error.formErrors.formErrors
         },
-        include: {
-          profile: true,
-          role: true,
-        }
+        res
       })
+    }
+    
+    try {
+      let findFirstArgs: Prisma.UserFindFirstArgs = {};
+
+      if(id) {
+        findFirstArgs = {
+            where: {  
+              id: id_validation.data,
+            }
+        }
+        console.log('aqui')
+      } else {
+        findFirstArgs = {
+          where: {  
+            email:  email_validation.data,
+            role: {
+              some: {
+                  id: role_validation.data
+              }
+            }
+          }
+        }
+      }
+ 
+      const user = await prisma.user.findFirst({
+          where: findFirstArgs.where,
+          include: {
+            profile: true,
+            role: true,
+            carer: {
+              include: {
+                specialty: true
+              }
+            },
+            doctor: {
+              include: {
+                specialty: true
+              }
+            }
+          }
+        })
+  
 
       if (!user)
         return JsonMessages({
