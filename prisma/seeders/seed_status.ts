@@ -14,7 +14,7 @@ export async function status(): Promise<void> {
             },
             {
                 status: "Cancelada"
-            }  
+            }
         ]
     });
 
@@ -29,6 +29,9 @@ export async function status(): Promise<void> {
             },
             {
                 status: "Recusado"
+            } ,
+            {
+                status: "Desvinculado"
             }  
         ]
     });

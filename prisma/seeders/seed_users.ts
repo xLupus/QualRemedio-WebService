@@ -56,8 +56,8 @@ export async function users(): Promise<void> {
         }),
         prisma.user.create({
             data: {
-                name: "Test",
-                email: "test@test.com",
+                name: "User",
+                email: "user@gmail.com",
                 password: passwordHash,
                 cpf: "12345678904",
                 birth_day: date,
