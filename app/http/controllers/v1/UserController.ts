@@ -6,6 +6,7 @@ import bcrypt from "bcrypt"
 import { change_password_schema, id_parameter_schema, paginate_schema, email_schema, role_schema } from "../../schemas";
 import { JsonMessages as IResponseMessage } from "../../../types/type"
 import UpdateUserRequest from "../../requests/v1/User/UpdateUserRequest"
+import { SafeParseReturnType } from "zod"
 
 const prisma = new PrismaClient();
 
@@ -163,20 +164,38 @@ class UserController {
    */
   async show(req: Request, res: Response) {
     const { id, email, role } = req.body;
-console.log(id)
-    const email_validation = email_schema.safeParse(email);
-    const id_validation = id_parameter_schema.safeParse(Number(id));
-    const role_validation = role_schema.safeParse(role);
+    let id_validation: any;
+    let role_validation: any;
 
-    if (!id_validation.success) {
+    const email_validation = email_schema.safeParse(email);
+
+    if(id) {
+      id_validation = id_parameter_schema.safeParse(Number(id));
+      if (!id_validation.success) {
+        return JsonMessages({
+          statusCode: 200,
+          message: '',
+          data: {
+            errors: id_validation.error.formErrors.formErrors
+          },
+          res
+        })
+      }
+    } else if(role) {
+      role_validation = role_schema.safeParse(Number(role));
+      
+    if (!role_validation.success) {
+     
       return JsonMessages({
         statusCode: 200,
-        message: '',
+        message: 'number',
         data: {
-          errors: id_validation.error.formErrors.formErrors
+          errors: role_validation.error.formErrors.formErrors
         },
         res
       })
+    }
+
     }
 
     if (!email_validation.success) {
@@ -190,17 +209,6 @@ console.log(id)
       })
     }
 
-    if (!role_validation.success) {
-      return JsonMessages({
-        statusCode: 200,
-        message: 'number',
-        data: {
-          errors: role_validation.error.formErrors.formErrors
-        },
-        res
-      })
-    }
-    
     try {
       let findFirstArgs: Prisma.UserFindFirstArgs = {};
 
@@ -210,8 +218,9 @@ console.log(id)
               id: id_validation.data,
             }
         }
-        console.log('aqui')
-      } else {
+
+      } else if(role){
+        console.log('oi')
         findFirstArgs = {
           where: {  
             email:  email_validation.data,
@@ -266,11 +275,9 @@ console.log(id)
    * 
    */
   async update(req: Request, res: Response) {
-
-    console.log(req.params.user_id);
     const user_update_input: Prisma.UserUpdateInput = {}
 
-    const user_id_validation = id_parameter_schema.safeParse(req.params.user_id)
+    const user_id_validation = id_parameter_schema.safeParse(Number(req.params.user_id))
 
     if (!user_id_validation.success) {
       return JsonMessages({
@@ -344,7 +351,8 @@ console.log(id)
       statusCode: 200,
       message: 'Usuario Atualizado com Sucesso',
       data: {
-        success: true
+        success: true,
+        user_data
       },
       res
     })
