@@ -20,6 +20,7 @@ export async function users(): Promise<void> {
                 cpf: "12345678901",
                 birth_day: date,
                 telephone: "12345678900",
+                is_verified: true,
                 role: {
                     connect: {
                         id: roleAdmin
@@ -41,6 +42,7 @@ export async function users(): Promise<void> {
                 cpf: "12345678903",
                 birth_day: date,
                 telephone: "12345678902",
+                is_verified: true,
                 role: {
                     connect: {
                         id: roleAdmin
@@ -56,12 +58,13 @@ export async function users(): Promise<void> {
         }),
         prisma.user.create({
             data: {
-                name: "User",
-                email: "user@gmail.com",
+                name: "Mike",
+                email: "mike@gmail.com",
                 password: passwordHash,
                 cpf: "12345678904",
                 birth_day: date,
                 telephone: "12345678905",
+                is_verified: true,
                 role: {
                     connect: {
                         id: rolePatitent
