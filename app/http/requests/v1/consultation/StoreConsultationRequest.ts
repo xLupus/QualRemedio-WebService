@@ -90,6 +90,21 @@ class StoreConsultationRequest {
         },
           'O usuario informado não existe'
         ),
+
+        created_to_user: z.number({
+          required_error: requiredField,
+          invalid_type_error: invalidNumberType
+        })
+          .min(1, requiredField)
+          .refine(async val => {
+            const deparment = await prisma.user.findUnique({
+              where: { id: val }
+            })
+  
+            return deparment ? true : false
+          },
+            'O usuario informado não existe'
+          ),
     })
 
     return ConsultationRequestSchema.safeParseAsync(consultationData)

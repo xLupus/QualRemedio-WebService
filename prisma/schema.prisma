@@ -100,7 +100,9 @@ model User {
 
   notification Notification[]
   remider      Reminder[]
-  consultation Consultation[]
+
+  consultation_created_by Consultation[] @relation("consutaltion_created_by")
+  consultation_created_to Consultation[] @relation("consutaltion_created_to")
 
   bond_started_by Bond[] @relation("bond_started_by")
   bond_invited_to Bond[] @relation("bond_invited_to")
@@ -237,6 +239,7 @@ model Consultation {
   department_id        Int
   consultation_status  Int
   created_by_user      Int
+  created_to_user      Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -244,7 +247,8 @@ model Consultation {
   bond       Bond                @relation(fields: [bond_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   specialty  Medical_Specialty   @relation(fields: [department_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   status     Consultation_Status @relation(fields: [consultation_status], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  created_by User                @relation(fields: [created_by_user], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  created_by User                @relation("consutaltion_created_by", fields: [created_by_user], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  created_to User                @relation("consutaltion_created_to", fields: [created_to_user], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   prescription Prescription[]
 }

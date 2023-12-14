@@ -200,6 +200,7 @@ CREATE TABLE `Consultation` (
     `department_id` INTEGER NOT NULL,
     `consultation_status` INTEGER NOT NULL,
     `created_by_user` INTEGER NOT NULL,
+    `created_to_user` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -304,6 +305,9 @@ ALTER TABLE `Consultation` ADD CONSTRAINT `Consultation_consultation_status_fkey
 
 -- AddForeignKey
 ALTER TABLE `Consultation` ADD CONSTRAINT `Consultation_created_by_user_fkey` FOREIGN KEY (`created_by_user`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Consultation` ADD CONSTRAINT `Consultation_created_to_user_fkey` FOREIGN KEY (`created_to_user`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Prescription` ADD CONSTRAINT `Prescription_consultation_id_fkey` FOREIGN KEY (`consultation_id`) REFERENCES `Consultation`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

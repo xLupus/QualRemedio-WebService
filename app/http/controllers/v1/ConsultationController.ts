@@ -96,6 +96,12 @@ class ConsultationController {
         specialty: true,
         bond: {
           select: {
+            from: {
+              select: {
+                name:true,
+                id: true
+              }
+            },
             to: {
               select: {
                 name: true,
@@ -144,6 +150,7 @@ class ConsultationController {
         where: { id: consultation_id_validation.data },
         include: {
           created_by: true,
+          created_to: true,
           specialty: true,
           status: true,
           bond: {
@@ -220,7 +227,7 @@ class ConsultationController {
         })
 
       try {
-        const { reason, consultation_status, created_by_user, date, department_id, observation } = consultation_validation.data
+        const { reason, consultation_status, created_by_user, created_to_user, date, department_id, observation } = consultation_validation.data
 
 
         if(bond_id_validation.data) {
@@ -232,6 +239,7 @@ class ConsultationController {
               observation,
               consultation_status,
               created_by_user,
+              created_to_user,
               date_of_consultation: date,
             }
           })
